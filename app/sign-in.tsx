@@ -7,7 +7,7 @@ export default function SignIn() {
     const { signIn } = useSession();
     return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <Text
+            <Text style={{ fontSize: 24, fontWeight: 'bold', color: 'white' }}
                 onPress={() => {
                     signIn();
                     router.replace('/');

@@ -17,19 +17,22 @@ export default function TabLayout() {
   }
 
   if (!session) {
-      return <Redirect href="/sign-in" />;
+      return <Redirect href="/start" />;
   }
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarStyle: {
+          backgroundColor: Colors[colorScheme ?? 'light'].secondaryDark,
+        },
+        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].primary,
         headerShown: false,
+        tabBarShowLabel: false,
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
           ),
@@ -38,7 +41,6 @@ export default function TabLayout() {
       <Tabs.Screen
         name="explore"
         options={{
-          title: 'Explore',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
           ),

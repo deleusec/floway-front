@@ -31,6 +31,8 @@ export default function RootLayout() {
     <SessionProvider>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
+          <Stack.Screen name="start" options={{ headerShown: false }} />
+          <Stack.Screen name="sign-in" options={{ headerShown: false }} />
           <Stack.Screen name="(app)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
