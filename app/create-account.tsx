@@ -3,30 +3,48 @@ import {StyleSheet, Text, View, TextInput, TouchableOpacity, SafeAreaView} from 
 
 import { useSession } from '@/app/context/ctx';
 import { ThemedButton } from "@/components/ThemedButton";
-import React from "react";
+import React, {useState} from "react";
 
-import { useState } from 'react';
-
-export default function SignIn() {
-  const { signIn } = useSession();
+export default function CreateAccount() {
+  const { register } = useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  const handleSignIn = async () => {
+  const handleRegister = async () => {
     try {
       setError(null);
-      await signIn(email, password);
-      router.replace('/');
+      await register(email, password, firstName, lastName);
+      router.replace('/sign-in');
     } catch (err) {
-      setError('Échec de la connexion. Veuillez vérifier vos identifiants.');
+      setError('Échec de l’inscription. Veuillez réessayer.');
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <Text style={styles.title}>Se connecter</Text>
+        <Text style={styles.title}>Créer un compte</Text>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Prénom</Text>
+          <TextInput
+            style={styles.input}
+            value={firstName}
+            onChangeText={setFirstName}
+          />
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Nom</Text>
+          <TextInput
+            style={styles.input}
+            value={lastName}
+            onChangeText={setLastName}
+          />
+        </View>
 
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Email</Text>
@@ -51,16 +69,16 @@ export default function SignIn() {
         {error && <Text>{error}</Text>}
 
         <ThemedButton
-          title="Se connecter"
-          onPress={handleSignIn}
+          title="S'inscrire"
+          onPress={handleRegister}
           style={styles.button}
         />
       </View>
 
-      <TouchableOpacity onPress={() => router.push('/create-account')} style={styles.signUpContainer}>
+      <TouchableOpacity onPress={() => router.push('/sign-in')} style={styles.signUpContainer}>
         <Text style={styles.signUpText}>
-          Pas encore de compte ?
-          <Text style={styles.signUpLink}> S'inscrire</Text>
+          Déjà un compte ?
+          <Text style={styles.signUpLink}> Se connecter</Text>
         </Text>
       </TouchableOpacity>
     </SafeAreaView>
@@ -99,14 +117,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#FFFFFF',
   },
-  forgotPassword: {
-    fontSize: 14,
-    fontWeight: '500',
-    textDecorationLine: 'underline',
-    color: '#FFFFFF',
-    marginTop: 5,
-    marginBottom: 16,
-  },
   button: {
     marginTop: 16
   },
@@ -125,4 +135,3 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
 });
-

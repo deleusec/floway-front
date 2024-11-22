@@ -1,38 +1,80 @@
-import { View, Text, StyleSheet } from 'react-native';
+import React from 'react';
+import {View, Text, StyleSheet, ImageBackground, TouchableOpacity, SafeAreaView} from 'react-native';
 import { useRouter } from 'expo-router';
-import { ThemedButton } from "@/components/ThemedButton";
+import { ThemedButton } from '@/components/ThemedButton';
 
 export default function StartScreen() {
   const router = useRouter();
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Dépasse tes limites à chaque foulée !</Text>
-      <Text>Transforme chaque course en séance de coaching personnalisée</Text>
+    <ImageBackground
+      source={require('@/assets/images/start.jpg')}
+      style={styles.background}
+    >
+      <SafeAreaView style={styles.overlay}>
+        <View style={styles.content}>
+          <Text style={styles.title}>Dépasse tes limites à chaque foulée !</Text>
+          <Text style={styles.subtitle}>
+            Transforme chaque course en séance de coaching personnalisée
+          </Text>
 
-      <ThemedButton
-        title="Sign In"
-        onPress={() => router.push('/sign-in')}
-      />
-      <Text style={{ fontSize: '11px' }}>Déjà un compte ? <Text style={{ textDecorationLine: 'underline' }}>Se connecter</Text></Text>
-    </View>
+          <ThemedButton
+            title="Créer un compte"
+            onPress={() => router.push('/create-account')}
+            style={styles.button}
+          />
+
+          <TouchableOpacity onPress={() => router.push('/sign-in')}>
+            <Text style={styles.signInText}>
+              Déjà un compte ?{' '}
+              <Text style={styles.signInLink}>Se connecter</Text>
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  background: {
     flex: 1,
-    justifyContent: 'center',
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'flex-end',
     alignItems: 'center',
     padding: 16,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    color: 'white',
+    fontSize: 32,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    marginBottom: 10,
+    lineHeight: 38,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#e3e3e3',
+    textAlign: 'center',
+    marginBottom: 35,
   },
   button: {
-    marginTop: 16,
+    marginBottom: 30,
+    width: '100%',
+  },
+  signInText: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    textAlign: 'center',
+  },
+  signInLink: {
+    fontWeight: '500',
+    textDecorationLine: 'underline',
   },
 });
