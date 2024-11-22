@@ -4,7 +4,7 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { useSession } from "@/app/context/ctx";
+import { useSession } from "@/context/ctx";
 
 export default function HomeScreen() {
     const { signOut } = useSession();
