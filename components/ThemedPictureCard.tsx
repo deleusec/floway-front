@@ -80,6 +80,9 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    flexDirection: "column",
+    justifyContent: "space-between",
+    height: 64,
   },
   title: {
     fontSize: 14,
