@@ -13,13 +13,15 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.floway.flowayapp"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.floway.flowayapp"
     },
     "web": {
       "bundler": "metro",
@@ -32,6 +34,15 @@
     "experiments": {
       "typedRoutes": true
     },
-    "newArchEnabled": true
+    "newArchEnabled": true,
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "322043eb-a978-4c6d-a7d7-f504a68dddef"
+      }
+    },
+    "owner": "floway"
   }
 }
