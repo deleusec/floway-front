@@ -1,78 +1,149 @@
-import {Image, StyleSheet, Text, Platform} from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { useSession } from "@/context/ctx";
+import React from "react";
+import { View, Text, StyleSheet, Image, ScrollView } from "react-native";
+import { Colors } from "@/constants/Colors";
+import { PictureCard } from "@/components/ThemedPictureCard";// Réutilise ton composant générique de carte
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
-    const { signOut } = useSession();
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <SafeAreaView style={styles.container}>
+      {/* Section utilisateur */}
+      <View style={styles.userSection}>
+        <View style={styles.userInfo}>
+          <Image
+            source={require("@/assets/images/start.jpg")} // Exemple d'image utilisateur
+            style={styles.userImage}
+          />
+          <View>
+            <Text style={styles.greeting}>Bonjour Corentin</Text>
+            <Text style={styles.readyText}>Prêt à courir ?</Text>
+          </View>
+        </View>
+        <View style={styles.settingsIcon}>
+          <Image
+            source={require("@/assets/images/start.jpg")} // Remplace par ton icône
+            style={styles.icon}
+          />
+        </View>
+      </View>
+
+      {/* Section statistique */}
+      <View style={styles.statsSection}>
+        <Text style={styles.statsTitle}>Cette semaine...</Text>
+        <View style={styles.statsRow}>
+          <View style={styles.statBlock}>
+            <Text style={styles.statLabel}>Tu as parcouru</Text>
+            <Text style={styles.statValue}>18 km</Text>
+          </View>
+          <View style={styles.statBlock}>
+            <Text style={styles.statLabel}>Tu as brûlé</Text>
+            <Text style={styles.statValue}>2478 kcal</Text>
+          </View>
+        </View>
+        <View style={styles.statBlock}>
+          <Text style={styles.statLabel}>Tu as démarré</Text>
+          <Text style={styles.statValue}>8 sessions</Text>
+        </View>
+      </View>
+
+      {/* Section courses récentes */}
+      <View style={styles.recentSection}>
+        <Text style={styles.sectionTitle}>Courses récentes</Text>
+        <PictureCard
+          title="Hier, course de 7km"
+          metrics={["45 min", "232kcal", "5'10''"]}
+          image={require("@/assets/images/start.jpg")} // Exemple d'image
         />
-      }>
-        <Text
-            onPress={() => {
-                signOut();
-            }}>
-            Sign Out
-        </Text>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(app)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        <PictureCard
+          title="Hier, course de 7km"
+          metrics={["45 min", "232kcal", "5'10''"]}
+          image={require("@/assets/images/start.jpg")} // Exemple d'image
+        />
+        <PictureCard
+          title="Hier, course de 7km"
+          metrics={["45 min", "232kcal", "5'10''"]}
+          image={require("@/assets/images/start.jpg")} // Exemple d'image
+        />
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flexGrow: 1,
+    padding: 16,
+    backgroundColor: Colors.dark.primaryDark,
   },
-  stepContainer: {
-    gap: 8,
+  userSection: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 24,
+  },
+  userInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  userImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 12,
+  },
+  greeting: {
+    fontSize: 16,
+    fontFamily: "Poppins-Light",
+    color: Colors.light.mediumGrey,
+  },
+  readyText: {
+    fontSize: 14,
+    fontFamily: "Poppins-SemiBold",
+    color: Colors.light.white,
+  },
+  settingsIcon: {
+    padding: 8,
+  },
+  icon: {
+    width: 24,
+    height: 24,
+    tintColor: Colors.light.white,
+  },
+  statsSection: {
+    backgroundColor: Colors.dark.secondaryDark,
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 24,
+  },
+  statsTitle: {
+    fontSize: 16,
+    fontFamily: "Poppins-SemiBold",
+    color: Colors.light.white,
+    marginBottom: 14,
+  },
+  statsRow: {
+    flexDirection: "row",
     marginBottom: 8,
+    gap: 24,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  statBlock: {},
+  statValue: {
+    fontSize: 26,
+    fontFamily: "Poppins-SemiBold",
+    color: Colors.light.primary,
+  },
+  statLabel: {
+    fontSize: 12,
+    fontFamily: "Poppins-Regular",
+    color: Colors.light.lightGrey,
+  },
+  recentSection: {
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    color: Colors.light.white,
+    fontFamily: "Poppins-SemiBold",
+    marginBottom: 8,
   },
 });
