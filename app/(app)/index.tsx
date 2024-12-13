@@ -52,17 +52,23 @@ export default function HomeScreen() {
         <PictureCard
           title="Hier, course de 7km"
           metrics={["45 min", "232kcal", "5'10''"]}
-          image={require("@/assets/images/start.jpg")} // Exemple d'image
+          image={require("@/assets/images/start.jpg")} 
         />
         <PictureCard
           title="Hier, course de 7km"
           metrics={["45 min", "232kcal", "5'10''"]}
-          image={require("@/assets/images/start.jpg")} // Exemple d'image
+          image={require("@/assets/images/start.jpg")} 
+          onPress={() => console.log("Course pressed")}
+          isSelected={false}
         />
+
         <PictureCard
-          title="Hier, course de 7km"
-          metrics={["45 min", "232kcal", "5'10''"]}
-          image={require("@/assets/images/start.jpg")} // Exemple d'image
+          title="Premier run"
+          subtitle="Une run de récupération sur 5km pour débuter."
+          metrics={["5km"]}
+          image={require("@/assets/images/start.jpg")}
+          onPress={() => console.log("Run selected")}
+          isSelected={true}
         />
       </View>
     </SafeAreaView>
