@@ -17,6 +17,7 @@ interface PictureCardProps {
   image?: ImageSourcePropType; // Image à afficher
   onPress?: () => void; // Action au clic
   style?: ViewStyle; // Style personnalisé
+  isSelected?: boolean; // Indique si la carte est sélectionnée
 }
 
 export const PictureCard: React.FC<PictureCardProps> = ({
@@ -26,10 +27,15 @@ export const PictureCard: React.FC<PictureCardProps> = ({
   image,
   onPress,
   style,
+  isSelected = false,
 }) => {
   return (
     <TouchableOpacity
-      style={[styles.card, style]}
+      style={[
+        styles.card,
+        isSelected && styles.selectedCard, // Appliquer le style sélectionné
+        style,
+      ]}
       onPress={onPress}
       disabled={!onPress} // Désactive le clic si aucune action n'est fournie
     >
@@ -45,9 +51,23 @@ export const PictureCard: React.FC<PictureCardProps> = ({
           </Text>
         )}
         {metrics && (
-          <View style={styles.metricsContainer}>
+          <View
+            style={[
+              styles.metricsContainer,
+              subtitle
+                ? styles.metricsContainerWithSubtitle
+                : styles.metricsContainerWithoutSubtitle,
+            ]}
+          >
             {metrics.map((metric, index) => (
-              <Text key={index} style={styles.metric}>
+              <Text
+                key={index}
+                style={[
+                  subtitle
+                    ? styles.metricWithSubtitle
+                    : styles.metricWithoutSubtitle,
+                ]}
+              >
                 {metric}
               </Text>
             ))}
@@ -72,6 +92,10 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2, // Pour Android
   },
+  selectedCard: {
+    borderWidth: 1,
+    borderColor: Colors.light.primary, // Bordure verte pour l'état sélectionné
+  },
   image: {
     width: 64,
     height: 64,
@@ -81,25 +105,37 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     flexDirection: "column",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
     height: 64,
   },
   title: {
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: 16,
     color: Colors.light.white,
-    fontFamily: "Poppins_Medium",
+    fontFamily: "Poppins-Medium",
   },
   subtitle: {
     fontSize: 14,
     color: Colors.light.lightGrey,
-    fontFamily: "Poppins_Regular",
+    fontFamily: "Poppins-Regular",
   },
   metricsContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    marginTop: 4,
   },
-  metric: {
+  metricsContainerWithSubtitle: {
+    justifyContent: "flex-start", // Alignement à gauche si un subtitle est présent
+    gap: 12,
+  },
+  metricsContainerWithoutSubtitle: {
+    gap: 22,
+    color: Colors.light.white,
+  },
+  metricWithoutSubtitle: {
+    fontSize: 14,
+    fontFamily: "Poppins-Regular",
+    color: Colors.light.white,
+  },
+  metricWithSubtitle: {
     fontSize: 12,
     color: Colors.light.mediumGrey,
   },
