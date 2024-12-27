@@ -29,6 +29,7 @@ export const CustomButton: React.FC<ButtonProps> = ({
     <TouchableOpacity
       style={[
         styles.button,
+        state === "default" && styles.defaultButton,
         state === "disabled" && styles.disabledButton,
         state === "selected" && styles.selectedButton,
         style,
@@ -37,10 +38,19 @@ export const CustomButton: React.FC<ButtonProps> = ({
       disabled={state === "disabled"}
     >
       {/* Icône à gauche */}
-      {icon && <Image source={icon} style={styles.icon} />}
+      {icon && <Image source={icon} style={[styles.icon]} />}
 
       {/* Texte du bouton */}
-      <Text style={styles.buttonText}>{text}</Text>
+      <Text
+        style={[
+          styles.buttonText,
+          state === "default" && styles.defaultText,
+          state === "disabled" && styles.disabledText,
+          state === "selected" && styles.selectedText,
+        ]}
+      >
+        {text}
+      </Text>
     </TouchableOpacity>
   );
 };
@@ -49,34 +59,42 @@ const styles = StyleSheet.create({
   button: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.light.primary,
-    borderRadius: 16,
-    padding: 14,
-    marginVertical: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 2, // Pour Android
+    justifyContent: "center",
+    width: 340,
+    height: 60,
+    borderRadius: 12,
+    borderWidth: 1, // Bordures visibles pour tous les boutons
   },
+  // Style pour l'état par défaut
+  defaultButton: {
+    backgroundColor: Colors.dark.secondaryDark, // Fond sombre
+    borderColor: Colors.light.mediumGrey, // Bordure sombre pour état par défaut
+  },
+  defaultText: {
+    color: Colors.light.white, // Texte blanc pour l'état par défaut
+  },
+  // Style pour l'état désactivé
   disabledButton: {
-    backgroundColor: Colors.light.lightGrey,
-    cursor: "not-allowed",
-    opacity: 0.6,
+    backgroundColor: Colors.dark.secondaryDark, // Fond sombre
+    borderColor: Colors.light.mediumGrey// Bordure grise
+     // Effet désactivé
   },
+  disabledText: {
+    color: Colors.light.mediumGrey, // Texte gris clair pour l'état désactivé
+  },
+  // Style pour l'état sélectionné
   selectedButton: {
-    borderWidth: 1,
-    borderColor: Colors.light.primaryDark, // Bordure pour l'état sélectionné
+    backgroundColor: Colors.dark.secondaryDark, // Fond sombre
+    borderColor: Colors.light.primary, // Bordure verte
+  },
+  selectedText: {
+    color: Colors.light.primary, // Texte vert pour l'état sélectionné
   },
   icon: {
-    width: 24,
-    height: 24,
-    marginRight: 12,
-  },
-  buttonText: {
-    fontSize: 16,
-    color: Colors.light.white,
-    fontFamily: "Poppins-Medium",
+    width: 20,
+    height: 20,
+    marginRight: 8,
+    tintColor: Colors.light.white, // Icône blanche par défaut
   },
 });
 
