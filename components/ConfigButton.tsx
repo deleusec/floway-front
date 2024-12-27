@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     width: 340,
     height: 60,
     borderRadius: 12,
-    borderWidth: 1, // Bordures visibles pour tous les boutons
+    borderWidth: 1,
   },
   // Style pour l'état par défaut
   defaultButton: {
@@ -72,15 +72,16 @@ const styles = StyleSheet.create({
   },
   defaultText: {
     color: Colors.light.white, // Texte blanc pour l'état par défaut
+    fontFamily: "Poppins-Medium",
   },
   // Style pour l'état désactivé
   disabledButton: {
     backgroundColor: Colors.dark.secondaryDark, // Fond sombre
-    borderColor: Colors.light.mediumGrey// Bordure grise
-     // Effet désactivé
+    borderColor: Colors.light.mediumGrey,
   },
   disabledText: {
-    color: Colors.light.mediumGrey, // Texte gris clair pour l'état désactivé
+    color: Colors.light.mediumGrey,
+    fontFamily: "Poppins-Medium", // Texte gris clair pour l'état désactivé
   },
   // Style pour l'état sélectionné
   selectedButton: {
@@ -88,13 +89,14 @@ const styles = StyleSheet.create({
     borderColor: Colors.light.primary, // Bordure verte
   },
   selectedText: {
-    color: Colors.light.primary, // Texte vert pour l'état sélectionné
+    color: Colors.light.primary,
+    fontFamily: "Poppins-Medium",
   },
   icon: {
     width: 20,
     height: 20,
     marginRight: 8,
-    tintColor: Colors.light.white, // Icône blanche par défaut
+    tintColor: Colors.light.white,
   },
 });
 
