@@ -1,36 +1,31 @@
 import React from "react";
 import { StyleSheet, ScrollView, Text, View } from "react-native";
-import TextInputField from "@/components/input/TextInputField"; // Remplace par le chemin réel
+import TimeInputField from "@/components/input/TimeInput";
 
-
-export default function TextInputFieldDemo() {
+export default function TimeInputDemo() {
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>TextInputField Component Demo</Text>
+      <Text style={styles.title}>TimeInputField Component Demo</Text>
 
-      <View style={styles.exampleContainer}>
-        <Text style={styles.subtitle}>Default</Text>
-        <TextInputField placeholder="0.00" status="default" />
+      <Text style={styles.sectionTitle}>Active Inputs</Text>
+      <View style={styles.row}>
+        <TimeInputField placeholder="00" unit="heures" />
+        <TimeInputField placeholder="00" unit="min" />
+        <TimeInputField placeholder="00" unit="sec" />
       </View>
 
-      <View style={styles.exampleContainer}>
-        <Text style={styles.subtitle}>Focused</Text>
-        <TextInputField placeholder="0.00" status="focused" />
+      <Text style={styles.sectionTitle}>Disabled Inputs</Text>
+      <View style={styles.row}>
+        <TimeInputField placeholder="00" unit="heures" status="deactivate" />
+        <TimeInputField placeholder="00" unit="min" status="deactivate" />
+        <TimeInputField placeholder="00" unit="sec" status="deactivate" />
       </View>
 
-      <View style={styles.exampleContainer}>
-        <Text style={styles.subtitle}>Error</Text>
-        <TextInputField placeholder="Entre un texte" status="error" />
-      </View>
-
-      <View style={styles.exampleContainer}>
-        <Text style={styles.subtitle}>Success</Text>
-        <TextInputField placeholder="0.00" status="success" />
-      </View>
-
-      <View style={styles.exampleContainer}>
-        <Text style={styles.subtitle}>Disabled</Text>
-        <TextInputField placeholder="0.00" status="disabled" />
+      <Text style={styles.sectionTitle}>Error State</Text>
+      <View style={styles.row}>
+        <TimeInputField placeholder="00" unit="heures" status="error" />
+        <TimeInputField placeholder="00" unit="min" status="error" />
+        <TimeInputField placeholder="00" unit="sec" status="error" />
       </View>
     </ScrollView>
   );
@@ -40,7 +35,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#1E1E24", // Arrière-plan de la page
+    backgroundColor: "#1E1E24",
   },
   title: {
     fontSize: 24,
@@ -48,13 +43,15 @@ const styles = StyleSheet.create({
     color: "white",
     marginBottom: 20,
   },
-  exampleContainer: {
-    marginBottom: 15,
-  },
-  subtitle: {
+  sectionTitle: {
     fontSize: 18,
-    fontWeight: "600",
     color: "white",
-    marginBottom: 5,
+    marginVertical: 10,
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    marginBottom: 15,
   },
 });
