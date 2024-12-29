@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text, StyleSheet, ImageBackground, TouchableOpacity, SafeAreaView} from 'react-native';
 import { useRouter } from 'expo-router';
-import { ThemedButton } from '@/components/ThemedButton';
+import { ThemedButton } from '@/components/button/ThemedButton';
 
 export default function StartScreen() {
   const router = useRouter();

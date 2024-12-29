@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import {StyleSheet, Text, View, TextInput, TouchableOpacity, SafeAreaView} from 'react-native';
 
 import { useSession } from '@/context/ctx';
-import { ThemedButton } from "@/components/ThemedButton";
+import { ThemedButton } from "@/components/button/ThemedButton";
 import React from "react";
 
 import { useState } from 'react';
