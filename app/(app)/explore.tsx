@@ -1,31 +1,100 @@
 import React from "react";
 import { StyleSheet, ScrollView, Text, View } from "react-native";
 import TimeInputField from "@/components/input/TimeInput";
+import SelectInput from "@/components/input/SelectInput";
+import { Colors } from "@/constants/Colors";
 
-export default function TimeInputDemo() {
+const timeOptions = ["Temps", "Distance"];
+const distanceOptions = ["Mètres", "Kilomètres"];
+
+export default function InputComponentsDemo() {
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>TimeInputField Component Demo</Text>
+      <View style={styles.content}>
+        <Text style={styles.mainTitle}>Components Demo</Text>
 
-      <Text style={styles.sectionTitle}>Active Inputs</Text>
-      <View style={styles.row}>
-        <TimeInputField placeholder="00" unit="heures" />
-        <TimeInputField placeholder="00" unit="min" />
-        <TimeInputField placeholder="00" unit="sec" />
-      </View>
+        {/* Time Input Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Time Input Fields</Text>
 
-      <Text style={styles.sectionTitle}>Disabled Inputs</Text>
-      <View style={styles.row}>
-        <TimeInputField placeholder="00" unit="heures" status="deactivate" />
-        <TimeInputField placeholder="00" unit="min" status="deactivate" />
-        <TimeInputField placeholder="00" unit="sec" status="deactivate" />
-      </View>
+          <View style={styles.demoSection}>
+            <Text style={styles.stateTitle}>Active State</Text>
+            <View style={styles.row}>
+              <TimeInputField placeholder="00" unit="heures" />
+              <TimeInputField placeholder="00" unit="min" />
+              <TimeInputField placeholder="00" unit="sec" />
+            </View>
+          </View>
 
-      <Text style={styles.sectionTitle}>Error State</Text>
-      <View style={styles.row}>
-        <TimeInputField placeholder="00" unit="heures" status="error" />
-        <TimeInputField placeholder="00" unit="min" status="error" />
-        <TimeInputField placeholder="00" unit="sec" status="error" />
+          <View style={styles.demoSection}>
+            <Text style={styles.stateTitle}>Disabled State</Text>
+            <View style={styles.row}>
+              <TimeInputField
+                placeholder="00"
+                unit="heures"
+                status="deactivate"
+              />
+              <TimeInputField placeholder="00" unit="min" status="deactivate" />
+              <TimeInputField placeholder="00" unit="sec" status="deactivate" />
+            </View>
+          </View>
+
+          <View style={styles.demoSection}>
+            <Text style={styles.stateTitle}>Error State</Text>
+            <View style={styles.row}>
+              <TimeInputField placeholder="00" unit="heures" status="error" />
+              <TimeInputField placeholder="00" unit="min" status="error" />
+              <TimeInputField placeholder="00" unit="sec" status="error" />
+            </View>
+          </View>
+        </View>
+
+        {/* Select Input Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Select Input Fields</Text>
+
+          <View style={styles.demoSection}>
+            <Text style={styles.stateTitle}>Active State</Text>
+            <View style={styles.selectContainer}>
+              <SelectInput
+                options={timeOptions}
+                placeholder="Sélectionner le type"
+                label="Type de mesure"
+              />
+            </View>
+            <View style={styles.selectContainer}>
+              <SelectInput
+                options={distanceOptions}
+                placeholder="Sélectionner l'unité"
+                label="Unité"
+              />
+            </View>
+          </View>
+
+          <View style={styles.demoSection}>
+            <Text style={styles.stateTitle}>Disabled State</Text>
+            <View style={styles.selectContainer}>
+              <SelectInput
+                options={timeOptions}
+                placeholder="Sélectionner le type"
+                status="deactivate"
+                label="Type de mesure"
+              />
+            </View>
+          </View>
+
+          <View style={styles.demoSection}>
+            <Text style={styles.stateTitle}>Error State</Text>
+            <View style={styles.selectContainer}>
+              <SelectInput
+                options={timeOptions}
+                placeholder="Sélectionner le type"
+                status="error"
+                label="Type de mesure"
+              />
+            </View>
+          </View>
+        </View>
       </View>
     </ScrollView>
   );
@@ -34,24 +103,42 @@ export default function TimeInputDemo() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#1E1E24",
+    backgroundColor: Colors.light.primaryDark,
   },
-  title: {
+  content: {
+    padding: 20,
+  },
+  mainTitle: {
     fontSize: 24,
-    fontWeight: "bold",
-    color: "white",
-    marginBottom: 20,
+    fontWeight: "600",
+    color: Colors.light.white,
+    marginBottom: 32,
+  },
+  section: {
+    marginBottom: 40,
   },
   sectionTitle: {
-    fontSize: 18,
-    color: "white",
-    marginVertical: 10,
+    fontSize: 20,
+    fontWeight: "500",
+    color: Colors.light.white,
+    marginBottom: 24,
+  },
+  demoSection: {
+    marginBottom: 24,
+  },
+  stateTitle: {
+    fontSize: 16,
+    color: Colors.light.mediumGrey,
+    marginBottom: 16,
   },
   row: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "flex-start",
     alignItems: "center",
-    marginBottom: 15,
+    gap: 16,
+  },
+  selectContainer: {
+    marginBottom: 16,
+    maxWidth: 400,
   },
 });
