@@ -17,7 +17,6 @@ interface Run {
   metrics: string[];
   image: any;
   onPress: () => void;
-  isSelected: boolean;
 }
 
 export default function AllRunsScreen() {
@@ -39,14 +38,12 @@ export default function AllRunsScreen() {
         metrics: ["45 min", "232kcal", "5'10''"],
         image: require("@/assets/images/start.jpg"),
         onPress: () => {},
-        isSelected: false,
       },
       {
         title: "Course du soir",
         metrics: ["30 min", "150kcal", "4'50''"],
         image: require("@/assets/images/start.jpg"),
         onPress: () => {},
-        isSelected: true,
       },
     ]);
   }, []);
@@ -71,11 +68,11 @@ export default function AllRunsScreen() {
             {audioRuns.length > 0 ? (
               audioRuns.map((run) => (
                 <PictureCard
+                  key={run.title}
                   title={run.title}
                   metrics={run.metrics}
                   image={run.image}
                   onPress={run.onPress}
-                  isSelected={run.isSelected}
                 />
               ))
             ) : (
