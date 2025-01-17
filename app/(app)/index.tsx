@@ -6,7 +6,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
       {/* Section utilisateur */}
       <View style={styles.userSection}>
         <View style={styles.userInfo}>
@@ -62,6 +63,13 @@ export default function HomeScreen() {
           isSelected={false}
         />
 
+<PictureCard
+          title="Hier, course de 7km"
+          metrics={["45 min", "232kcal", "5'10''"]}
+          image={require("@/assets/images/start.jpg")} 
+          onPress={() => console.log("Course pressed")}
+          isSelected={false}
+        />
         <PictureCard
           title="Premier run"
           subtitle="Une run de récupération sur 5km pour débuter."
@@ -71,11 +79,15 @@ export default function HomeScreen() {
           isSelected={true}
         />
       </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flexGrow: 1,
     padding: 16,
