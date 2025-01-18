@@ -9,8 +9,8 @@ export default function HomeScreen() {
   const { user } = useSession();
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
+      <View style={styles.container}>
         {/* Section utilisateur */}
         <View style={styles.userSection}>
           <View style={styles.userInfo}>
@@ -19,16 +19,16 @@ export default function HomeScreen() {
               style={styles.userImage}
             />
             <View>
-              <Text style={styles.greeting}>
+              <Text style={styles.userGreeting}>
                 {`Bonjour ${user?.firstName || 'Coureur'}`}
               </Text>
-              <Text style={styles.readyText}>Prêt à courir ?</Text>
+              <Text style={styles.userReadyText}>Prêt à courir ?</Text>
             </View>
           </View>
           <View style={styles.settingsIcon}>
             <Image
               source={require("@/assets/images/start.jpg")}
-              style={styles.icon}
+              style={styles.settingsIconImage}
             />
           </View>
         </View>
@@ -53,53 +53,62 @@ export default function HomeScreen() {
         </View>
 
         {/* Section courses récentes */}
-        <View style={styles.recentSection}>
-          <Text style={styles.sectionTitle}>Courses récentes</Text>
-          <PictureCard
-            title="Hier, course de 7km"
-            metrics={["45 min", "232kcal", "5'10''"]}
-            image={require("@/assets/images/start.jpg")}
-          />
+        <View style={styles.coursesContainer}>
+          <Text style={styles.coursesTitle}>Courses récentes</Text>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContent}
+            style={styles.scrollView}
+          >
+            <PictureCard
+              title="Hier, course de 7km"
+              metrics={["45 min", "232kcal", "5'10''"]}
+              image={require("@/assets/images/start.jpg")}
+            />
 
-          <PictureCard
-            title="Hier, course de 7km"
-            metrics={["45 min", "232kcal", "5'10''"]}
-            image={require("@/assets/images/start.jpg")}
-            onPress={() => console.log("Course pressed")}
-            isSelected={false}
-          />
+            <PictureCard
+              title="Hier, course de 7km"
+              metrics={["45 min", "232kcal", "5'10''"]}
+              image={require("@/assets/images/start.jpg")}
+              onPress={() => console.log("Course pressed")}
+              isSelected={false}
+            />
 
-          <PictureCard
-            title="Hier, course de 7km"
-            metrics={["45 min", "232kcal", "5'10''"]}
-            image={require("@/assets/images/start.jpg")}
-            onPress={() => console.log("Course pressed")}
-            isSelected={false}
-          />
+            <PictureCard
+              title="Hier, course de 7km"
+              metrics={["45 min", "232kcal", "5'10''"]}
+              image={require("@/assets/images/start.jpg")}
+              onPress={() => console.log("Course pressed")}
+              isSelected={false}
+            />
 
-          <PictureCard
-            title="Premier run"
-            subtitle="Une run de récupération sur 5km pour débuter."
-            metrics={["5km"]}
-            image={require("@/assets/images/start.jpg")}
-            onPress={() => console.log("Run selected")}
-            isSelected={true}
-          />
+            <PictureCard
+              title="Premier run"
+              subtitle="Une run de récupération sur 5km pour débuter."
+              metrics={["5km"]}
+              image={require("@/assets/images/start.jpg")}
+              onPress={() => console.log("Run selected")}
+              isSelected={true}
+            />
+          </ScrollView>
         </View>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  // Layout styles
   safeArea: {
     flex: 1,
+    backgroundColor: Colors.dark.primaryDark,
   },
   container: {
     flexGrow: 1,
     padding: 16,
-    backgroundColor: Colors.dark.primaryDark,
   },
+
+  // User section styles
   userSection: {
     flexDirection: "row",
     alignItems: "center",
@@ -116,12 +125,12 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     marginRight: 12,
   },
-  greeting: {
+  userGreeting: {
     fontSize: 16,
     fontFamily: "Poppins-Light",
     color: Colors.light.mediumGrey,
   },
-  readyText: {
+  userReadyText: {
     fontSize: 14,
     fontFamily: "Poppins-SemiBold",
     color: Colors.light.white,
@@ -129,11 +138,13 @@ const styles = StyleSheet.create({
   settingsIcon: {
     padding: 8,
   },
-  icon: {
+  settingsIconImage: {
     width: 24,
     height: 24,
     tintColor: Colors.light.white,
   },
+
+  // Stats section styles
   statsSection: {
     backgroundColor: Colors.dark.secondaryDark,
     borderRadius: 12,
@@ -162,13 +173,22 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins-Regular",
     color: Colors.light.lightGrey,
   },
-  recentSection: {
-    marginBottom: 16,
+
+  // Courses section styles
+  coursesContainer: {
+    flex: 1,
+    marginBottom: -16,
   },
-  sectionTitle: {
+  coursesTitle: {
     fontSize: 20,
     color: Colors.light.white,
     fontFamily: "Poppins-SemiBold",
     marginBottom: 8,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 70,
   },
 });
