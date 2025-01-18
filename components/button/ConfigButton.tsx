@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   View,
   Text,
@@ -7,36 +7,29 @@ import {
   TouchableOpacity,
   ViewStyle,
   ImageSourcePropType,
-} from "react-native";
-import { Colors } from "@/constants/Colors";
+} from 'react-native';
+import { Colors } from '@/constants/Colors';
 
 interface ButtonProps {
   text: string; // Texte du bouton
-  state: "default" | "disabled" | "selected"; // États du bouton
+  state: 'default' | 'disabled' | 'selected'; // États du bouton
   icon?: ImageSourcePropType; // Icône à afficher
   onPress?: () => void; // Action au clic
   style?: ViewStyle; // Style personnalisé
 }
 
-export const CustomButton: React.FC<ButtonProps> = ({
-  text,
-  state,
-  icon,
-  onPress,
-  style,
-}) => {
+export const CustomButton: React.FC<ButtonProps> = ({ text, state, icon, onPress, style }) => {
   return (
     <TouchableOpacity
       style={[
         styles.button,
-        state === "default" && styles.defaultButton,
-        state === "disabled" && styles.disabledButton,
-        state === "selected" && styles.selectedButton,
+        state === 'default' && styles.defaultButton,
+        state === 'disabled' && styles.disabledButton,
+        state === 'selected' && styles.selectedButton,
         style,
       ]}
       onPress={onPress}
-      disabled={state === "disabled"}
-    >
+      disabled={state === 'disabled'}>
       {/* Icône à gauche */}
       {icon && <Image source={icon} style={[styles.icon]} />}
 
@@ -44,11 +37,10 @@ export const CustomButton: React.FC<ButtonProps> = ({
       <Text
         style={[
           styles.buttonText,
-          state === "default" && styles.defaultText,
-          state === "disabled" && styles.disabledText,
-          state === "selected" && styles.selectedText,
-        ]}
-      >
+          state === 'default' && styles.defaultText,
+          state === 'disabled' && styles.disabledText,
+          state === 'selected' && styles.selectedText,
+        ]}>
         {text}
       </Text>
     </TouchableOpacity>
@@ -57,9 +49,9 @@ export const CustomButton: React.FC<ButtonProps> = ({
 
 const styles = StyleSheet.create({
   button: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     width: 340,
     height: 60,
     borderRadius: 12,
@@ -72,7 +64,7 @@ const styles = StyleSheet.create({
   },
   defaultText: {
     color: Colors.light.white, // Texte blanc pour l'état par défaut
-    fontFamily: "Poppins-Medium",
+    fontFamily: 'Poppins-Medium',
   },
   // Style pour l'état désactivé
   disabledButton: {
@@ -81,7 +73,7 @@ const styles = StyleSheet.create({
   },
   disabledText: {
     color: Colors.light.mediumGrey,
-    fontFamily: "Poppins-Medium", // Texte gris clair pour l'état désactivé
+    fontFamily: 'Poppins-Medium', // Texte gris clair pour l'état désactivé
   },
   // Style pour l'état sélectionné
   selectedButton: {
@@ -90,7 +82,7 @@ const styles = StyleSheet.create({
   },
   selectedText: {
     color: Colors.light.primary,
-    fontFamily: "Poppins-Medium",
+    fontFamily: 'Poppins-Medium',
   },
   icon: {
     width: 20,

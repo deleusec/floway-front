@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { SessionProvider } from "@/context/ctx";
+import { SessionProvider } from '@/context/ctx';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -14,11 +14,11 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
-    "Poppins-Regular": require("../assets/fonts/poppins/Poppins-Regular.ttf"),
-    "Poppins-Light": require("../assets/fonts/poppins/Poppins-Light.ttf"),
-    "Poppins-SemiBold": require("../assets/fonts/poppins/Poppins-SemiBold.ttf"),
-    "Poppins-Medium": require("../assets/fonts/poppins/Poppins-Medium.ttf"),
+    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    'Poppins-Regular': require('../assets/fonts/poppins/Poppins-Regular.ttf'),
+    'Poppins-Light': require('../assets/fonts/poppins/Poppins-Light.ttf'),
+    'Poppins-SemiBold': require('../assets/fonts/poppins/Poppins-SemiBold.ttf'),
+    'Poppins-Medium': require('../assets/fonts/poppins/Poppins-Medium.ttf'),
   });
 
   useEffect(() => {
@@ -39,6 +39,7 @@ export default function RootLayout() {
           <Stack.Screen name="create-account" options={{ headerShown: false }} />
           <Stack.Screen name="sign-in" options={{ headerShown: false }} />
           <Stack.Screen name="(app)" options={{ headerShown: false }} />
+          <Stack.Screen name="studio" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
       </ThemeProvider>

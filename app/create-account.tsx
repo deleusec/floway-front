@@ -1,9 +1,9 @@
 import { router } from 'expo-router';
-import {StyleSheet, Text, View, TextInput, TouchableOpacity, SafeAreaView} from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, SafeAreaView } from 'react-native';
 
 import { useSession } from '@/context/ctx';
-import { ThemedButton } from "@/components/button/ThemedButton";
-import React, {useState} from "react";
+import { ThemedButton } from '@/components/button/ThemedButton';
+import React, { useState } from 'react';
 
 export default function CreateAccount() {
   const { register } = useSession();
@@ -30,27 +30,19 @@ export default function CreateAccount() {
 
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Prénom</Text>
-          <TextInput
-            style={styles.input}
-            value={firstName}
-            onChangeText={setFirstName}
-          />
+          <TextInput style={styles.input} value={firstName} onChangeText={setFirstName} />
         </View>
 
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Nom</Text>
-          <TextInput
-            style={styles.input}
-            value={lastName}
-            onChangeText={setLastName}
-          />
+          <TextInput style={styles.input} value={lastName} onChangeText={setLastName} />
         </View>
 
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Email</Text>
           <TextInput
             style={styles.input}
-            autoCapitalize={"none"}
+            autoCapitalize={'none'}
             value={email}
             onChangeText={setEmail}
           />
@@ -68,17 +60,12 @@ export default function CreateAccount() {
 
         {error && <Text>{error}</Text>}
 
-        <ThemedButton
-          title="S'inscrire"
-          onPress={handleRegister}
-          style={styles.button}
-        />
+        <ThemedButton title="S'inscrire" onPress={handleRegister} style={styles.button} />
       </View>
 
       <TouchableOpacity onPress={() => router.push('/sign-in')} style={styles.signUpContainer}>
         <Text style={styles.signUpText}>
-          Déjà un compte ?
-          <Text style={styles.signUpLink}> Se connecter</Text>
+          Déjà un compte ?<Text style={styles.signUpLink}> Se connecter</Text>
         </Text>
       </TouchableOpacity>
     </SafeAreaView>
@@ -118,7 +105,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   button: {
-    marginTop: 16
+    marginTop: 16,
   },
   signUpContainer: {
     justifyContent: 'flex-end',

@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   View,
   Text,
@@ -7,8 +7,8 @@ import {
   TouchableOpacity,
   ViewStyle,
   ImageSourcePropType,
-} from "react-native";
-import { Colors } from "@/constants/Colors";
+} from 'react-native';
+import { Colors } from '@/constants/Colors';
 
 interface PictureCardProps {
   title: string; // Titre principal
@@ -57,17 +57,11 @@ export const PictureCard: React.FC<PictureCardProps> = ({
               subtitle
                 ? styles.metricsContainerWithSubtitle
                 : styles.metricsContainerWithoutSubtitle,
-            ]}
-          >
+            ]}>
             {metrics.map((metric, index) => (
               <Text
                 key={index}
-                style={[
-                  subtitle
-                    ? styles.metricWithSubtitle
-                    : styles.metricWithoutSubtitle,
-                ]}
-              >
+                style={[subtitle ? styles.metricWithSubtitle : styles.metricWithoutSubtitle]}>
                 {metric}
               </Text>
             ))}
@@ -80,13 +74,13 @@ export const PictureCard: React.FC<PictureCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: Colors.dark.secondaryDark,
     borderRadius: 16,
     padding: 14,
     marginVertical: 8,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -104,26 +98,26 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    flexDirection: "column",
-    justifyContent: "space-around",
+    flexDirection: 'column',
+    justifyContent: 'space-around',
     height: 64,
   },
   title: {
     fontSize: 16,
     color: Colors.light.white,
-    fontFamily: "Poppins-Medium",
+    fontFamily: 'Poppins-Medium',
   },
   subtitle: {
     fontSize: 14,
     color: Colors.light.lightGrey,
-    fontFamily: "Poppins-Regular",
+    fontFamily: 'Poppins-Regular',
   },
   metricsContainer: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginTop: 4,
   },
   metricsContainerWithSubtitle: {
-    justifyContent: "flex-start", // Alignement à gauche si un subtitle est présent
+    justifyContent: 'flex-start', // Alignement à gauche si un subtitle est présent
     gap: 12,
   },
   metricsContainerWithoutSubtitle: {
@@ -132,7 +126,7 @@ const styles = StyleSheet.create({
   },
   metricWithoutSubtitle: {
     fontSize: 14,
-    fontFamily: "Poppins-Regular",
+    fontFamily: 'Poppins-Regular',
     color: Colors.light.white,
   },
   metricWithSubtitle: {

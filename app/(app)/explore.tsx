@@ -1,11 +1,11 @@
-import React from "react";
-import { StyleSheet, ScrollView, Text, View } from "react-native";
-import TimeInputField from "@/components/input/TimeInput";
-import SelectInput from "@/components/input/SelectInput";
-import { Colors } from "@/constants/Colors";
+import React from 'react';
+import { StyleSheet, ScrollView, Text, View } from 'react-native';
+import TimeInputField from '@/components/input/TimeInput';
+import SelectInput from '@/components/input/SelectInput';
+import { Colors } from '@/constants/Colors';
 
-const timeOptions = ["Temps", "Distance"];
-const distanceOptions = ["Mètres", "Kilomètres"];
+const timeOptions = ['Temps', 'Distance'];
+const distanceOptions = ['Mètres', 'Kilomètres'];
 
 export default function InputComponentsDemo() {
   return (
@@ -29,11 +29,7 @@ export default function InputComponentsDemo() {
           <View style={styles.demoSection}>
             <Text style={styles.stateTitle}>Disabled State</Text>
             <View style={styles.row}>
-              <TimeInputField
-                placeholder="00"
-                unit="heures"
-                status="deactivate"
-              />
+              <TimeInputField placeholder="00" unit="heures" status="deactivate" />
               <TimeInputField placeholder="00" unit="min" status="deactivate" />
               <TimeInputField placeholder="00" unit="sec" status="deactivate" />
             </View>
@@ -110,7 +106,7 @@ const styles = StyleSheet.create({
   },
   mainTitle: {
     fontSize: 24,
-    fontWeight: "600",
+    fontWeight: '600',
     color: Colors.light.white,
     marginBottom: 32,
   },
@@ -119,7 +115,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: "500",
+    fontWeight: '500',
     color: Colors.light.white,
     marginBottom: 24,
   },
@@ -132,9 +128,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   row: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
     gap: 16,
   },
   selectContainer: {

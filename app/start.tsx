@@ -1,5 +1,12 @@
 import React from 'react';
-import {View, Text, StyleSheet, ImageBackground, TouchableOpacity, SafeAreaView} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ImageBackground,
+  TouchableOpacity,
+  SafeAreaView,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { ThemedButton } from '@/components/button/ThemedButton';
 
@@ -7,10 +14,7 @@ export default function StartScreen() {
   const router = useRouter();
 
   return (
-    <ImageBackground
-      source={require('@/assets/images/start.jpg')}
-      style={styles.background}
-    >
+    <ImageBackground source={require('@/assets/images/start.jpg')} style={styles.background}>
       <SafeAreaView style={styles.overlay}>
         <View style={styles.content}>
           <Text style={styles.title}>Dépasse tes limites à chaque foulée !</Text>
@@ -26,8 +30,7 @@ export default function StartScreen() {
 
           <TouchableOpacity onPress={() => router.push('/sign-in')}>
             <Text style={styles.signInText}>
-              Déjà un compte ?{' '}
-              <Text style={styles.signInLink}>Se connecter</Text>
+              Déjà un compte ? <Text style={styles.signInLink}>Se connecter</Text>
             </Text>
           </TouchableOpacity>
         </View>

@@ -1,5 +1,5 @@
 import { useContext, createContext, type PropsWithChildren, useState, useEffect } from 'react';
-import { useStorageState } from "@/hooks/useStorageState";
+import { useStorageState } from '@/hooks/useStorageState';
 
 type UserInfo = {
   email: string;
@@ -44,7 +44,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
       const response = await fetch('https://api.floway.edgar-lecomte.fr/api/user/me', {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });

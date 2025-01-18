@@ -1,9 +1,9 @@
 import { router } from 'expo-router';
-import {StyleSheet, Text, View, TextInput, TouchableOpacity, SafeAreaView} from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, SafeAreaView } from 'react-native';
 
 import { useSession } from '@/context/ctx';
-import { ThemedButton } from "@/components/button/ThemedButton";
-import React from "react";
+import { ThemedButton } from '@/components/button/ThemedButton';
+import React from 'react';
 
 import { useState } from 'react';
 
@@ -32,7 +32,7 @@ export default function SignIn() {
           <Text style={styles.label}>Email</Text>
           <TextInput
             style={styles.input}
-            autoCapitalize={"none"}
+            autoCapitalize={'none'}
             value={email}
             onChangeText={setEmail}
           />
@@ -50,17 +50,14 @@ export default function SignIn() {
 
         {error && <Text>{error}</Text>}
 
-        <ThemedButton
-          title="Se connecter"
-          onPress={handleSignIn}
-          style={styles.button}
-        />
+        <ThemedButton title="Se connecter" onPress={handleSignIn} style={styles.button} />
       </View>
 
-      <TouchableOpacity onPress={() => router.push('/create-account')} style={styles.signUpContainer}>
+      <TouchableOpacity
+        onPress={() => router.push('/create-account')}
+        style={styles.signUpContainer}>
         <Text style={styles.signUpText}>
-          Pas encore de compte ?
-          <Text style={styles.signUpLink}> S'inscrire</Text>
+          Pas encore de compte ?<Text style={styles.signUpLink}> S'inscrire</Text>
         </Text>
       </TouchableOpacity>
     </SafeAreaView>
@@ -108,7 +105,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   button: {
-    marginTop: 16
+    marginTop: 16,
   },
   signUpContainer: {
     justifyContent: 'flex-end',
@@ -125,4 +122,3 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
 });
-

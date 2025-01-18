@@ -1,35 +1,31 @@
-import {
-  SafeAreaView,
-  Text,
-  StyleSheet,
-  ScrollView,
-  View,
-} from "react-native";
-import React, { useEffect, useState } from "react";
-import { Colors } from "@/constants/Colors";
-import { ThemedText } from "@/components/text/ThemedText";
-import { Tabs } from "@/components/tabs/Tabs";
-import { PictureCard } from "@/components/ThemedPictureCard";
-import CustomModal from "@/components/modal/CustomModal";
-import { TabBarIcon } from "@/components/navigation/TabBarIcon";
+import { SafeAreaView, Text, StyleSheet, ScrollView, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Colors } from '@/constants/Colors';
+import { ThemedText } from '@/components/text/ThemedText';
+import { Tabs } from '@/components/tabs/Tabs';
+import { PictureCard } from '@/components/ThemedPictureCard';
+import CustomModal from '@/components/modal/CustomModal';
+import { TabBarIcon } from '@/components/navigation/TabBarIcon';
+import { Link } from 'expo-router';
 
 interface Run {
   title: string;
   metrics: string[];
+  description: string;
   image: any;
   onPress: () => void;
 }
 
 export default function AllRunsScreen() {
-  const [activeTab, setActiveTab] = useState("audio");
+  const [activeTab, setActiveTab] = useState('audio');
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const [audioRuns, setAudioRuns] = useState<Run[]>([]);
   const [programs, setPrograms] = useState<Run[]>([]);
 
   const tabs = [
-    { key: "audio", label: "Audio" },
-    { key: "program", label: "Programmes" },
+    { key: 'audio', label: 'Audio' },
+    { key: 'program', label: 'Programmes' },
   ];
 
   useEffect(() => {
@@ -37,15 +33,17 @@ export default function AllRunsScreen() {
     // Remplace par ta logique de récupération des runs audio
     setAudioRuns([
       {
-        title: "Course matinale",
-        metrics: ["45 min", "232kcal", "5'10''"],
-        image: require("@/assets/images/start.jpg"),
+        title: 'Course matinale',
+        metrics: ['45 min'],
+        description: 'Course matinale pour bien démarrer la journée',
+        image: require('@/assets/images/start.jpg'),
         onPress: () => setIsModalVisible(true),
       },
       {
-        title: "Course du soir",
-        metrics: ["30 min", "150kcal", "4'50''"],
-        image: require("@/assets/images/start.jpg"),
+        title: 'Course du soir',
+        metrics: ['30 min'],
+        description: 'Course du soir pour se détendre',
+        image: require('@/assets/images/start.jpg'),
         onPress: () => setIsModalVisible(true),
       },
     ]);
@@ -55,17 +53,19 @@ export default function AllRunsScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container}>
         <View style={styles.header}>
-          <ThemedText type="title" style={{ color: "white" }}>
+          <ThemedText type="title" style={{ color: 'white' }}>
             Mes runs guidées
           </ThemedText>
-          <TabBarIcon name="add-circle-outline" color="white" size={24} />
+          <Link href="/studio">
+            <TabBarIcon name="add-circle-outline" color="white" size={24} />
+          </Link>
         </View>
 
         {/* Tabs */}
         <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
         {/* Contenu en fonction de l'onglet actif */}
-        {activeTab === "audio" ? (
+        {activeTab === 'audio' ? (
           <View style={styles.content}>
             {audioRuns.length > 0 ? (
               audioRuns.map((run) => (
@@ -73,38 +73,34 @@ export default function AllRunsScreen() {
                   key={run.title}
                   title={run.title}
                   metrics={run.metrics}
+                  subtitle={run.description}
                   image={run.image}
                   onPress={run.onPress}
                 />
               ))
             ) : (
               <ThemedText type="legend" style={styles.contentText}>
-                Vous ne possédez aucune audio. Créez en une nouvelle en cliquant
-                sur le bouton ci-dessous.
+                Vous ne possédez aucune audio. Créez en une nouvelle en cliquant sur le bouton
+                ci-dessous.
               </ThemedText>
             )}
           </View>
         ) : (
           <View style={styles.content}>
             {programs.length > 0 ? (
-              <View>
-                {/* TODO: Afficher les programmes de l'utilisateur */}
-              </View>
+              <View>{/* TODO: Afficher les programmes de l'utilisateur */}</View>
             ) : (
               <ThemedText type="legend" style={styles.contentText}>
-                Vous ne possédez aucun programme. Créez en un nouveau en
-                cliquant sur le bouton ci-dessous.
+                Vous ne possédez aucun programme. Créez en un nouveau en cliquant sur le bouton
+                ci-dessous.
               </ThemedText>
             )}
           </View>
         )}
 
         {/* Modal avec contenu personnalisé */}
-        <CustomModal
-          visible={isModalVisible}
-          onClose={() => setIsModalVisible(false)}
-        >
-          <Text style={{ color: "white", fontSize: 18, textAlign: "center" }}>
+        <CustomModal visible={isModalVisible} onClose={() => setIsModalVisible(false)}>
+          <Text style={{ color: 'white', fontSize: 18, textAlign: 'center' }}>
             Contenu de la modale
           </Text>
         </CustomModal>
@@ -123,18 +119,18 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.dark.primaryDark,
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 24,
   },
   content: {
     marginTop: 16,
     flex: 1,
-    alignItems: "center",
+    alignItems: 'center',
   },
   contentText: {
     padding: 16,
-    textAlign: "center",
+    textAlign: 'center',
   },
 });

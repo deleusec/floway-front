@@ -1,11 +1,21 @@
-import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import React from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Colors } from "@/constants/Colors";
+import { Colors } from '@/constants/Colors';
+import { router } from 'expo-router';
 
-export default function BackButton({ onPress, title = "Retour" } : { onPress: () => void, title?: string }) {
+export default function BackButton({
+  onPress,
+  title = 'Retour',
+}: {
+  onPress?: () => void;
+  title?: string;
+}) {
+  const onPressDefault = () => {
+    router.back();
+  };
   return (
-    <Pressable style={styles.button} onPress={onPress}>
+    <Pressable style={styles.button} onPress={onPress || onPressDefault}>
       <View style={styles.iconContainer}>
         <Ionicons name="chevron-back" size={14} color="black" />
       </View>
@@ -16,25 +26,25 @@ export default function BackButton({ onPress, title = "Retour" } : { onPress: ()
 
 const styles = StyleSheet.create({
   button: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: Colors.dark.secondaryDark, 
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.dark.secondaryDark,
     borderRadius: 100,
     padding: 10,
-    alignSelf: "flex-start", 
+    alignSelf: 'flex-start',
   },
   iconContainer: {
-    backgroundColor: "white",
+    backgroundColor: 'white',
     width: 18,
     height: 18,
     borderRadius: 15,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: 8,
   },
   text: {
-    color: "white",
+    color: 'white',
     fontSize: 12,
-    fontWeight: "500",
+    fontWeight: '500',
   },
 });

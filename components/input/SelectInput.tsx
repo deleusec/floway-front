@@ -1,13 +1,13 @@
-import React, { useState } from "react";
-import { StyleSheet, View, Text, Platform, Pressable } from "react-native";
-import { Picker } from "@react-native-picker/picker";
-import { Colors } from "@/constants/Colors";
-import { AntDesign } from "@expo/vector-icons";
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, Platform, Pressable } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
+import { Colors } from '@/constants/Colors';
+import { AntDesign } from '@expo/vector-icons';
 
 interface SelectInputProps {
   options: string[];
   placeholder?: string;
-  status?: "active" | "error" | "disabled";
+  status?: 'active' | 'error' | 'disabled';
   onValueChange?: (value: string) => void;
   value?: string;
   label?: string;
@@ -15,13 +15,13 @@ interface SelectInputProps {
 
 export default function SelectInput({
   options,
-  placeholder = "Sélectionner",
-  status = "active",
+  placeholder = 'Sélectionner',
+  status = 'active',
   onValueChange,
   value,
   label,
 }: SelectInputProps) {
-  const [selectedValue, setSelectedValue] = useState<string>(value || "");
+  const [selectedValue, setSelectedValue] = useState<string>(value || '');
   const [isPickerVisible, setIsPickerVisible] = useState(false);
 
   const handleValueChange = (itemValue: string) => {
@@ -29,38 +29,34 @@ export default function SelectInput({
     if (onValueChange) {
       onValueChange(itemValue);
     }
-    if (Platform.OS === "ios") {
+    if (Platform.OS === 'ios') {
       setIsPickerVisible(false);
     }
   };
 
   const containerStyles = [
     styles.container,
-    status === "disabled" && styles.disabled,
-    status === "error" && styles.error,
+    status === 'disabled' && styles.disabled,
+    status === 'error' && styles.error,
   ];
 
   const renderIOSPicker = () => (
     <View>
       <Pressable
         style={containerStyles}
-        onPress={() => status !== "disabled" && setIsPickerVisible(true)}
-      >
+        onPress={() => status !== 'disabled' && setIsPickerVisible(true)}>
         <Text
           style={[
             styles.selectedText,
-            status === "disabled" && styles.disabledText,
+            status === 'disabled' && styles.disabledText,
             !selectedValue && styles.placeholderText,
-          ]}
-        >
+          ]}>
           {selectedValue || placeholder}
         </Text>
         <AntDesign
           name="down"
           size={20}
-          color={
-            status === "disabled" ? Colors.light.mediumGrey : Colors.light.white
-          }
+          color={status === 'disabled' ? Colors.light.mediumGrey : Colors.light.white}
         />
       </Pressable>
       {isPickerVisible && (
@@ -68,21 +64,11 @@ export default function SelectInput({
           <Picker
             selectedValue={selectedValue}
             onValueChange={handleValueChange}
-            enabled={status !== "disabled"}
-            style={styles.pickerIOS}
-          >
-            <Picker.Item
-              label={placeholder}
-              value=""
-              color={Colors.light.mediumGrey}
-            />
+            enabled={status !== 'disabled'}
+            style={styles.pickerIOS}>
+            <Picker.Item label={placeholder} value="" color={Colors.light.mediumGrey} />
             {options.map((option, index) => (
-              <Picker.Item
-                key={index}
-                label={option}
-                value={option}
-                color={Colors.light.white}
-              />
+              <Picker.Item key={index} label={option} value={option} color={Colors.light.white} />
             ))}
           </Picker>
         </View>
@@ -95,24 +81,12 @@ export default function SelectInput({
       <Picker
         selectedValue={selectedValue}
         onValueChange={handleValueChange}
-        enabled={status !== "disabled"}
+        enabled={status !== 'disabled'}
         style={styles.pickerAndroid}
-        dropdownIconColor={
-          status === "disabled" ? Colors.light.mediumGrey : Colors.light.white
-        }
-      >
-        <Picker.Item
-          label={placeholder}
-          value=""
-          color={Colors.light.mediumGrey}
-        />
+        dropdownIconColor={status === 'disabled' ? Colors.light.mediumGrey : Colors.light.white}>
+        <Picker.Item label={placeholder} value="" color={Colors.light.mediumGrey} />
         {options.map((option, index) => (
-          <Picker.Item
-            key={index}
-            label={option}
-            value={option}
-            color={Colors.light.primaryDark}
-          />
+          <Picker.Item key={index} label={option} value={option} color={Colors.light.primaryDark} />
         ))}
       </Picker>
     </View>
@@ -121,28 +95,26 @@ export default function SelectInput({
   return (
     <View style={styles.wrapper}>
       {label && <Text style={styles.label}>{label}</Text>}
-      {Platform.OS === "ios" ? renderIOSPicker() : renderAndroidPicker()}
-      {status === "error" && (
-        <Text style={styles.errorText}>Error message</Text>
-      )}
+      {Platform.OS === 'ios' ? renderIOSPicker() : renderAndroidPicker()}
+      {status === 'error' && <Text style={styles.errorText}>Error message</Text>}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   wrapper: {
-    width: "100%",
+    width: '100%',
   },
   container: {
     backgroundColor: Colors.light.secondaryDark,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     height: 50,
     paddingHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   disabled: {
     opacity: 0.5,
@@ -162,22 +134,22 @@ const styles = StyleSheet.create({
     color: Colors.light.mediumGrey,
   },
   pickerAndroid: {
-    width: "100%",
+    width: '100%',
     height: 50,
     color: Colors.light.white,
   },
   pickerIOS: {
-    width: "100%",
+    width: '100%',
     backgroundColor: Colors.light.secondaryDark,
   },
   pickerModalIOS: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
     backgroundColor: Colors.light.secondaryDark,
     borderTopWidth: 1,
-    borderTopColor: "rgba(255, 255, 255, 0.1)",
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
   },
   label: {
     color: Colors.light.white,

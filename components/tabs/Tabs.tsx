@@ -1,7 +1,7 @@
-import React from "react";
-import { View, StyleSheet } from "react-native";
-import { ThemedText } from "@/components/text/ThemedText";
-import { Colors } from "@/constants/Colors";
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import { ThemedText } from '@/components/text/ThemedText';
+import { Colors } from '@/constants/Colors';
 
 interface Tab {
   key: string;
@@ -13,27 +13,20 @@ export const Tabs = ({
   activeTab,
   setActiveTab,
 }: {
-    tabs: Tab[];
-    activeTab: string;
-    setActiveTab: (key: string) => void;
+  tabs: Tab[];
+  activeTab: string;
+  setActiveTab: (key: string) => void;
 }) => {
   return (
     <View style={styles.tabBar}>
       {tabs.map((tab: Tab) => (
         <View
           key={tab.key}
-          style={[
-            styles.tabItem,
-            activeTab === tab.key ? styles.activeTab : undefined,
-          ]}
-          onTouchEnd={() => setActiveTab(tab.key)}
-        >
+          style={[styles.tabItem, activeTab === tab.key ? styles.activeTab : undefined]}
+          onTouchEnd={() => setActiveTab(tab.key)}>
           <ThemedText
             type="small"
-            style={
-              activeTab === tab.key ? { color: "black" } : { color: Colors.dark.mediumGrey }
-            }
-          >
+            style={activeTab === tab.key ? { color: 'black' } : { color: Colors.dark.mediumGrey }}>
             {tab.label}
           </ThemedText>
         </View>
@@ -44,8 +37,8 @@ export const Tabs = ({
 
 const styles = StyleSheet.create({
   tabBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     padding: 2,
     backgroundColor: Colors.dark.secondaryDark,
     borderRadius: 8,
@@ -54,12 +47,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 4,
     borderRadius: 8,
-    alignItems: "center",
-    color: "white",
+    alignItems: 'center',
+    color: 'white',
   },
   activeTab: {
-    backgroundColor: "white",
-    color: "black",
+    backgroundColor: 'white',
+    color: 'black',
   },
-
 });

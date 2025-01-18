@@ -1,44 +1,38 @@
-import React, { useState } from "react";
-import { StyleSheet, TextInput, View, Text } from "react-native";
-import { Colors } from "@/constants/Colors";
+import React, { useState } from 'react';
+import { StyleSheet, TextInput, View, Text } from 'react-native';
+import { Colors } from '@/constants/Colors';
 
 interface TimeInputFieldProps {
   placeholder: string;
-  status?: "active" | "deactivate" | "error";
-  unit: "heures" | "min" | "sec";
+  status?: 'active' | 'deactivate' | 'error';
+  unit: 'heures' | 'min' | 'sec';
+  value: string;
+  onChange: (newValue: string) => void;
 }
 
 export default function TimeInputField({
   placeholder,
-  status = "active",
+  status = 'active',
   unit,
+  value,
+  onChange,
 }: TimeInputFieldProps) {
-  const [value, setValue] = useState<string>("00");
   const [isFocused, setIsFocused] = useState<boolean>(false);
 
   const handleTextChange = (newValue: string) => {
-    // Enlever les zéros non significatifs au début
-    const cleanValue = newValue.replace(/^0+/, "");
+    const cleanValue = newValue.replace(/^0+/, ''); // Nettoie les zéros initiaux
 
-    // Vérifier si c'est un nombre valide de deux chiffres maximum
     if (/^\d{0,2}$/.test(cleanValue)) {
-      const numValue = cleanValue === "" ? 0 : parseInt(cleanValue, 10);
-
-      // Vérifier les limites selon l'unité
-      const isValid = unit === "heures" ? true : numValue < 60;
+      const numValue = cleanValue === '' ? 0 : parseInt(cleanValue, 10);
+      const isValid = unit === 'heures' ? true : numValue < 60;
 
       if (isValid) {
-        // Si vide, afficher "00"
-        if (cleanValue === "") {
-          setValue("00");
-        }
-        // Si un seul chiffre, ajouter un zéro devant
-        else if (cleanValue.length === 1) {
-          setValue(`0${cleanValue}`);
-        }
-        // Sinon utiliser la valeur telle quelle
-        else {
-          setValue(cleanValue);
+        if (cleanValue === '') {
+          onChange('00'); // Si vide, on retourne "00"
+        } else if (cleanValue.length === 1) {
+          onChange(`0${cleanValue}`); // Ajoute un zéro pour les valeurs à un seul chiffre
+        } else {
+          onChange(cleanValue); // Retourne la valeur nettoyée
         }
       }
     }
@@ -47,39 +41,33 @@ export default function TimeInputField({
   const handleFocus = () => {
     setIsFocused(true);
     // Quand on focus, si la valeur est "00", on la vide
-    if (value === "00") {
-      setValue("");
+    if (value === '00') {
+      onChange('');
     }
   };
 
   const handleBlur = () => {
     setIsFocused(false);
     // Quand on quitte le champ, si vide, remettre "00"
-    if (value === "") {
-      setValue("00");
+    if (value === '') {
+      onChange('00');
     }
     // Si un seul chiffre, ajouter le zéro devant
     else if (value.length === 1) {
-      setValue(`0${value}`);
+      onChange(`0${value}`);
     }
   };
 
   const containerStyles = [
     styles.container,
-    status === "deactivate" && styles.deactivate,
-    status === "error" && styles.error,
+    status === 'deactivate' && styles.deactivate,
+    status === 'error' && styles.error,
     isFocused && styles.focused,
   ];
 
-  const textStyles = [
-    styles.input,
-    status === "deactivate" && styles.disabledInput,
-  ];
+  const textStyles = [styles.input, status === 'deactivate' && styles.disabledInput];
 
-  const unitStyles = [
-    styles.unit,
-    status === "deactivate" && styles.disabledUnit,
-  ];
+  const unitStyles = [styles.unit, status === 'deactivate' && styles.disabledUnit];
 
   return (
     <View style={containerStyles}>
@@ -93,7 +81,7 @@ export default function TimeInputField({
           onBlur={handleBlur}
           onChangeText={handleTextChange}
           style={textStyles}
-          editable={status !== "deactivate"}
+          editable={status !== 'deactivate'}
           maxLength={2}
         />
         <Text style={unitStyles}>{unit}</Text>
@@ -107,14 +95,14 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.secondaryDark,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     padding: 8,
-    minWidth: 110,
+    flex: 1,
   },
   inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: 4,
   },
   deactivate: {
@@ -132,7 +120,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.light.white,
     padding: 0,
-    textAlign: "right",
+    textAlign: 'right',
     minWidth: 30,
   },
   disabledInput: {

@@ -1,9 +1,9 @@
-import React from "react";
-import {View, Text, StyleSheet, Image, ScrollView} from "react-native";
-import { Colors } from "@/constants/Colors";
-import { PictureCard } from "@/components/ThemedPictureCard";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useSession } from "@/context/ctx";
+import React from 'react';
+import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
+import { Colors } from '@/constants/Colors';
+import { PictureCard } from '@/components/ThemedPictureCard';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSession } from '@/context/ctx';
 
 export default function HomeScreen() {
   const { user } = useSession();
@@ -14,22 +14,14 @@ export default function HomeScreen() {
         {/* Section utilisateur */}
         <View style={styles.userSection}>
           <View style={styles.userInfo}>
-            <Image
-              source={require("@/assets/images/start.jpg")}
-              style={styles.userImage}
-            />
+            <Image source={require('@/assets/images/start.jpg')} style={styles.userImage} />
             <View>
-              <Text style={styles.userGreeting}>
-                {`Bonjour ${user?.firstName || 'Coureur'}`}
-              </Text>
+              <Text style={styles.userGreeting}>{`Bonjour ${user?.firstName || 'Coureur'}`}</Text>
               <Text style={styles.userReadyText}>Prêt à courir ?</Text>
             </View>
           </View>
           <View style={styles.settingsIcon}>
-            <Image
-              source={require("@/assets/images/start.jpg")}
-              style={styles.settingsIconImage}
-            />
+            <Image source={require('@/assets/images/start.jpg')} style={styles.settingsIconImage} />
           </View>
         </View>
 
@@ -58,36 +50,35 @@ export default function HomeScreen() {
           <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.scrollContent}
-            style={styles.scrollView}
-          >
+            style={styles.scrollView}>
             <PictureCard
               title="Hier, course de 7km"
-              metrics={["45 min", "232kcal", "5'10''"]}
-              image={require("@/assets/images/start.jpg")}
+              metrics={['45 min', '232kcal', "5'10''"]}
+              image={require('@/assets/images/start.jpg')}
             />
 
             <PictureCard
               title="Hier, course de 7km"
-              metrics={["45 min", "232kcal", "5'10''"]}
-              image={require("@/assets/images/start.jpg")}
-              onPress={() => console.log("Course pressed")}
+              metrics={['45 min', '232kcal', "5'10''"]}
+              image={require('@/assets/images/start.jpg')}
+              onPress={() => console.log('Course pressed')}
               isSelected={false}
             />
 
             <PictureCard
               title="Hier, course de 7km"
-              metrics={["45 min", "232kcal", "5'10''"]}
-              image={require("@/assets/images/start.jpg")}
-              onPress={() => console.log("Course pressed")}
+              metrics={['45 min', '232kcal', "5'10''"]}
+              image={require('@/assets/images/start.jpg')}
+              onPress={() => console.log('Course pressed')}
               isSelected={false}
             />
 
             <PictureCard
               title="Premier run"
               subtitle="Une run de récupération sur 5km pour débuter."
-              metrics={["5km"]}
-              image={require("@/assets/images/start.jpg")}
-              onPress={() => console.log("Run selected")}
+              metrics={['5km']}
+              image={require('@/assets/images/start.jpg')}
+              onPress={() => console.log('Run selected')}
               isSelected={true}
             />
           </ScrollView>
@@ -110,14 +101,14 @@ const styles = StyleSheet.create({
 
   // User section styles
   userSection: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 24,
   },
   userInfo: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   userImage: {
     width: 50,
@@ -127,12 +118,12 @@ const styles = StyleSheet.create({
   },
   userGreeting: {
     fontSize: 16,
-    fontFamily: "Poppins-Light",
+    fontFamily: 'Poppins-Light',
     color: Colors.light.mediumGrey,
   },
   userReadyText: {
     fontSize: 14,
-    fontFamily: "Poppins-SemiBold",
+    fontFamily: 'Poppins-SemiBold',
     color: Colors.light.white,
   },
   settingsIcon: {
@@ -153,24 +144,24 @@ const styles = StyleSheet.create({
   },
   statsTitle: {
     fontSize: 16,
-    fontFamily: "Poppins-SemiBold",
+    fontFamily: 'Poppins-SemiBold',
     color: Colors.light.white,
     marginBottom: 14,
   },
   statsRow: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginBottom: 8,
     gap: 24,
   },
   statBlock: {},
   statValue: {
     fontSize: 26,
-    fontFamily: "Poppins-SemiBold",
+    fontFamily: 'Poppins-SemiBold',
     color: Colors.light.primary,
   },
   statLabel: {
     fontSize: 12,
-    fontFamily: "Poppins-Regular",
+    fontFamily: 'Poppins-Regular',
     color: Colors.light.lightGrey,
   },
 
@@ -182,7 +173,7 @@ const styles = StyleSheet.create({
   coursesTitle: {
     fontSize: 20,
     color: Colors.light.white,
-    fontFamily: "Poppins-SemiBold",
+    fontFamily: 'Poppins-SemiBold',
     marginBottom: 8,
   },
   scrollView: {
