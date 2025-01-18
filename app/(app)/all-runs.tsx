@@ -4,13 +4,14 @@ import {
   StyleSheet,
   ScrollView,
   View,
-  Image,
 } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Colors } from "@/constants/Colors";
 import { ThemedText } from "@/components/text/ThemedText";
 import { Tabs } from "@/components/tabs/Tabs";
 import { PictureCard } from "@/components/ThemedPictureCard";
+import CustomModal from "@/components/modal/CustomModal";
+import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 
 interface Run {
   title: string;
@@ -20,16 +21,18 @@ interface Run {
 }
 
 export default function AllRunsScreen() {
-  const [activeTab, setActiveTab] = React.useState("audio");
-  const [audioRuns, setAudioRuns] = React.useState<Run[]>([]);
-  const [programs, setPrograms] = React.useState<Run[]>([]);
+  const [activeTab, setActiveTab] = useState("audio");
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const [audioRuns, setAudioRuns] = useState<Run[]>([]);
+  const [programs, setPrograms] = useState<Run[]>([]);
 
   const tabs = [
     { key: "audio", label: "Audio" },
     { key: "program", label: "Programmes" },
   ];
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Récupérer les runs audio de l'utilisateur
     // Remplace par ta logique de récupération des runs audio
     setAudioRuns([
@@ -37,17 +40,16 @@ export default function AllRunsScreen() {
         title: "Course matinale",
         metrics: ["45 min", "232kcal", "5'10''"],
         image: require("@/assets/images/start.jpg"),
-        onPress: () => {},
+        onPress: () => setIsModalVisible(true),
       },
       {
         title: "Course du soir",
         metrics: ["30 min", "150kcal", "4'50''"],
         image: require("@/assets/images/start.jpg"),
-        onPress: () => {},
+        onPress: () => setIsModalVisible(true),
       },
     ]);
   }, []);
-
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -56,7 +58,7 @@ export default function AllRunsScreen() {
           <ThemedText type="title" style={{ color: "white" }}>
             Mes runs guidées
           </ThemedText>
-          <Image source={require("@/assets/images/add.png")} />
+          <TabBarIcon name="add-circle-outline" color="white" size={24} />
         </View>
 
         {/* Tabs */}
@@ -96,6 +98,16 @@ export default function AllRunsScreen() {
             )}
           </View>
         )}
+
+        {/* Modal avec contenu personnalisé */}
+        <CustomModal
+          visible={isModalVisible}
+          onClose={() => setIsModalVisible(false)}
+        >
+          <Text style={{ color: "white", fontSize: 18, textAlign: "center" }}>
+            Contenu de la modale
+          </Text>
+        </CustomModal>
       </ScrollView>
     </SafeAreaView>
   );

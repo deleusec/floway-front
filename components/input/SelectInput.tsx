@@ -111,7 +111,7 @@ export default function SelectInput({
             key={index}
             label={option}
             value={option}
-            color={Colors.light.white}
+            color={Colors.light.primaryDark}
           />
         ))}
       </Picker>

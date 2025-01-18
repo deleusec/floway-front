@@ -77,7 +77,7 @@ export default function InputComponentsDemo() {
               <SelectInput
                 options={timeOptions}
                 placeholder="Sélectionner le type"
-                status="deactivate"
+                status="disabled"
                 label="Type de mesure"
               />
             </View>

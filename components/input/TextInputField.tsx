@@ -4,6 +4,7 @@ import { Colors } from "@/constants/Colors";
 
 interface TextInputFieldProps {
   placeholder?: string;
+  multiline?: boolean;
   status?: "default" | "focused" | "error" | "success" | "disabled";
 }
 
@@ -17,6 +18,7 @@ const BORDER_COLORS = {
 
 export default function TextInputField({
   placeholder = "0.00",
+  multiline = false,
   status = "default",
 }: TextInputFieldProps) {
   const [isFocused, setIsFocused] = useState(false);
@@ -28,6 +30,7 @@ export default function TextInputField({
 
   return (
     <View style={[styles.container, { borderColor }]}>
+      
       <TextInput
         placeholder={placeholder}
         placeholderTextColor="#A5A5A5"
@@ -35,6 +38,7 @@ export default function TextInputField({
         editable={status !== "disabled"}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
+        multiline={multiline}
         style={styles.input}
       />
     </View>
