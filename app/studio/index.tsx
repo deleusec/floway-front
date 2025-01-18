@@ -6,6 +6,7 @@ import TextInputField from '@/components/input/TextInputField';
 import TimeInputField from '@/components/input/TimeInput';
 import { ThemedText } from '@/components/text/ThemedText';
 import { Colors } from '@/constants/Colors';
+import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
@@ -31,6 +32,27 @@ export default function CreateRun() {
     console.log('Goal type changed to', goalType);
   }, [goalType]);
 
+  const handleNext = () => {
+    const data = {
+      title,
+      goalType,
+      timeValues,
+      goalDistance,
+      description,
+    };
+
+    console.log(data);
+
+    // Détermine le type en fonction de goalType
+    const type = goalType === "Temps" ? "time" : "distance";
+
+    // Redirection vers la page /studio/[type]
+    router.push({
+      pathname: `/studio/[type]`,
+      params: { type },
+    });
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* KeyboardAvoidingView pour gérer le clavier */}
@@ -51,7 +73,7 @@ export default function CreateRun() {
 
           <View style={styles.field}>
             <ThemedText type="default">Titre de la Run</ThemedText>
-            <TextInputField placeholder="Ma première Run guidée" />
+            <TextInputField placeholder="Ma première Run guidée" value={title} onChange={setTitle} />
           </View>
 
           <View style={styles.field}>
@@ -84,14 +106,14 @@ export default function CreateRun() {
                   />
                 </View>
               ) : (
-                <DistanceInput placeholder={'0.00'} status={'default'} unit={'km'} />
+                <DistanceInput placeholder={'0.00'} status={'default'} unit={'km'} value={goalDistance} onChange={setGoalDistance} />
               )}
             </View>
           </View>
 
           <View style={styles.field}>
             <ThemedText type="default">Description de la Run</ThemedText>
-            <TextInputField placeholder="Une petite description de ma Run guidée" multiline />
+            <TextInputField placeholder="Une petite description de ma Run guidée" multiline value={description} onChange={setDescription} />
           </View>
         </ScrollView>
 
@@ -103,7 +125,7 @@ export default function CreateRun() {
               buttonSize="medium"
               buttonType="confirm"
               buttonState="default"
-              onPress={() => console.log('Suivant')}
+              onPress={() => handleNext()}
             />
           </View>
         </View>

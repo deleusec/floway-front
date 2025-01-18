@@ -29,8 +29,6 @@ export default function AllRunsScreen() {
   ];
 
   useEffect(() => {
-    // Récupérer les runs audio de l'utilisateur
-    // Remplace par ta logique de récupération des runs audio
     setAudioRuns([
       {
         title: 'Course matinale',

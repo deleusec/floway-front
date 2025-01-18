@@ -5,15 +5,18 @@ import { Colors } from '@/constants/Colors';
 interface DistanceInputProps {
   placeholder?: string; // Placeholder par défaut
   status: 'default' | 'focused' | 'error' | 'disabled'; // États possibles
-  unit?: string; // Unité à afficher (par défaut "km")
+  unit?: string; // Unité à afficher (par défaut "km");
+  value?: number; // Valeur du champ
+  onChange?: (newValue: number) => void; // Callback de changement de valeur
 }
 
 export default function DistanceInput({
   placeholder = '0.00', // Valeur par défaut du placeholder
   status,
   unit = 'km', // Unité par défaut
+  value,
+  onChange,
 }: DistanceInputProps) {
-  const [value, setValue] = useState<string>('');
   const [isFocused, setIsFocused] = useState<boolean>(false);
 
   const isDisabled = status === 'disabled';
@@ -28,8 +31,17 @@ export default function DistanceInput({
       ]}>
       <TextInput
         style={[styles.input, isDisabled && styles.inputDisabled]}
-        value={value}
-        onChangeText={setValue}
+        value={value?.toString()}
+        onChangeText={(newValue) => {
+          if (newValue === '') {
+            onChange?.(0);
+          } else {
+            const numValue = parseFloat(newValue);
+            if (!isNaN(numValue)) {
+              onChange?.(numValue);
+            }
+          }
+        }}
         placeholder={placeholder}
         placeholderTextColor="#A5A5A5"
         keyboardType="numeric"

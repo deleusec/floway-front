@@ -6,6 +6,8 @@ interface TextInputFieldProps {
   placeholder?: string;
   multiline?: boolean;
   status?: 'default' | 'focused' | 'error' | 'success' | 'disabled';
+  value?: string;
+  onChange?: (newValue: string) => void;
 }
 
 const BORDER_COLORS = {
@@ -20,6 +22,8 @@ export default function TextInputField({
   placeholder = '0.00',
   multiline = false,
   status = 'default',
+  value,
+  onChange,
 }: TextInputFieldProps) {
   const [isFocused, setIsFocused] = useState(false);
 
@@ -37,6 +41,8 @@ export default function TextInputField({
         onBlur={() => setIsFocused(false)}
         multiline={multiline}
         style={styles.input}
+        value={value}
+        onChangeText={onChange}
       />
     </View>
   );
