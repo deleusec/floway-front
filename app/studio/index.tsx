@@ -6,6 +6,7 @@ import TextInputField from '@/components/input/TextInputField';
 import TimeInputField from '@/components/input/TimeInput';
 import { ThemedText } from '@/components/text/ThemedText';
 import { Colors } from '@/constants/Colors';
+import { useStudioContext } from '@/context/StudioContext';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
@@ -32,6 +33,8 @@ export default function CreateRun() {
     console.log('Goal type changed to', goalType);
   }, [goalType]);
 
+  const { setStudioData } = useStudioContext();
+
   const handleNext = () => {
     const data = {
       title,
@@ -42,6 +45,7 @@ export default function CreateRun() {
     };
 
     console.log(data);
+    setStudioData(data);
 
     // Détermine le type en fonction de goalType
     const type = goalType === "Temps" ? "time" : "distance";
@@ -54,38 +58,38 @@ export default function CreateRun() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles.screen}>
       {/* KeyboardAvoidingView pour gérer le clavier */}
       <KeyboardAvoidingView
-        style={styles.container}
+        style={styles.keyboardContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         {/* Contenu défilable */}
         <ScrollView
-          contentContainerStyle={styles.scrollContainer}
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}>
-          <View style={styles.backButton}>
+          <View style={styles.backButtonContainer}>
             <BackButton />
           </View>
 
-          <View style={styles.header}>
+          <View style={styles.headerContainer}>
             <ThemedText type="title">Créer ma Run Guidée</ThemedText>
           </View>
 
-          <View style={styles.field}>
+          <View style={styles.inputGroup}>
             <ThemedText type="default">Titre de la Run</ThemedText>
             <TextInputField placeholder="Ma première Run guidée" value={title} onChange={setTitle} />
           </View>
 
-          <View style={styles.field}>
+          <View style={styles.inputGroup}>
             <ThemedText type="default">Type de l'objectif</ThemedText>
-            <View style={{ gap: 20 }}>
+            <View style={styles.selectContainer}>
               <SelectInput
                 options={['Temps', 'Distance']}
                 onValueChange={setGoalType}
                 value={goalType}
               />
               {goalType === 'Temps' ? (
-                <View style={styles.row}>
+                <View style={styles.timeFields}>
                   <TimeInputField
                     placeholder="00"
                     unit="heures"
@@ -106,20 +110,31 @@ export default function CreateRun() {
                   />
                 </View>
               ) : (
-                <DistanceInput placeholder={'0.00'} status={'default'} unit={'km'} value={goalDistance} onChange={setGoalDistance} />
+                <DistanceInput
+                  placeholder={'0.00'}
+                  status={'default'}
+                  unit={'km'}
+                  value={goalDistance}
+                  onChange={setGoalDistance}
+                />
               )}
             </View>
           </View>
 
-          <View style={styles.field}>
+          <View style={styles.inputGroup}>
             <ThemedText type="default">Description de la Run</ThemedText>
-            <TextInputField placeholder="Une petite description de ma Run guidée" multiline value={description} onChange={setDescription} />
+            <TextInputField
+              placeholder="Une petite description de ma Run guidée"
+              multiline
+              value={description}
+              onChange={setDescription}
+            />
           </View>
         </ScrollView>
 
         {/* Bouton "Suivant" */}
-        <View style={styles.footer}>
-          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+        <View style={styles.footerContainer}>
+          <View style={styles.buttonWrapper}>
             <ThemedButton
               title="Suivant"
               buttonSize="medium"
@@ -135,38 +150,45 @@ export default function CreateRun() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
+  screen: {
     flex: 1,
     backgroundColor: Colors.dark.primaryDark,
   },
-  container: {
+  keyboardContainer: {
     flex: 1,
   },
-  scrollContainer: {
+  scrollContent: {
     flexGrow: 1,
     padding: 24,
     paddingBottom: 80,
   },
-  backButton: {
+  backButtonContainer: {
     marginBottom: 16,
   },
-  header: {
+  headerContainer: {
     marginBottom: 20,
   },
-  field: {
+  inputGroup: {
     gap: 6,
     marginBottom: 20,
   },
-  row: {
+  selectContainer: {
+    gap: 20,
+  },
+  timeFields: {
     gap: 6,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  footer: {
+  footerContainer: {
     position: 'absolute',
     bottom: 16,
     left: 24,
     right: 24,
     zIndex: 10,
+  },
+  buttonWrapper: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

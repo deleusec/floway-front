@@ -3,6 +3,7 @@ import React from 'react';
 import { Text } from 'react-native';
 
 import { useSession } from '@/context/ctx';
+import { StudioProvider } from '@/context/StudioContext';
 
 export default function TabLayout() {
   const { session, isLoading } = useSession();
@@ -16,8 +17,8 @@ export default function TabLayout() {
   }
 
   return (
-    <>
+    <StudioProvider>
       <Slot />
-    </>
+    </StudioProvider>
   );
 }
