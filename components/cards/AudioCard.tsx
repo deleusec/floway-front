@@ -1,5 +1,5 @@
 import { Colors } from '@/constants/Colors';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '../text/ThemedText';
 
 interface AudioCardProps {
@@ -7,11 +7,13 @@ interface AudioCardProps {
   title: string;
   duration: number;
   start_time: string;
+  onPress?: () => void;
+  isSelected?: boolean;
 }
 
-export default function AudioCard({ id, title, duration, start_time }: AudioCardProps) {
+export default function AudioCard({ id, title, duration, start_time, onPress, isSelected = false }: AudioCardProps) {
   return (
-    <View style={styles.card}>
+    <Pressable style={[styles.card, isSelected && styles.cardSelected]} onPress={onPress} >
       <View style={styles.cardHeader}>
         <View style={styles.idCircle}>
           <ThemedText type="default" style={styles.idText}>{id}</ThemedText>
@@ -28,7 +30,7 @@ export default function AudioCard({ id, title, duration, start_time }: AudioCard
           <ThemedText type="default" style={styles.detailValue}>{start_time}</ThemedText>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
@@ -37,16 +39,23 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.dark.secondaryDark,
     borderRadius: 14,
     padding: 14,
-    marginVertical: 10,
     gap: 8,
     shadowColor: Colors.dark.primaryDark,
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 0,
     },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.5,
     shadowRadius: 3.84,
     elevation: 5,
+    borderWidth: 1,
+    borderColor: Colors.dark.secondaryDark,
+  },
+  cardSelected: {
+    borderWidth: 1,
+    borderColor: Colors.dark.primary,
+
+    shadowColor: Colors.dark.primary,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -62,7 +71,7 @@ const styles = StyleSheet.create({
   detailRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 2,
   },
   detailLabel: {
     color: Colors.dark.white,

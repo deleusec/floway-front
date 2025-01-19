@@ -22,13 +22,13 @@ interface ThemedButtonProps extends TouchableOpacityProps {
 }
 
 export const ThemedButton: React.FC<ThemedButtonProps> = ({
-                                                            title,
-                                                            buttonType = 'confirm',
-                                                            buttonSize = 'large',
-                                                            buttonState = 'default',
-                                                            style,
-                                                            ...rest
-                                                          }) => {
+  title,
+  buttonType = 'confirm',
+  buttonSize = 'large',
+  buttonState = 'default',
+  style,
+  ...rest
+}) => {
   const textColor = buttonType === 'confirm' ? Colors.light.primaryDark : Colors.dark.primaryDark;
   const borderColor = buttonType === 'cancel' ? Colors.light.mediumGrey : 'transparent';
 
@@ -38,7 +38,7 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
   const isLoading = buttonState === 'loading';
   const opacityStyle = buttonState === 'disabled' ? { opacity: 0.5 } : {};
 
-  const ButtonContent = () => (
+  const ButtonContent = () =>
     isLoading ? (
       <View style={styles.loadingContainer}>
         <Text style={[styles.text, { color: textColor }]}>{title}</Text>
@@ -46,24 +46,16 @@ export const ThemedButton: React.FC<ThemedButtonProps> = ({
       </View>
     ) : (
       <Text style={[styles.text, { color: textColor }]}>{title}</Text>
-    )
-  );
+    );
 
   return (
-    <TouchableOpacity
-      style={[style]}
-      disabled={buttonState === 'disabled' || isLoading}
-      {...rest}>
+    <TouchableOpacity style={[style]} disabled={buttonState === 'disabled' || isLoading} {...rest}>
       {buttonType === 'confirm' ? (
         <LinearGradient
           colors={['#C0FC95', '#91DC5C']}
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
-          style={[
-            styles.button,
-            heightStyle,
-            opacityStyle,
-          ]}>
+          style={[styles.button, heightStyle, opacityStyle]}>
           <ButtonContent />
         </LinearGradient>
       ) : (
