@@ -11,6 +11,7 @@ const CustomModal = ({
   confirmButton,
   cancelAction,
   confirmAction,
+  style,
 }: {
   visible: boolean;
   onClose: () => void;
@@ -19,11 +20,12 @@ const CustomModal = ({
   confirmButton?: boolean;
   cancelAction?: () => void;
   confirmAction?: () => void;
+  style?: 'default' | 'bordered';
 }) => {
   return (
     <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable style={styles.modal} onPress={(e) => e.stopPropagation()}>
+        <Pressable style={[styles.modal, style === 'bordered' && styles.modalBordered]} onPress={(e) => e.stopPropagation()}>
           {/* Contenu de la modale passé par props */}
           {children}
 
@@ -69,6 +71,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 20,
     alignItems: 'center',
+  },
+
+  // Style de la modale bordée
+  modalBordered: {
+    borderWidth: 1,
+    borderColor: Colors.light.primary
   },
 
   // Groupe de boutons (Annuler / Confirmer)

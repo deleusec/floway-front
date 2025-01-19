@@ -7,6 +7,7 @@ import { PictureCard } from '@/components/ThemedPictureCard';
 import CustomModal from '@/components/modal/CustomModal';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Link } from 'expo-router';
+import ThemedButton from '@/components/button/ThemedButton';
 
 interface Run {
   title: string;
@@ -97,10 +98,11 @@ export default function AllRunsScreen() {
         )}
 
         {/* Modal avec contenu personnalisé */}
-        <CustomModal visible={isModalVisible} onClose={() => setIsModalVisible(false)}>
+        <CustomModal visible={isModalVisible} onClose={() => setIsModalVisible(false)} style={'bordered'}>
           <Text style={{ color: 'white', fontSize: 18, textAlign: 'center' }}>
             Contenu de la modale
           </Text>
+          <ThemedButton title="Lancer la session" buttonSize="medium" buttonType="confirm" onPress={() => {}} />
         </CustomModal>
       </ScrollView>
     </SafeAreaView>

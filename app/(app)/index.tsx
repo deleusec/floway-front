@@ -4,6 +4,8 @@ import { Colors } from '@/constants/Colors';
 import { PictureCard } from '@/components/ThemedPictureCard';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSession } from '@/context/ctx';
+import { Ionicons } from '@expo/vector-icons';
+import { Link } from 'expo-router';
 
 export default function HomeScreen() {
   const { user } = useSession();
@@ -21,7 +23,9 @@ export default function HomeScreen() {
             </View>
           </View>
           <View style={styles.settingsIcon}>
-            <Image source={require('@/assets/images/start.jpg')} style={styles.settingsIconImage} />
+            <Link href="/explore">
+              <Ionicons name="settings" size={24} color={Colors.light.primary} />
+            </Link>
           </View>
         </View>
 
