@@ -1,49 +1,63 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet, TextInput, View, Text } from 'react-native';
 import { Colors } from '@/constants/Colors';
 
 interface TextInputFieldProps {
+  label?: string;
   placeholder?: string;
   multiline?: boolean;
-  status?: 'default' | 'focused' | 'error' | 'success' | 'disabled';
+  status?: 'default' | 'error' | 'success' | 'disabled';
   value?: string;
   onChange?: (newValue: string) => void;
+  keyboardType?: 'default' | 'numeric' | 'email-address' | 'phone-pad';
+  secureTextEntry?: boolean;
+  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+  style?: any;
+  errorMessage?: string;
 }
 
 const BORDER_COLORS = {
-  default: '#3A3A3A',
-  focused: '#C0FC95',
+  default: Colors.light.secondaryDark,
   error: '#D13F11',
   success: '#91DC5C',
   disabled: '#5A5A5A',
 };
 
 export default function TextInputField({
-  placeholder = '0.00',
-  multiline = false,
-  status = 'default',
-  value,
-  onChange,
-}: TextInputFieldProps) {
-  const [isFocused, setIsFocused] = useState(false);
-
-  // Appliquer la couleur selon le statut ou le focus
-  const borderColor = isFocused ? BORDER_COLORS['focused'] : BORDER_COLORS[status];
-
+                                         label,
+                                         placeholder = '',
+                                         multiline = false,
+                                         status = 'default',
+                                         value,
+                                         onChange,
+                                         keyboardType = 'default',
+                                         secureTextEntry = false,
+                                         autoCapitalize = 'sentences',
+                                         style,
+                                         errorMessage,
+                                         ...rest
+                                       }: TextInputFieldProps) {
   return (
-    <View style={[styles.container, { borderColor }]}>
-      <TextInput
-        placeholder={placeholder}
-        placeholderTextColor="#A5A5A5"
-        keyboardType="numeric"
-        editable={status !== 'disabled'}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        multiline={multiline}
-        style={styles.input}
-        value={value}
-        onChangeText={onChange}
-      />
+    <View style={style}>
+      {label && <Text style={styles.label}>{label}</Text>}
+      <View style={[styles.container, { borderColor: BORDER_COLORS[status] }]}>
+        <TextInput
+          placeholder={placeholder}
+          placeholderTextColor={Colors.light.mediumGrey}
+          keyboardType={keyboardType}
+          editable={status !== 'disabled'}
+          multiline={multiline}
+          style={styles.input}
+          value={value}
+          onChangeText={onChange}
+          secureTextEntry={secureTextEntry}
+          autoCapitalize={autoCapitalize}
+          {...rest}
+        />
+      </View>
+      {status === 'error' && errorMessage && (
+        <Text style={styles.errorMessage}>{errorMessage}</Text>
+      )}
     </View>
   );
 }
@@ -61,5 +75,18 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Medium',
     fontSize: 14,
     color: Colors.light.white,
+    padding: 0,
+  },
+  label: {
+    fontSize: 16,
+    color: Colors.light.white,
+    marginBottom: 8,
+    fontFamily: 'Poppins-Regular',
+  },
+  errorMessage: {
+    color: '#D13F11',
+    fontSize: 12,
+    marginTop: 4,
+    fontFamily: 'Poppins-Regular',
   },
 });

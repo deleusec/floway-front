@@ -50,7 +50,6 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     justifyContent: 'flex-end',
-    alignItems: 'center',
     padding: 16,
   },
   title: {
@@ -69,7 +68,6 @@ const styles = StyleSheet.create({
   },
   button: {
     marginBottom: 30,
-    width: '100%',
   },
   signInText: {
     fontSize: 14,

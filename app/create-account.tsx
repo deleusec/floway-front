@@ -1,8 +1,8 @@
 import { router } from 'expo-router';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, SafeAreaView } from 'react-native';
-
+import { StyleSheet, Text, TouchableOpacity, SafeAreaView, View } from 'react-native';
 import { useSession } from '@/context/ctx';
 import { ThemedButton } from '@/components/button/ThemedButton';
+import TextInputField from '@/components/input/TextInputField';
 import React, { useState } from 'react';
 
 export default function CreateAccount() {
@@ -11,15 +11,59 @@ export default function CreateAccount() {
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+  });
+
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validateForm = () => {
+    const newFieldErrors = {
+      firstName: !firstName ? 'Ce champs est obligatoire.' : '',
+      lastName: !lastName ? 'Ce champs est obligatoire.' : '',
+      email: !email
+        ? 'Ce champs est obligatoire.'
+        : !isValidEmail(email)
+          ? 'Veuillez respecter le format du courriel.'
+          : '',
+      password: !password ? 'Ce champs est obligatoire.' : '',
+    };
+
+    setFieldErrors(newFieldErrors);
+
+    return !Object.values(newFieldErrors).some(error => error !== '');
+  };
 
   const handleRegister = async () => {
     try {
       setError(null);
+      setFieldErrors({
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: '',
+      });
+
+      if (!validateForm()) {
+        setError("Merci de remplir tous les champs correctement afin de procéder à l'inscription.");
+        return;
+      }
+
+      setIsLoading(true);
       await register(email, password, firstName, lastName);
       router.replace('/sign-in');
     } catch (err) {
-      setError('Échec de l’inscription. Veuillez réessayer.');
+      setError("Merci de remplir tous les champs correctement afin de procéder à l'inscription.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -28,39 +72,53 @@ export default function CreateAccount() {
       <View style={styles.content}>
         <Text style={styles.title}>Créer un compte</Text>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Prénom</Text>
-          <TextInput style={styles.input} value={firstName} onChangeText={setFirstName} />
-        </View>
+        <TextInputField
+          label="Prénom"
+          value={firstName}
+          onChange={setFirstName}
+          status={fieldErrors.firstName ? 'error' : 'default'}
+          errorMessage={fieldErrors.firstName}
+          style={styles.input}
+        />
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Nom</Text>
-          <TextInput style={styles.input} value={lastName} onChangeText={setLastName} />
-        </View>
+        <TextInputField
+          label="Nom"
+          value={lastName}
+          onChange={setLastName}
+          status={fieldErrors.lastName ? 'error' : 'default'}
+          errorMessage={fieldErrors.lastName}
+          style={styles.input}
+        />
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            autoCapitalize={'none'}
-            value={email}
-            onChangeText={setEmail}
-          />
-        </View>
+        <TextInputField
+          label="Email"
+          value={email}
+          onChange={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          status={fieldErrors.email ? 'error' : 'default'}
+          errorMessage={fieldErrors.email}
+          style={styles.input}
+        />
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Mot de passe</Text>
-          <TextInput
-            style={styles.input}
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
-        </View>
+        <TextInputField
+          label="Mot de passe"
+          value={password}
+          onChange={setPassword}
+          secureTextEntry
+          status={fieldErrors.password ? 'error' : 'default'}
+          errorMessage={fieldErrors.password}
+          style={styles.input}
+        />
 
-        {error && <Text>{error}</Text>}
+        <ThemedButton
+          title="S'inscrire"
+          onPress={handleRegister}
+          style={styles.button}
+          buttonState={isLoading ? 'loading' : 'default'}
+        />
 
-        <ThemedButton title="S'inscrire" onPress={handleRegister} style={styles.button} />
+        {error && <Text style={styles.error}>{error}</Text>}
       </View>
 
       <TouchableOpacity onPress={() => router.push('/sign-in')} style={styles.signUpContainer}>
@@ -88,24 +146,12 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     marginBottom: 30,
   },
-  inputContainer: {
-    width: '100%',
-    marginBottom: 30,
-  },
-  label: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    marginBottom: 8,
-  },
   input: {
-    backgroundColor: '#2A2D36',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    color: '#FFFFFF',
+    marginBottom: 24,
   },
   button: {
     marginTop: 16,
+    marginBottom: 14,
   },
   signUpContainer: {
     justifyContent: 'flex-end',
@@ -121,4 +167,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textDecorationLine: 'underline',
   },
+  error: {
+    fontSize: 14,
+    color: '#D13F11',
+    textAlign: 'center',
+  }
 });

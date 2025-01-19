@@ -1,25 +1,66 @@
 import { router } from 'expo-router';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView } from 'react-native';
 
 import { useSession } from '@/context/ctx';
 import { ThemedButton } from '@/components/button/ThemedButton';
-import React from 'react';
-
-import { useState } from 'react';
+import React, { useState } from 'react';
+import TextInputField from "@/components/input/TextInputField";
 
 export default function SignIn() {
   const { signIn } = useSession();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({
+    email: '',
+    password: '',
+  });
+
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validateForm = () => {
+    const newFieldErrors = {
+      email: !email
+        ? 'Ce champs est obligatoire.'
+        : !isValidEmail(email)
+          ? 'Veuillez respecter le format du courriel.'
+          : '',
+      password: !password ? 'Ce champs est obligatoire.' : '',
+    };
+
+    setFieldErrors(newFieldErrors);
+
+    return !Object.values(newFieldErrors).some(error => error !== '');
+  };
 
   const handleSignIn = async () => {
     try {
       setError(null);
+      setFieldErrors({
+        email: '',
+        password: '',
+      });
+
+      if (!validateForm()) {
+        setError('Merci de remplir tous les champs correctement.');
+        return;
+      }
+
+      setIsLoading(true);
       await signIn(email, password);
       router.replace('/');
     } catch (err) {
-      setError('Échec de la connexion. Veuillez vérifier vos identifiants.');
+      setError('Votre email ou mot de passe est incorrect.');
+      setFieldErrors({
+        email: ' ',
+        password: ' ',
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -28,29 +69,35 @@ export default function SignIn() {
       <View style={styles.content}>
         <Text style={styles.title}>Se connecter</Text>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            autoCapitalize={'none'}
-            value={email}
-            onChangeText={setEmail}
-          />
-        </View>
+        <TextInputField
+          label="Email"
+          value={email}
+          onChange={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          status={fieldErrors.email ? 'error' : 'default'}
+          errorMessage={fieldErrors.email}
+          style={styles.input}
+        />
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.label}>Mot de passe</Text>
-          <TextInput
-            style={styles.input}
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
-        </View>
+        <TextInputField
+          label="Mot de passe"
+          value={password}
+          onChange={setPassword}
+          secureTextEntry
+          status={fieldErrors.password ? 'error' : 'default'}
+          errorMessage={fieldErrors.password}
+          style={styles.input}
+        />
 
-        {error && <Text>{error}</Text>}
+        <ThemedButton
+          title="Se connecter"
+          onPress={handleSignIn}
+          style={styles.button}
+          buttonState={isLoading ? 'loading' : 'default'}
+        />
 
-        <ThemedButton title="Se connecter" onPress={handleSignIn} style={styles.button} />
+        {error && <Text style={styles.error}>{error}</Text>}
       </View>
 
       <TouchableOpacity
@@ -80,32 +127,12 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     marginBottom: 30,
   },
-  inputContainer: {
-    width: '100%',
-    marginBottom: 30,
-  },
-  label: {
-    fontSize: 16,
-    color: '#FFFFFF',
-    marginBottom: 8,
-  },
   input: {
-    backgroundColor: '#2A2D36',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    color: '#FFFFFF',
-  },
-  forgotPassword: {
-    fontSize: 14,
-    fontWeight: '500',
-    textDecorationLine: 'underline',
-    color: '#FFFFFF',
-    marginTop: 5,
-    marginBottom: 16,
+    marginBottom: 24,
   },
   button: {
     marginTop: 16,
+    marginBottom: 14
   },
   signUpContainer: {
     justifyContent: 'flex-end',
@@ -121,4 +148,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textDecorationLine: 'underline',
   },
+  error: {
+    fontSize: 14,
+    color: '#D13F11',
+    textAlign: 'center',
+  }
 });
