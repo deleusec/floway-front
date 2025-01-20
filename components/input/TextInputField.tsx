@@ -24,19 +24,19 @@ const BORDER_COLORS = {
 };
 
 export default function TextInputField({
-                                         label,
-                                         placeholder = '',
-                                         multiline = false,
-                                         status = 'default',
-                                         value,
-                                         onChange,
-                                         keyboardType = 'default',
-                                         secureTextEntry = false,
-                                         autoCapitalize = 'sentences',
-                                         style,
-                                         errorMessage,
-                                         ...rest
-                                       }: TextInputFieldProps) {
+  label,
+  placeholder = '',
+  multiline = false,
+  status = 'default',
+  value,
+  onChange,
+  keyboardType = 'default',
+  secureTextEntry = false,
+  autoCapitalize = 'sentences',
+  style,
+  errorMessage,
+  ...rest
+}: TextInputFieldProps) {
   return (
     <View style={style}>
       {label && <Text style={styles.label}>{label}</Text>}
