@@ -6,9 +6,8 @@ import { ThemedText } from '@/components/text/ThemedText';
 import { Colors } from '@/constants/Colors';
 import { useStudioContext } from '@/context/StudioContext';
 import { Ionicons } from '@expo/vector-icons';
-import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView, ScrollView, StyleSheet, View } from 'react-native';
 import ThemedButton from '@/components/button/ThemedButton';
 import CustomModal from '@/components/modal/CustomModal';
 import TextInputField from '@/components/input/TextInputField';
@@ -30,80 +29,34 @@ export default function StudioByType() {
   const [isCustomAudioModalVisible, setIsCustomAudioModalVisible] = useState(false);
   const [isDeleteAudioModalVisible, setIsDeleteAudioModalVisible] = useState(false);
 
-  const navigation = useLocalSearchParams();
   const { studioData } = useStudioContext();
   const { session } = useSession();
 
-  const { type } = navigation;
   const { goalType, timeValues, goalDistance } = studioData;
 
   useEffect(() => {
-    setAudioList([
-      {
-        id: 1,
-        title: 'Audio 1',
-        duration: 120,
-        start_time: '00:00:00',
-      },
-      {
-        id: 2,
-        title: 'Audio 2',
-        duration: 180,
-        start_time: '00:02:00',
-      },
-      {
-        id: 3,
-        title: 'Audio 3',
-        duration: 240,
-        start_time: '00:05:00',
-      },
-      {
-        id: 4,
-        title: 'Audio 4',
-        duration: 300,
-        start_time: '00:09:00',
-      },
-      {
-        id: 5,
-        title: 'Audio 5',
-        duration: 360,
-        start_time: '00:14:00',
-      },
-      {
-        id: 6,
-        title: 'Audio 6',
-        duration: 420,
-        start_time: '00:20:00',
-      },
-      {
-        id: 7,
-        title: 'Audio 7',
-        duration: 480,
-        start_time: '00:27:00',
-      },
-      {
-        id: 8,
-        title: 'Audio 8',
-        duration: 540,
-        start_time: '00:35:00',
-      },
-      {
-        id: 9,
-        title: 'Audio 9',
-        duration: 600,
-        start_time: '00:44:00',
-      },
-      {
-        id: 10,
-        title: 'Audio 10',
-        duration: 660,
-        start_time: '00:54:00',
-      },
-    ]);
-  }, []);
+    fetchAudios();
+  } , []);
 
-  const handleSubmit = () => {
-    console.log('Submit');
+  const fetchAudios = async () => {
+    try {
+      const response = await fetch('https://api.floway.edgar-lecomte.fr/api/audio', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${session}`,
+        },
+      });
+
+      if (response.status === 200) {
+        const data = await response.json();
+        setAudioList(data);
+      } else {
+        console.error('Failed to fetch audios. Status:', response.status);
+      }
+    }
+    catch (error) {
+      console.error('Error during audio fetch:', error);
+    }
   };
 
   const handleImportAudio = async () => {
@@ -122,21 +75,27 @@ export default function StudioByType() {
 
       console.log('Selected file:', audioFile);
 
+      // Téléchargez le fichier comme blob
+      const response = await fetch(audioFile.uri);
+      const blob = await response.blob();
+
       const formData = new FormData();
-      formData.append('file', `@${audioFile.uri}`);
+      console.log('Blob:', response);
+
+      formData.append('file', blob, audioFile.name);
       formData.append('payload', JSON.stringify({ title: audioFile.name }));
 
-      const response = await fetch('https://api.floway.edgar-lecomte.fr/api/audio', {
+      // Envoyez la requête au backend
+      const responseFromApi = await fetch('https://api.floway.edgar-lecomte.fr/api/audio', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${session}`,
-          'Content-Type': 'multipart/form-data',
         },
         body: formData,
       });
 
-      if (response.status === 201) {
-        const newAudio = await response.json();
+      if (responseFromApi.status === 201) {
+        const newAudio = await responseFromApi.json();
         console.log('Audio uploaded successfully:', newAudio);
 
         setAudioList((prev) => [
@@ -149,11 +108,16 @@ export default function StudioByType() {
           },
         ]);
       } else {
-        console.error('Failed to upload audio. Status:', response.status);
+        console.error('Failed to upload audio. Status:', responseFromApi);
       }
     } catch (error) {
       console.error('Error during audio upload:', error);
     }
+  };
+
+
+  const handleSubmit = () => {
+    console.log('Submit');
   };
 
   return (

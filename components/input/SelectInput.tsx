@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: Colors.light.secondaryDark,
-    borderRadius: 16,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
     height: 50,

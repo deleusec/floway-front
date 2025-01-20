@@ -1,4 +1,4 @@
-import { SafeAreaView, Text, StyleSheet, ScrollView, View } from 'react-native';
+import { SafeAreaView, Text, StyleSheet, ScrollView, View, Image } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { Colors } from '@/constants/Colors';
 import { ThemedText } from '@/components/text/ThemedText';
@@ -14,15 +14,14 @@ interface Run {
   metrics: string[];
   description: string;
   image: any;
-  onPress: () => void;
 }
 
 export default function AllRunsScreen() {
   const [activeTab, setActiveTab] = useState('audio');
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedRun, setSelectedRun] = useState<Run | null>(null);
 
   const [audioRuns, setAudioRuns] = useState<Run[]>([]);
-  const [programs, setPrograms] = useState<Run[]>([]);
 
   const tabs = [
     { key: 'audio', label: 'Audio' },
@@ -36,17 +35,20 @@ export default function AllRunsScreen() {
         metrics: ['45 min'],
         description: 'Course matinale pour bien démarrer la journée',
         image: require('@/assets/images/start.jpg'),
-        onPress: () => setIsModalVisible(true),
       },
       {
         title: 'Course du soir',
         metrics: ['30 min'],
         description: 'Course du soir pour se détendre',
         image: require('@/assets/images/start.jpg'),
-        onPress: () => setIsModalVisible(true),
       },
     ]);
   }, []);
+
+  const handleRunSelect = (run: Run) => {
+    setSelectedRun(run);
+    setIsModalVisible(true);
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -56,14 +58,12 @@ export default function AllRunsScreen() {
             Mes runs guidées
           </ThemedText>
           <Link href="/studio">
-            <TabBarIcon name="add-circle-outline" color="white" size={24} />
+            <TabBarIcon name="add-circle-outline" color="white" size={28} />
           </Link>
         </View>
 
-        {/* Tabs */}
         <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
-        {/* Contenu en fonction de l'onglet actif */}
         {activeTab === 'audio' ? (
           <View style={styles.content}>
             {audioRuns.length > 0 ? (
@@ -74,7 +74,7 @@ export default function AllRunsScreen() {
                   metrics={run.metrics}
                   subtitle={run.description}
                   image={run.image}
-                  onPress={run.onPress}
+                  onPress={() => handleRunSelect(run)}
                 />
               ))
             ) : (
@@ -86,23 +86,51 @@ export default function AllRunsScreen() {
           </View>
         ) : (
           <View style={styles.content}>
-            {programs.length > 0 ? (
-              <View>{/* TODO: Afficher les programmes de l'utilisateur */}</View>
-            ) : (
-              <ThemedText type="legend" style={styles.contentText}>
-                Vous ne possédez aucun programme. Créez en un nouveau en cliquant sur le bouton
-                ci-dessous.
-              </ThemedText>
-            )}
+            <ThemedText type="legend" style={styles.contentText}>
+              Vous ne possédez aucun programme. Créez en un nouveau en cliquant sur le bouton
+              ci-dessous.
+            </ThemedText>
           </View>
         )}
+        <CustomModal
+          visible={isModalVisible}
+          onClose={() => setIsModalVisible(false)}
+          bordered
+          cross
+          footer={
+            <ThemedButton
+              title="Lancer la session"
+              buttonSize="medium"
+              buttonType="confirm"
+              onPress={() => setIsModalVisible(false)}
+            />
+          }>
+           <View style={styles.modal}>
+          <View style={styles.modalContent}>
+            {selectedRun && selectedRun.image && (
+              <Image source={selectedRun.image} style={styles.image} />
+            )}
 
-        {/* Modal avec contenu personnalisé */}
-        <CustomModal visible={isModalVisible} onClose={() => setIsModalVisible(false)} style={'bordered'}>
-          <Text style={{ color: 'white', fontSize: 18, textAlign: 'center' }}>
-            Contenu de la modale
-          </Text>
-          <ThemedButton title="Lancer la session" buttonSize="medium" buttonType="confirm" onPress={() => {}} />
+            <View style={styles.modalHeader}>
+              <ThemedText type="default" style={styles.modalTitle}>
+                {selectedRun?.title}
+              </ThemedText>
+              {selectedRun?.metrics && (
+                <View style={styles.modalMetricsContainer}>
+                  {selectedRun.metrics.map((metric, index) => (
+                    <Text key={index} style={styles.metric}>
+                      {metric}
+                    </Text>
+                  ))}
+                </View>
+              )}
+            </View>
+          </View>
+
+          {selectedRun?.description && (
+            <Text style={styles.modalSubtitle}>{selectedRun.description}</Text>
+          )}
+        </View>
         </CustomModal>
       </ScrollView>
     </SafeAreaView>
@@ -112,11 +140,11 @@ export default function AllRunsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-  },
-  container: {
-    flexGrow: 1,
     padding: 24,
     backgroundColor: Colors.dark.primaryDark,
+  },
+  container: {
+    flex: 1,
   },
   header: {
     flexDirection: 'row',
@@ -132,5 +160,47 @@ const styles = StyleSheet.create({
   contentText: {
     padding: 16,
     textAlign: 'center',
+  },
+  image: {
+    width: 64,
+    height: 64,
+    borderRadius: 8,
+    marginRight: 12,
+  },
+  // Modal styles
+  modal: {
+    gap: 16,
+    width: '100%',
+  },
+  modalContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  modalHeader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
+  modalTitle: {
+    fontSize: 16,
+    color: Colors.light.white,
+    fontFamily: 'Poppins-Medium',
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: Colors.light.lightGrey,
+    fontFamily: 'Poppins-Regular',
+  },
+  modalMetricsContainer: {
+    flexDirection: 'row',
+    marginTop: 4,
+  },
+  metric: {
+    fontSize: 14,
+    fontFamily: 'Poppins-Regular',
+    color: Colors.light.white,
+    marginRight: 8,
   },
 });
