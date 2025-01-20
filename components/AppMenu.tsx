@@ -21,7 +21,7 @@ export default function AppMenu() {
 
       {/* Play Button */}
       <View style={styles.playButtonContainer}>
-        <Link href="/start" style={styles.playButton}>
+        <Link href="/session" style={styles.playButton}>
           <Image source={require('@/assets/images/play-button.png')} />
         </Link>
       </View>
