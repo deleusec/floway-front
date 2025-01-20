@@ -14,7 +14,8 @@ import CustomModal from '@/components/modal/CustomModal';
 import TextInputField from '@/components/input/TextInputField';
 import TimeInputField from '@/components/input/TimeInput';
 import DistanceInput from '@/components/input/DistanceInput';
-
+import * as DocumentPicker from 'expo-document-picker';
+import { useSession } from '@/context/ctx';
 interface Audio {
   id: number;
   title: string;
@@ -27,9 +28,11 @@ export default function StudioByType() {
   const [playerState, setPlayerState] = useState<'playing' | 'paused'>('paused');
   const [selectedAudio, setSelectedAudio] = useState<number | null>(null);
   const [isCustomAudioModalVisible, setIsCustomAudioModalVisible] = useState(false);
+  const [isDeleteAudioModalVisible, setIsDeleteAudioModalVisible] = useState(false);
 
   const navigation = useLocalSearchParams();
   const { studioData } = useStudioContext();
+  const { session } = useSession();
 
   const { type } = navigation;
   const { goalType, timeValues, goalDistance } = studioData;
@@ -103,6 +106,56 @@ export default function StudioByType() {
     console.log('Submit');
   };
 
+  const handleImportAudio = async () => {
+    try {
+      const file = await DocumentPicker.getDocumentAsync({
+        type: 'audio/*',
+        copyToCacheDirectory: true,
+      });
+
+      if (file.canceled) {
+        console.log('User canceled document picker');
+        return;
+      }
+
+      const audioFile = file.assets[0];
+
+      console.log('Selected file:', audioFile);
+
+      const formData = new FormData();
+      formData.append('file', `@${audioFile.uri}`);
+      formData.append('payload', JSON.stringify({ title: audioFile.name }));
+
+      const response = await fetch('https://api.floway.edgar-lecomte.fr/api/audio', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session}`,
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
+
+      if (response.status === 201) {
+        const newAudio = await response.json();
+        console.log('Audio uploaded successfully:', newAudio);
+
+        setAudioList((prev) => [
+          ...prev,
+          {
+            id: newAudio.id,
+            title: newAudio.title,
+            duration: newAudio.duration,
+            start_time: newAudio.start_time,
+          },
+        ]);
+      } else {
+        console.error('Failed to upload audio. Status:', response.status);
+      }
+    } catch (error) {
+      console.error('Error during audio upload:', error);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.mainContent}>
@@ -115,7 +168,9 @@ export default function StudioByType() {
           </View>
         </View>
 
-        <ThemedText type="title">Mes audios</ThemedText>
+        <ThemedText type="title" style={{ paddingHorizontal: 24 }}>
+          Mes audios
+        </ThemedText>
         <View style={styles.audioListWrapper}>
           <LinearGradient
             colors={[Colors.dark.primaryDark, 'transparent']}
@@ -161,6 +216,7 @@ export default function StudioByType() {
                 size={20}
                 color="white"
                 style={[selectedAudio === null && { opacity: 0.4 }]}
+                onPress={() => setIsDeleteAudioModalVisible(true)}
               />
               <Ionicons
                 name="create"
@@ -191,7 +247,7 @@ export default function StudioByType() {
             </View>
             <View style={styles.actionBarElement}>
               <Ionicons name="mic" size={20} color="white" />
-              <Ionicons name="file-tray" size={20} color="white" />
+              <Ionicons name="file-tray" size={20} color="white" onPress={handleImportAudio} />
             </View>
           </View>
         </View>
@@ -211,11 +267,14 @@ export default function StudioByType() {
 
       <CustomModal
         visible={isCustomAudioModalVisible}
-        cancelButton={true}
-        confirmButton={true}
+        cancelButton
+        confirmButton
         confirmAction={() => setIsCustomAudioModalVisible(false)}
         onClose={() => setIsCustomAudioModalVisible(false)}>
         <View style={styles.modalContent}>
+          <ThemedText type="title" style={styles.modalText}>
+            Modifier l’audio
+          </ThemedText>
           <View style={styles.modalInputGroup}>
             <ThemedText type="default">Titre</ThemedText>
             <TextInputField placeholder="Titre de l’audio" value={''} onChange={() => {}} />
@@ -255,6 +314,19 @@ export default function StudioByType() {
           </View>
         </View>
       </CustomModal>
+
+      <CustomModal
+        visible={isDeleteAudioModalVisible}
+        cancelButton
+        confirmButton
+        confirmAction={() => setIsDeleteAudioModalVisible(false)}
+        onClose={() => setIsDeleteAudioModalVisible(false)}>
+        <View style={styles.modalContent}>
+          <ThemedText type="default" style={styles.modalText}>
+            Etes-vous sûr de vouloir supprimer cet audio ?
+          </ThemedText>
+        </View>
+      </CustomModal>
     </SafeAreaView>
   );
 }
@@ -266,14 +338,13 @@ const styles = StyleSheet.create({
   },
   mainContent: {
     flex: 5,
-    paddingHorizontal: 24,
-    paddingTop: 24,
   },
   audioListWrapper: {
     flex: 1,
   },
   audioList: {
     flexGrow: 1,
+    paddingHorizontal: 24,
   },
   audioListContent: {
     paddingBottom: 30,
@@ -303,6 +374,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 24,
+    paddingHorizontal: 24,
+    paddingTop: 24,
   },
   infoIcon: {
     width: 24,
@@ -351,8 +424,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    padding: 16,
     width: '100%',
+  },
+  modalText: {
+    marginBottom: 20,
+    marginTop: 10,
+    textAlign: 'center',
   },
   modalInputGroup: {
     marginBottom: 20,

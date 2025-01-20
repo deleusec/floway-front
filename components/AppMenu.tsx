@@ -1,7 +1,7 @@
 import { Colors } from '@/constants/Colors';
 import { Link } from 'expo-router';
 import { Image, StyleSheet, View } from 'react-native';
-import { TabBarIcon } from './navigation/TabBarIcon';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function AppMenu() {
   return (
@@ -10,6 +10,7 @@ export default function AppMenu() {
       <View style={styles.wave}>
         <Image source={require('@/assets/images/wave.png')} />
       </View>
+      <LinearGradient colors={['transparent', Colors.dark.primaryDark]} style={styles.bottomGradient} />
 
       {/* Home Link */}
       <View style={styles.navLinkContainer}>
@@ -59,12 +60,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     transform: [{ translateY: -5 }],
+    zIndex: 2,
   },
   playButton: {
     height: '100%',
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 2,
   },
   wave: {
     position: 'absolute',
@@ -72,5 +75,16 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 1,
+  },
+  bottomGradient: {
+    position: 'absolute',
+    pointerEvents: 'none',
+    bottom: '100%',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 40,
+    zIndex: 0
   },
 });
