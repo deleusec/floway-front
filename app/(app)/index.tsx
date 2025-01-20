@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSession } from '@/context/ctx';
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function HomeScreen() {
   const { user } = useSession();
@@ -51,41 +52,47 @@ export default function HomeScreen() {
         {/* Section courses récentes */}
         <View style={styles.coursesContainer}>
           <Text style={styles.coursesTitle}>Courses récentes</Text>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContent}
-            style={styles.scrollView}>
-            <PictureCard
-              title="Hier, course de 7km"
-              metrics={['45 min', '232kcal', "5'10''"]}
-              image={require('@/assets/images/start.jpg')}
+          <View style={styles.coursesScrollWrapper}>
+            <LinearGradient
+              colors={[Colors.dark.primaryDark, 'transparent']}
+              style={styles.topGradient}
             />
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.scrollContent}
+              style={styles.scrollView}>
+              <PictureCard
+                title="Hier, course de 7km"
+                metrics={['45 min', '232kcal', "5'10''"]}
+                image={require('@/assets/images/start.jpg')}
+              />
 
-            <PictureCard
-              title="Hier, course de 7km"
-              metrics={['45 min', '232kcal', "5'10''"]}
-              image={require('@/assets/images/start.jpg')}
-              onPress={() => console.log('Course pressed')}
-              isSelected={false}
-            />
+              <PictureCard
+                title="Hier, course de 7km"
+                metrics={['45 min', '232kcal', "5'10''"]}
+                image={require('@/assets/images/start.jpg')}
+                onPress={() => console.log('Course pressed')}
+                isSelected={false}
+              />
 
-            <PictureCard
-              title="Hier, course de 7km"
-              metrics={['45 min', '232kcal', "5'10''"]}
-              image={require('@/assets/images/start.jpg')}
-              onPress={() => console.log('Course pressed')}
-              isSelected={false}
-            />
+              <PictureCard
+                title="Hier, course de 7km"
+                metrics={['45 min', '232kcal', "5'10''"]}
+                image={require('@/assets/images/start.jpg')}
+                onPress={() => console.log('Course pressed')}
+                isSelected={false}
+              />
 
-            <PictureCard
-              title="Premier run"
-              subtitle="Une run de récupération sur 5km pour débuter."
-              metrics={['5km']}
-              image={require('@/assets/images/start.jpg')}
-              onPress={() => console.log('Run selected')}
-              isSelected={true}
-            />
-          </ScrollView>
+              <PictureCard
+                title="Premier run"
+                subtitle="Une run de récupération sur 5km pour débuter."
+                metrics={['5km']}
+                image={require('@/assets/images/start.jpg')}
+                onPress={() => console.log('Run selected')}
+                isSelected={true}
+              />
+            </ScrollView>
+          </View>
         </View>
       </View>
     </SafeAreaView>
@@ -174,16 +181,28 @@ const styles = StyleSheet.create({
     flex: 1,
     marginBottom: -16,
   },
+  coursesScrollWrapper: {
+    flex: 1,
+  },
   coursesTitle: {
     fontSize: 20,
     color: Colors.light.white,
     fontFamily: 'Poppins-SemiBold',
-    marginBottom: 8,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
     paddingBottom: 70,
+    paddingTop: 10,
+  },
+  topGradient: {
+    position: 'absolute',
+    pointerEvents: 'none',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 20,
+    zIndex: 10,
   },
 });
