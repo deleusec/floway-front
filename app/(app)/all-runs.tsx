@@ -140,11 +140,11 @@ export default function AllRunsScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    backgroundColor: Colors.dark.primaryDark,
   },
   container: {
     flex: 1,
     padding: 24,
-    backgroundColor: Colors.dark.primaryDark,
   },
   header: {
     flexDirection: 'row',
