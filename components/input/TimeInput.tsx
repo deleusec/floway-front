@@ -20,41 +20,31 @@ export default function TimeInputField({
   const [isFocused, setIsFocused] = useState<boolean>(false);
 
   const handleTextChange = (newValue: string) => {
-    const cleanValue = newValue.replace(/^0+/, ''); // Nettoie les zéros initiaux
+    const cleanValue = newValue.replace(/[^0-9]/g, ''); // Retirer tout caractère non numérique
 
-    if (/^\d{0,2}$/.test(cleanValue)) {
-      const numValue = cleanValue === '' ? 0 : parseInt(cleanValue, 10);
-      const isValid = unit === 'heures' ? true : numValue < 60;
+    if (cleanValue.length <= 2) {
+      const numericValue = cleanValue === '' ? '' : parseInt(cleanValue, 10);
+      const isValid = unit === 'heures' || (typeof numericValue === 'number' && numericValue < 60);
 
       if (isValid) {
-        if (cleanValue === '') {
-          onChange('00'); // Si vide, on retourne "00"
-        } else if (cleanValue.length === 1) {
-          onChange(`0${cleanValue}`); // Ajoute un zéro pour les valeurs à un seul chiffre
-        } else {
-          onChange(cleanValue); // Retourne la valeur nettoyée
-        }
+        onChange(cleanValue);
       }
     }
   };
 
   const handleFocus = () => {
     setIsFocused(true);
-    // Quand on focus, si la valeur est "00", on la vide
     if (value === '00') {
-      onChange('');
+      onChange(''); // Effacer `00` au focus
     }
   };
 
   const handleBlur = () => {
     setIsFocused(false);
-    // Quand on quitte le champ, si vide, remettre "00"
-    if (value === '') {
-      onChange('00');
-    }
-    // Si un seul chiffre, ajouter le zéro devant
-    else if (value.length === 1) {
-      onChange(`0${value}`);
+    if (value === '' || value === '0') {
+      onChange('00'); // Remettre `00` si vide ou invalide
+    } else if (value.length === 1) {
+      onChange(`0${value}`); // Ajouter un zéro devant si un seul chiffre
     }
   };
 
@@ -95,7 +85,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.light.secondaryDark,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: Colors.light.secondaryDark,
     padding: 8,
     flex: 1,
   },

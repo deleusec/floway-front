@@ -4,6 +4,7 @@ import DistanceInput from '@/components/input/DistanceInput';
 import SelectInput from '@/components/input/SelectInput';
 import TextInputField from '@/components/input/TextInputField';
 import TimeInputField from '@/components/input/TimeInput';
+import TimePicker from '@/components/input/TimePicker';
 import { ThemedText } from '@/components/text/ThemedText';
 import { Colors } from '@/constants/Colors';
 import { useStudioContext } from '@/context/StudioContext';
@@ -21,11 +22,7 @@ import {
 export default function CreateRun() {
   const [title, setTitle] = useState<string>('');
   const [goalType, setGoalType] = useState<string>('Temps');
-  const [timeValues, setTimeValues] = useState({
-    heures: '00',
-    min: '00',
-    sec: '00',
-  });
+  const [timeValues, setTimeValues] = useState({ heures: '00', min: '00', sec: '00' });
   const [goalDistance, setGoalDistance] = useState<number>(0);
   const [description, setDescription] = useState<string>('');
 
@@ -87,36 +84,12 @@ export default function CreateRun() {
                 options={['Temps', 'Distance']}
                 onValueChange={setGoalType}
                 value={goalType}
+                hidePlaceholder
               />
               {goalType === 'Temps' ? (
-                <View style={styles.timeFields}>
-                  <TimeInputField
-                    placeholder="00"
-                    unit="heures"
-                    value={timeValues.heures}
-                    onChange={(value) => setTimeValues({ ...timeValues, heures: value })}
-                  />
-                  <TimeInputField
-                    placeholder="00"
-                    unit="min"
-                    value={timeValues.min}
-                    onChange={(value) => setTimeValues({ ...timeValues, min: value })}
-                  />
-                  <TimeInputField
-                    placeholder="00"
-                    unit="sec"
-                    value={timeValues.sec}
-                    onChange={(value) => setTimeValues({ ...timeValues, sec: value })}
-                  />
-                </View>
+                <TimePicker initialTime={timeValues} onTimeChange={setTimeValues} />
               ) : (
-                <DistanceInput
-                  placeholder={'0.00'}
-                  status={'default'}
-                  unit={'km'}
-                  value={goalDistance}
-                  onChange={setGoalDistance}
-                />
+                <DistanceInput value={goalDistance} onChange={setGoalDistance} unit="km" status='default' />
               )}
             </View>
           </View>

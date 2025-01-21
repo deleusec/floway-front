@@ -18,6 +18,7 @@ import { useSession } from '@/context/ctx';
 import { Audio } from 'expo-av';
 import Animated, { useSharedValue } from 'react-native-reanimated';
 import { useRef } from 'react';
+import Waveform from '@/components/Waveform';
 
 interface AudioProps {
   id: number;
@@ -169,7 +170,7 @@ export default function StudioByType() {
         const status = await recording.getStatusAsync();
         if (status.isRecording && status.metering) {
           setWaveLevels((prevLevels) => {
-            const updatedLevels = [...prevLevels, Math.max(0, (status.metering ?? 0) + 120)];
+            const updatedLevels = [...prevLevels, Math.max(0, (status.metering ?? 0) + 100)];
             setTimeout(() => {
               waveformScrollRef.current?.scrollToEnd({ animated: true });
             }, 50);
@@ -455,35 +456,7 @@ export default function StudioByType() {
           </View>
 
           {/* Placeholder pour les ondes sonores */}
-          <View style={styles.waveform}>
-            <ScrollView
-              ref={waveformScrollRef} // Lier la référence
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={{ width: '100%', height: '100%' }}>
-              <Animated.View
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  gap: 2,
-                  justifyContent: 'flex-start',
-                  alignItems: 'center',
-                }}>
-                {waveLevels.map((level, index) => (
-                  <Animated.View
-                    key={index}
-                    style={{
-                      height: Math.max(level, 10),
-                      width: 4,
-                      backgroundColor: 'white',
-                      borderRadius: 2,
-                      marginHorizontal: 1,
-                    }}
-                  />
-                ))}
-              </Animated.View>
-            </ScrollView>
-          </View>
+          <Waveform waveLevels={waveLevels} />
         </View>
       </CustomModal>
     </SafeAreaView>
@@ -634,15 +607,5 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
-  },
-  waveform: {
-    height: 70,
-    width: '100%',
-    backgroundColor: Colors.light.secondaryDark,
-    borderRadius: 12,
-    padding: 10,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    pointerEvents: 'box-none',
   },
 });
