@@ -16,8 +16,10 @@ import DistanceInput from '@/components/input/DistanceInput';
 import * as DocumentPicker from 'expo-document-picker';
 import { useSession } from '@/context/ctx';
 import { Audio } from 'expo-av';
+import Animated, { useSharedValue } from 'react-native-reanimated';
+import { useRef } from 'react';
 
-interface Audio {
+interface AudioProps {
   id: number;
   title: string;
   duration: number;
@@ -25,7 +27,7 @@ interface Audio {
 }
 
 export default function StudioByType() {
-  const [audioList, setAudioList] = useState<Audio[]>([]);
+  const [audioList, setAudioList] = useState<AudioProps[]>([]);
   const [playerState, setPlayerState] = useState<'playing' | 'paused'>('paused');
   const [selectedAudio, setSelectedAudio] = useState<number | null>(null);
   // Gestion des modales
@@ -39,6 +41,9 @@ export default function StudioByType() {
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
   const [permissionResponse, requestPermission] = Audio.usePermissions();
+  const [waveLevels, setWaveLevels] = useState<number[]>([0]); // Pour les vagues
+  const waveWidth = useSharedValue(10); // Largeur animée des vagues
+  const waveformScrollRef = useRef<ScrollView>(null);
 
   const { studioData } = useStudioContext();
   const { session } = useSession();
@@ -66,7 +71,7 @@ export default function StudioByType() {
     } catch (error) {
       console.error('Error fetching audios:', error);
     }
-  }
+  };
 
   const handleImportAudio = async () => {
     try {
@@ -135,15 +140,32 @@ export default function StudioByType() {
 
       console.log('Starting recording..');
       const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
+        Audio.RecordingOptionsPresets.HIGH_QUALITY,
       );
 
       setRecordingInstance(recording);
       setIsRecording(true);
+      setRecordingDuration(0);
 
       // Démarrer le timer
-      setRecordingDuration(0);
-      const interval = setInterval(() => {
+      setInterval(async () => {
+        const status = await recording.getStatusAsync();
+        if (status.isRecording && status.metering) {
+          setWaveLevels((prevLevels) => {
+            const updatedLevels = [
+              ...prevLevels,
+              Math.max(0, (status.metering ?? 0) + 120),
+            ];
+            setTimeout(() => {
+              waveformScrollRef.current?.scrollToEnd({ animated: true });
+            }, 50);
+
+            return updatedLevels;
+          });
+        }
+      }, 100);
+
+      const interval = setInterval(async () => {
         setRecordingDuration((prev) => prev + 1);
       }, 1000);
       setTimerInterval(interval);
@@ -166,6 +188,9 @@ export default function StudioByType() {
     await recordingInstance.stopAndUnloadAsync();
     await Audio.setAudioModeAsync({ allowsRecordingIOS: false });
 
+    setWaveLevels([0]); // Réinitialise les ondes
+    waveWidth.value = 10; // Réinitialise la largeur
+
     const uri = recordingInstance.getURI();
     setRecordingInstance(null);
     console.log('Recording stopped. File URI:', uri);
@@ -184,6 +209,9 @@ export default function StudioByType() {
     await recordingInstance.stopAndUnloadAsync();
     await Audio.setAudioModeAsync({ allowsRecordingIOS: false });
 
+    setWaveLevels([0]); // Réinitialise les ondes
+    waveWidth.value = 10; // Réinitialise la largeur
+
     setRecordingInstance(null);
     console.log('Recording cancelled');
   };
@@ -194,14 +222,18 @@ export default function StudioByType() {
   };
 
   const handleConfirm = async () => {
-    const recordedUri = await stopRecording();
+    await stopRecording();
     setIsRecordingModalVisible(false);
-    console.log('Audio file URI:', recordedUri);
-    // Vous pouvez maintenant envoyer `recordedUri` au backend
   };
 
-  const handleSubmit = () => {
-    console.log('Submit');
+  const handleCancel = async () => {
+    await cancelRecording();
+    setIsRecordingModalVisible(false);
+  };
+
+  const handleSubmit = async () => {
+    // Envoyer les données au backend
+    console.log('Submitting data..');
   };
 
   return (
@@ -382,12 +414,8 @@ export default function StudioByType() {
         confirmButton
         confirmAction={handleConfirm}
         onClose={() => {
-          if (isRecording) {
-            cancelRecording();
-          }
-          setIsRecordingModalVisible(false);
-        }}
-        >
+          handleCancel();
+        }}>
         <View style={styles.recordingContainer}>
           <View style={styles.recordingHeader}>
             <Text style={styles.recIndicator}>
@@ -400,7 +428,26 @@ export default function StudioByType() {
 
           {/* Placeholder pour les ondes sonores */}
           <View style={styles.waveform}>
-            <Text style={{ color: 'white', fontSize: 14 }}>[Placeholder des ondes sonores]</Text>
+            <ScrollView
+              ref={waveformScrollRef} // Lier la référence
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={{ width: '100%', height: '100%' }}>
+              <Animated.View style={{ display: 'flex', flexDirection: 'row', gap: 2, justifyContent: 'flex-start', alignItems: 'center' }}>
+                {waveLevels.map((level, index) => (
+                  <Animated.View
+                    key={index}
+                    style={{
+                      height: Math.max(level, 10),
+                      width: 4,
+                      backgroundColor: 'white',
+                      borderRadius: 2,
+                      marginHorizontal: 1,
+                    }}
+                  />
+                ))}
+              </Animated.View>
+            </ScrollView>
           </View>
         </View>
       </CustomModal>
@@ -554,11 +601,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   waveform: {
-    height: 100,
+    height: 70,
     width: '100%',
     backgroundColor: Colors.light.secondaryDark,
-    marginBottom: 20,
-    justifyContent: 'center',
+    borderRadius: 12,
+    padding: 10,
+    justifyContent: 'flex-start',
     alignItems: 'center',
+    pointerEvents: 'box-none',
   },
 });
