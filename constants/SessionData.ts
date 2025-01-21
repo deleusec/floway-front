@@ -15,5 +15,22 @@ export interface SessionData {
     description: string;
     duration: string;
     distance?: string;
+    image?: any;
   };
+  currentMetrics?: {
+    time: {
+      hours: string;
+      minutes: string;
+      seconds: string;
+    };
+    distance: string;
+    pace: string;
+    calories: string;
+  };
+  status?: 'ready' | 'running' | 'paused' | 'completed';
+  startTime?: number;
+  pauseTime?: number;
+  totalPauseTime?: number;
+  steps?: number;
+  averageHeartRate?: number;
 }

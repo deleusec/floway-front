@@ -38,6 +38,24 @@ export default function SessionLayout() {
             headerShown: false,
           }}
         />
+        <Stack.Screen
+          name="selectedFree"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="selectedTarget"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="selectedGuided"
+          options={{
+            headerShown: false,
+          }}
+        />
       </Stack>
     </SessionProvider>
   );

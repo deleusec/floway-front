@@ -6,6 +6,7 @@ import { Colors } from '@/constants/Colors';
 import { useSessionContext } from '@/context/SessionContext';
 import { PictureCard } from '@/components/ThemedPictureCard';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
+import { router } from 'expo-router';
 
 interface GuidedRun {
   id: string;
@@ -64,6 +65,7 @@ export default function GuidedRunSelection() {
           description: selectedRunData.description,
           duration: selectedRunData.metrics[0],
         });
+        router.push('/session/selectedGuided');
       }
     }
   };

@@ -22,6 +22,7 @@ export default function SessionSelection() {
   };
 
   const handleStart = () => {
+    router.push('/session/selectedFree');
     console.log('Commencer');
   };
 
