@@ -40,18 +40,25 @@ export default function TextInputField({
   return (
     <View style={style}>
       {label && <Text style={styles.label}>{label}</Text>}
-      <View style={[styles.container, { borderColor: BORDER_COLORS[status] }]}>
+      <View
+        style={[
+          styles.container,
+          { borderColor: BORDER_COLORS[status] },
+          multiline && styles.multilineContainer,
+        ]}
+      >
         <TextInput
           placeholder={placeholder}
           placeholderTextColor={Colors.light.mediumGrey}
           keyboardType={keyboardType}
           editable={status !== 'disabled'}
           multiline={multiline}
-          style={styles.input}
+          style={[styles.input, multiline && styles.multilineInput]}
           value={value}
           onChangeText={onChange}
           secureTextEntry={secureTextEntry}
           autoCapitalize={autoCapitalize}
+          textAlignVertical={multiline ? 'top' : 'center'} // Alignement spécifique pour `multiline`
           {...rest}
         />
       </View>
@@ -71,11 +78,19 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     justifyContent: 'center',
   },
+  multilineContainer: {
+    paddingVertical: 10,
+  },
   input: {
     fontFamily: 'Poppins-Medium',
     fontSize: 14,
     color: Colors.light.white,
     padding: 0,
+  },
+  multilineInput: {
+    minHeight: 100,
+    paddingVertical: 8,
+    lineHeight: 20,
   },
   label: {
     fontSize: 16,
