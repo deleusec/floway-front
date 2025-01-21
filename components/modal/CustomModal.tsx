@@ -57,7 +57,7 @@ const CustomModal = ({
 
           {/* Slot Footer */}
           {footer && <View style={styles.modalFooter}>{footer}</View>}
-          {cancelButton ||
+          {(cancelButton || confirmButton || cross) &&
             (confirmButton && (
               <View style={styles.buttonGroup}>
                 {cancelButton && (

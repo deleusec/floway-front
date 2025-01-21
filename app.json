@@ -18,7 +18,9 @@
         {
           "iCloudContainerEnvironment": "Production"
         }
-      ]
+      ],
+      "expo-router",
+      "expo-secure-store"
     ]
   },
   "ios": {
@@ -54,4 +56,3 @@
   },
   "owner": "floway"
 }
-
