@@ -17,7 +17,9 @@ export default function HomeScreen() {
         {/* Section utilisateur */}
         <View style={styles.userSection}>
           <View style={styles.userInfo}>
-            <Image source={require('@/assets/images/start.jpg')} style={styles.userImage} />
+            <Link href="/start" style={styles.userImage}>
+              <Image source={require('@/assets/images/start.jpg')}  style={styles.userImage} />
+            </Link>
             <View>
               <Text style={styles.userGreeting}>{`Bonjour ${user?.firstName || 'Coureur'}`}</Text>
               <Text style={styles.userReadyText}>Prêt à courir ?</Text>

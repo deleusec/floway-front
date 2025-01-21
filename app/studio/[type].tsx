@@ -23,13 +23,18 @@ interface AudioProps {
   id: number;
   title: string;
   duration: number;
-  start_time: string;
+  start_time?: string;
+  start_distance?: number;
 }
 
 export default function StudioByType() {
   const [audioList, setAudioList] = useState<AudioProps[]>([]);
   const [playerState, setPlayerState] = useState<'playing' | 'paused'>('paused');
-  const [selectedAudio, setSelectedAudio] = useState<number | null>(null);
+  const [selectedAudio, setSelectedAudio] = useState<AudioProps | null>(null);
+  const [modalAudioTitle, setModalAudioTitle] = useState('');
+  const [modalAudioStartTime, setModalAudioStartTime] = useState('');
+  const [modalAudioStartDistance, setModalAudioStartDistance] = useState(0);
+
   // Gestion des modales
   const [isAudioEditModalVisible, setIsAudioEditModalVisible] = useState(false);
   const [isDeleteAudioModalVisible, setIsDeleteAudioModalVisible] = useState(false);
@@ -52,7 +57,12 @@ export default function StudioByType() {
 
   // Charger les audios depuis le backend
   useEffect(() => {
-    fetchAudioList();
+    // fetchAudioList();
+    setAudioList([
+      { id: 1, title: 'Audio 1', duration: 120, start_time: '00:10:00' },
+      { id: 2, title: 'Audio 2', duration: 180, start_time: '00:00:00' },
+      { id: 3, title: 'Audio 3', duration: 240, start_time: '00:00:00' },
+    ]);
   }, []);
 
   const fetchAudioList = async () => {
@@ -71,6 +81,13 @@ export default function StudioByType() {
     } catch (error) {
       console.error('Error fetching audios:', error);
     }
+  };
+
+  const openAudioEditModal = (audio: AudioProps) => {
+    setSelectedAudio(audio);
+    setModalAudioTitle(audio.title);
+    setModalAudioStartTime(audio.start_time ?? '');
+    setModalAudioStartDistance(audio.start_distance ?? 0);
   };
 
   const handleImportAudio = async () => {
@@ -152,10 +169,7 @@ export default function StudioByType() {
         const status = await recording.getStatusAsync();
         if (status.isRecording && status.metering) {
           setWaveLevels((prevLevels) => {
-            const updatedLevels = [
-              ...prevLevels,
-              Math.max(0, (status.metering ?? 0) + 120),
-            ];
+            const updatedLevels = [...prevLevels, Math.max(0, (status.metering ?? 0) + 120)];
             setTimeout(() => {
               waveformScrollRef.current?.scrollToEnd({ animated: true });
             }, 50);
@@ -268,9 +282,9 @@ export default function StudioByType() {
                     id={audio.id}
                     title={audio.title}
                     duration={audio.duration}
-                    start_time={audio.start_time}
-                    isSelected={selectedAudio === audio.id}
-                    onPress={() => setSelectedAudio(audio.id === selectedAudio ? null : audio.id)}
+                    start_time={audio.start_time ?? (audio.start_distance?.toString() as string)}
+                    isSelected={selectedAudio?.id === audio.id}
+                    onPress={() => openAudioEditModal(audio)}
                   />
                 ))
               ) : (
@@ -356,40 +370,54 @@ export default function StudioByType() {
           </ThemedText>
           <View style={styles.modalInputGroup}>
             <ThemedText type="default">Titre</ThemedText>
-            <TextInputField placeholder="Titre de l’audio" value={''} onChange={() => {}} />
+            <TextInputField
+              placeholder="Titre de l’audio"
+              value={modalAudioTitle}
+              onChange={setModalAudioTitle}
+            />
           </View>
           <View style={styles.modalInputGroup}>
             <ThemedText type="default">Lancement de l'audio à</ThemedText>
-            {goalType === 'Temps' ? (
-              <View style={styles.timeInputFields}>
-                <TimeInputField
+            <View style={styles.timeInputFields}>
+              {goalType === 'Temps' ? (
+                <>
+                  <TimeInputField
+                    placeholder="00"
+                    unit="heures"
+                    value={modalAudioStartTime.split(':')[0]}
+                    onChange={(value) =>
+                      setModalAudioStartTime(`${value}:${modalAudioStartTime.split(':')[1]}`)
+                    }
+                  />
+                  <TimeInputField
+                    placeholder="00"
+                    unit="min"
+                    value={modalAudioStartTime.split(':')[1]}
+                    onChange={(value) =>
+                      setModalAudioStartTime(`${modalAudioStartTime.split(':')[0]}:${value}`)
+                    }
+                  />
+                  <TimeInputField
+                    placeholder="00"
+                    unit="sec"
+                    value={modalAudioStartTime.split(':')[2]}
+                    onChange={(value) =>
+                      setModalAudioStartTime(
+                        `${modalAudioStartTime.split(':')[0]}:${modalAudioStartTime.split(':')[1]}:${value}`,
+                      )
+                    }
+                  />
+                </>
+              ) : (
+                <DistanceInput
                   placeholder="00"
-                  unit="heures"
-                  value={timeValues.heures}
-                  onChange={() => {}}
+                  unit="km"
+                  status="default"
+                  value={modalAudioStartDistance}
+                  onChange={setModalAudioStartDistance}
                 />
-                <TimeInputField
-                  placeholder="00"
-                  unit="min"
-                  value={timeValues.min}
-                  onChange={() => {}}
-                />
-                <TimeInputField
-                  placeholder="00"
-                  unit="sec"
-                  value={timeValues.sec}
-                  onChange={() => {}}
-                />
-              </View>
-            ) : (
-              <DistanceInput
-                placeholder={'0.00'}
-                status={'default'}
-                unit={'km'}
-                value={goalDistance}
-                onChange={() => {}}
-              />
-            )}
+              )}
+            </View>
           </View>
         </View>
       </CustomModal>
@@ -433,7 +461,14 @@ export default function StudioByType() {
               horizontal
               showsHorizontalScrollIndicator={false}
               style={{ width: '100%', height: '100%' }}>
-              <Animated.View style={{ display: 'flex', flexDirection: 'row', gap: 2, justifyContent: 'flex-start', alignItems: 'center' }}>
+              <Animated.View
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  gap: 2,
+                  justifyContent: 'flex-start',
+                  alignItems: 'center',
+                }}>
                 {waveLevels.map((level, index) => (
                   <Animated.View
                     key={index}
