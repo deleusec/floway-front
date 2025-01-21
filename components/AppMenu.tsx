@@ -15,21 +15,21 @@ export default function AppMenu() {
       {/* Home Link */}
       <View style={styles.navLinkContainer}>
         <Link href="/" style={styles.navLink}>
-          <Image source={require('@/assets/images/home-active.png')} />
+          <Image source={require('@/assets/images/home-active.png')} style={{ width: 32, height: 32, objectFit: 'contain' }} />
         </Link>
       </View>
 
       {/* Play Button */}
       <View style={styles.playButtonContainer}>
         <Link href="/session" style={styles.playButton}>
-          <Image source={require('@/assets/images/play-button.png')} />
+          <Image source={require('@/assets/images/play-button.png')} style={{ width: 64, height: 64, objectFit: 'contain' }} />
         </Link>
       </View>
 
       {/* All Runs Link */}
       <View style={styles.navLinkContainer}>
         <Link href="/all-runs" style={styles.navLink}>
-          <Image source={require('@/assets/images/headphone.png')} />
+          <Image source={require('@/assets/images/headphone.png')} style={{ width: 32, height: 32, objectFit: 'contain' }} />
         </Link>
       </View>
     </View>
