@@ -1,4 +1,4 @@
-import { LinearGradient } from 'expo-linear-gradient'; // Import du gradient
+import { LinearGradient } from 'expo-linear-gradient';
 import BackButton from '@/components/button/BackButton';
 import AudioCard from '@/components/cards/AudioCard';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
@@ -7,7 +7,7 @@ import { Colors } from '@/constants/Colors';
 import { useStudioContext } from '@/context/StudioContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, View } from 'react-native';
+import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import ThemedButton from '@/components/button/ThemedButton';
 import CustomModal from '@/components/modal/CustomModal';
 import TextInputField from '@/components/input/TextInputField';
@@ -15,6 +15,8 @@ import TimeInputField from '@/components/input/TimeInput';
 import DistanceInput from '@/components/input/DistanceInput';
 import * as DocumentPicker from 'expo-document-picker';
 import { useSession } from '@/context/ctx';
+import { Audio } from 'expo-av';
+
 interface Audio {
   id: number;
   title: string;
@@ -26,38 +28,45 @@ export default function StudioByType() {
   const [audioList, setAudioList] = useState<Audio[]>([]);
   const [playerState, setPlayerState] = useState<'playing' | 'paused'>('paused');
   const [selectedAudio, setSelectedAudio] = useState<number | null>(null);
-  const [isCustomAudioModalVisible, setIsCustomAudioModalVisible] = useState(false);
+  // Gestion des modales
+  const [isAudioEditModalVisible, setIsAudioEditModalVisible] = useState(false);
   const [isDeleteAudioModalVisible, setIsDeleteAudioModalVisible] = useState(false);
+  const [isRecordingModalVisible, setIsRecordingModalVisible] = useState(false);
+
+  // Enregistrement audio
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingInstance, setRecordingInstance] = useState<any>();
+  const [recordingDuration, setRecordingDuration] = useState(0);
+  const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
+  const [permissionResponse, requestPermission] = Audio.usePermissions();
 
   const { studioData } = useStudioContext();
   const { session } = useSession();
 
   const { goalType, timeValues, goalDistance } = studioData;
 
+  // Charger les audios depuis le backend
   useEffect(() => {
-    fetchAudios();
-  } , []);
+    fetchAudioList();
+  }, []);
 
-  const fetchAudios = async () => {
+  const fetchAudioList = async () => {
     try {
       const response = await fetch('https://api.floway.edgar-lecomte.fr/api/audio', {
         method: 'GET',
-        headers: {
-          Authorization: `Bearer ${session}`,
-        },
+        headers: { Authorization: `Bearer ${session}` },
       });
 
-      if (response.status === 200) {
+      if (response.ok) {
         const data = await response.json();
         setAudioList(data);
       } else {
         console.error('Failed to fetch audios. Status:', response.status);
       }
+    } catch (error) {
+      console.error('Error fetching audios:', error);
     }
-    catch (error) {
-      console.error('Error during audio fetch:', error);
-    }
-  };
+  }
 
   const handleImportAudio = async () => {
     try {
@@ -115,6 +124,81 @@ export default function StudioByType() {
     }
   };
 
+  const startRecording = async () => {
+    try {
+      if (permissionResponse && permissionResponse.status !== 'granted') {
+        console.log('Requesting permission..');
+        await requestPermission();
+      }
+
+      await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
+
+      console.log('Starting recording..');
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
+
+      setRecordingInstance(recording);
+      setIsRecording(true);
+
+      // Démarrer le timer
+      setRecordingDuration(0);
+      const interval = setInterval(() => {
+        setRecordingDuration((prev) => prev + 1);
+      }, 1000);
+      setTimerInterval(interval);
+
+      console.log('Recording started');
+    } catch (err) {
+      console.error('Failed to start recording', err);
+    }
+  };
+
+  const stopRecording = async () => {
+    if (!recordingInstance) return;
+
+    console.log('Stopping recording...');
+    setIsRecording(false);
+
+    clearInterval(timerInterval!);
+    setTimerInterval(null);
+
+    await recordingInstance.stopAndUnloadAsync();
+    await Audio.setAudioModeAsync({ allowsRecordingIOS: false });
+
+    const uri = recordingInstance.getURI();
+    setRecordingInstance(null);
+    console.log('Recording stopped. File URI:', uri);
+    return uri;
+  };
+
+  const cancelRecording = async () => {
+    if (!recordingInstance) return;
+
+    console.log('Cancelling recording...');
+    setIsRecording(false);
+
+    clearInterval(timerInterval!);
+    setTimerInterval(null);
+
+    await recordingInstance.stopAndUnloadAsync();
+    await Audio.setAudioModeAsync({ allowsRecordingIOS: false });
+
+    setRecordingInstance(null);
+    console.log('Recording cancelled');
+  };
+
+  const handleMicPress = async () => {
+    setIsRecordingModalVisible(true);
+    await startRecording();
+  };
+
+  const handleConfirm = async () => {
+    const recordedUri = await stopRecording();
+    setIsRecordingModalVisible(false);
+    console.log('Audio file URI:', recordedUri);
+    // Vous pouvez maintenant envoyer `recordedUri` au backend
+  };
 
   const handleSubmit = () => {
     console.log('Submit');
@@ -171,7 +255,6 @@ export default function StudioByType() {
         </View>
       </View>
       <View style={styles.timelineSection}>
-        {/* Player */}
         <View style={styles.actionBarContainer}>
           <View style={styles.actionBar}>
             <View style={styles.actionBarElement}>
@@ -187,7 +270,7 @@ export default function StudioByType() {
                 size={20}
                 color="white"
                 style={[selectedAudio === null && { opacity: 0.4 }]}
-                onPress={() => setIsCustomAudioModalVisible(true)}
+                onPress={() => setIsAudioEditModalVisible(true)}
               />
             </View>
             <View style={styles.actionBarElement}>
@@ -210,7 +293,7 @@ export default function StudioByType() {
               <Ionicons name="play-forward" size={20} color="white" />
             </View>
             <View style={styles.actionBarElement}>
-              <Ionicons name="mic" size={20} color="white" />
+              <Ionicons name="mic" size={20} color="white" onPress={handleMicPress} />
               <Ionicons name="file-tray" size={20} color="white" onPress={handleImportAudio} />
             </View>
           </View>
@@ -230,11 +313,11 @@ export default function StudioByType() {
       </View>
 
       <CustomModal
-        visible={isCustomAudioModalVisible}
+        visible={isAudioEditModalVisible}
         cancelButton
         confirmButton
-        confirmAction={() => setIsCustomAudioModalVisible(false)}
-        onClose={() => setIsCustomAudioModalVisible(false)}>
+        confirmAction={() => setIsAudioEditModalVisible(false)}
+        onClose={() => setIsAudioEditModalVisible(false)}>
         <View style={styles.modalContent}>
           <ThemedText type="title" style={styles.modalText}>
             Modifier l’audio
@@ -289,6 +372,36 @@ export default function StudioByType() {
           <ThemedText type="default" style={styles.modalText}>
             Etes-vous sûr de vouloir supprimer cet audio ?
           </ThemedText>
+        </View>
+      </CustomModal>
+
+      {/* Modale d'enregistrement */}
+      <CustomModal
+        visible={isRecordingModalVisible}
+        cancelButton
+        confirmButton
+        confirmAction={handleConfirm}
+        onClose={() => {
+          if (isRecording) {
+            cancelRecording();
+          }
+          setIsRecordingModalVisible(false);
+        }}
+        >
+        <View style={styles.recordingContainer}>
+          <View style={styles.recordingHeader}>
+            <Text style={styles.recIndicator}>
+              <View style={styles.recDot} /> REC
+            </Text>
+            <Text style={styles.timer}>
+              {`00:${recordingDuration < 10 ? '0' : ''}${recordingDuration}`}
+            </Text>
+          </View>
+
+          {/* Placeholder pour les ondes sonores */}
+          <View style={styles.waveform}>
+            <Text style={{ color: 'white', fontSize: 14 }}>[Placeholder des ondes sonores]</Text>
+          </View>
         </View>
       </CustomModal>
     </SafeAreaView>
@@ -403,5 +516,49 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: 6,
+  },
+  recordingContainer: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  recordingHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginBottom: 20,
+  },
+  recIndicator: {
+    backgroundColor: Colors.dark.secondaryDark,
+    paddingVertical: 2,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+    color: Colors.dark.primary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  recDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Colors.dark.primary,
+    marginRight: 5,
+  },
+  timer: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  waveform: {
+    height: 100,
+    width: '100%',
+    backgroundColor: Colors.light.secondaryDark,
+    marginBottom: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
