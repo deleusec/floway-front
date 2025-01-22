@@ -20,7 +20,10 @@ export default function SessionControls({
     <View style={[styles.controlsContainer, style]}>
       <Pressable
         style={[styles.pauseButton, !isRunning && styles.pauseButtonPaused]}
-        onPress={onPausePress}>
+        onPress={() => {
+          console.log('Pause button pressed'); // Debug log
+          onPausePress();
+        }}>
         <MaterialIcons
           name={isRunning ? 'pause' : 'play-arrow'}
           size={32}

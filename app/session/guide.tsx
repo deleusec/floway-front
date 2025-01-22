@@ -17,8 +17,8 @@ interface GuidedRun {
 }
 
 export default function GuidedRunSelection() {
-  const { updateGuidedRun } = useSessionContext();
-  const [selectedRun, setSelectedRun] = useState<string | null>(null);
+const { updateGuidedRun, setSessionData } = useSessionContext();
+const [selectedRun, setSelectedRun] = useState<string | null>(null);
 
   const guidedRuns: GuidedRun[] = [
     {
@@ -59,11 +59,21 @@ export default function GuidedRunSelection() {
     if (selectedRun) {
       const selectedRunData = guidedRuns.find((run) => run.id === selectedRun);
       if (selectedRunData) {
-        updateGuidedRun({
-          id: selectedRunData.id,
-          title: selectedRunData.title,
-          description: selectedRunData.description,
-          duration: selectedRunData.metrics[0],
+        setSessionData({
+          type: 'guided',
+          status: 'ready',
+          guidedRun: {
+            id: selectedRunData.id,
+            title: selectedRunData.title,
+            description: selectedRunData.description,
+            duration: selectedRunData.metrics[0],
+          },
+          currentMetrics: {
+            time: { hours: '00', minutes: '00', seconds: '00' },
+            distance: '0,00',
+            pace: '0\'00"',
+            calories: '0',
+          },
         });
         router.push('/session/selectedGuided');
       }
