@@ -61,7 +61,7 @@ export default function StudioByType() {
   const { studioData } = useStudioContext();
   const { session } = useSession();
 
-  const { title, description, goalType, timeValues, goalDistance } = studioData;
+  const { title, description, goalType, goalTime, goalDistance } = studioData;
 
   const openAudioEditModal = (audio: AudioProps) => {
     setSelectedAudio(audio);
@@ -270,34 +270,36 @@ export default function StudioByType() {
     setAudioList((prev) => prev.filter((audio) => audio.id !== selectedAudio.id));
     setIsDeleteAudioModalVisible(false);
   };
-
   const handleSubmit = async () => {
     try {
-      // Construire les paramètres audio
       const audioParams = audioList.map((audio) => ({
         audio_id: audio.audio_id,
-        time: audio.start_time ? audio.start_time.toString() : undefined,
-        distance: audio.start_distance ? audio.start_distance.toString() : undefined,
+        time: audio.start_time ? audio.start_time.toFixed(1) : null,
+        distance: audio.start_distance ? audio.start_distance.toFixed(1) : null,
       }));
 
-      // Construire les données de la requête
+      if (audioParams.length === 0) {
+        console.error('Audio parameters are required.');
+        return;
+      }
+
       const payload = {
         audio_params: audioParams,
-        title: "Mon Run Guidé",
-        description: "Description de mon run guidé",
-        time_objective: goalType === "Temps" ? timeValues.toString() : undefined,
-        distance_objective: goalType === "Distance" ? goalDistance.toString() : undefined,
+        title: title || "Default Title",
+        description: description || "Default Description",
+        time_objective: goalType === 'Temps' ? goalTime : null,
+        distance_objective: goalType === 'Distance' ? goalDistance : null,
+        price: null,
       };
 
-      console.log("Payload envoyé :", payload);
+      console.log('Payload envoyé :', payload);
 
-      // Envoyer les données au backend
+      // Envoyer au backend
       const response = await fetch('https://api.floway.edgar-lecomte.fr/api/run', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${session}`,
+          Authorization: `Bearer ${session}`, // Assurez-vous que la session est valide
           'Content-Type': 'application/json',
-          'Accept': 'application/json',
         },
         body: JSON.stringify(payload),
       });
@@ -305,9 +307,10 @@ export default function StudioByType() {
       if (response.ok) {
         const jsonResponse = await response.json();
         console.log('Run guidé créé avec succès:', jsonResponse);
-        // Ajouter une action comme rediriger ou afficher une confirmation
+        // Ajouter une redirection ou un message de succès
       } else {
-        console.error('Erreur lors de la création du run guidé:', await response.json());
+        const errorData = await response.json();
+        console.error('Erreur lors de la création du run guidé:', errorData);
       }
     } catch (error) {
       console.error('Erreur réseau ou logique:', error);
