@@ -20,13 +20,50 @@ export default function DistanceInput({
   placeholder = '0.00',
   status = 'default',
   unit = 'km',
-  value,
+  value = 0,
   onChange,
 }: DistanceInputProps) {
   const [isFocused, setIsFocused] = useState<boolean>(false);
+  const [inputValue, setInputValue] = useState<string>(value.toFixed(2));
 
   const isDisabled = status === 'disabled';
   const borderColor = isFocused ? Colors.light.primary : BORDER_COLORS[status];
+
+  const handleInputChange = (newValue: string) => {
+    // Remplace les virgules par des points pour gérer les décimales
+    const formattedValue = newValue.replace(',', '.');
+
+    // Valider la valeur comme un nombre flottant
+    if (formattedValue === '' || formattedValue === '.') {
+      setInputValue(formattedValue); // Permet d'afficher "." temporairement
+      onChange?.(0);
+      return;
+    }
+
+    const numValue = parseFloat(formattedValue);
+
+    if (!isNaN(numValue)) {
+      setInputValue(formattedValue);
+      onChange?.(numValue);
+    }
+  };
+
+  const handleFocus = () => {
+    setIsFocused(true);
+    if (inputValue === '0.00') {
+      setInputValue(''); // Supprime "0.00" lorsqu'on entre dans le champ
+    }
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+    if (inputValue === '' || inputValue === '.') {
+      setInputValue('0.00'); // Remettre la valeur par défaut
+      onChange?.(0);
+    } else {
+      setInputValue(parseFloat(inputValue).toFixed(2)); // Fixer à deux décimales
+    }
+  };
 
   return (
     <View>
@@ -38,23 +75,14 @@ export default function DistanceInput({
         ]}>
         <TextInput
           style={[styles.input, isDisabled && styles.inputDisabled]}
-          value={value?.toString()}
-          onChangeText={(newValue) => {
-            if (newValue === '') {
-              onChange?.(0);
-            } else {
-              const numValue = parseFloat(newValue);
-              if (!isNaN(numValue)) {
-                onChange?.(numValue);
-              }
-            }
-          }}
+          value={inputValue}
+          onChangeText={handleInputChange}
           placeholder={placeholder}
           placeholderTextColor={Colors.light.mediumGrey}
-          keyboardType="numeric"
+          keyboardType="decimal-pad"
           editable={!isDisabled}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
         />
         <Text style={[styles.unit, isDisabled && styles.inputDisabled]}>{unit}</Text>
       </View>

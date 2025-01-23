@@ -6,34 +6,41 @@ import { ThemedText } from '@/components/text/ThemedText';
 import { Colors } from '@/constants/Colors';
 import { useStudioContext } from '@/context/StudioContext';
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import ThemedButton from '@/components/button/ThemedButton';
 import CustomModal from '@/components/modal/CustomModal';
 import TextInputField from '@/components/input/TextInputField';
-import TimeInputField from '@/components/input/TimeInput';
 import DistanceInput from '@/components/input/DistanceInput';
 import * as DocumentPicker from 'expo-document-picker';
 import { useSession } from '@/context/ctx';
 import { Audio } from 'expo-av';
 import Animated, { useSharedValue } from 'react-native-reanimated';
 import { useRef } from 'react';
-import Waveform from '@/components/Waveform';
+import TimeInputs from '@/components/input/TimeInputs';
 
 interface AudioProps {
   id: number;
+  audio_id: number;
   title: string;
-  duration: number;
-  start_time?: string;
+  duration: string;
+  localPath?: string;
+  start_time?: number;
   start_distance?: number;
 }
 
 export default function StudioByType() {
+  // Gestion des audios
   const [audioList, setAudioList] = useState<AudioProps[]>([]);
-  const [playerState, setPlayerState] = useState<'playing' | 'paused'>('paused');
   const [selectedAudio, setSelectedAudio] = useState<AudioProps | null>(null);
+  const [audioCounter, setAudioCounter] = useState(1);
+
+  // Gestion du lecteur audio
+  const [playerState, setPlayerState] = useState<'playing' | 'paused'>('paused');
+
+  // Gestion des informations de l'audio
   const [modalAudioTitle, setModalAudioTitle] = useState('');
-  const [modalAudioStartTime, setModalAudioStartTime] = useState('');
+  const [modalAudioStartTime, setModalAudioStartTime] = useState(0);
   const [modalAudioStartDistance, setModalAudioStartDistance] = useState(0);
 
   // Gestion des modales
@@ -47,47 +54,19 @@ export default function StudioByType() {
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
   const [permissionResponse, requestPermission] = Audio.usePermissions();
-  const [waveLevels, setWaveLevels] = useState<number[]>([0]); // Pour les vagues
-  const waveWidth = useSharedValue(10); // Largeur animée des vagues
+  const [waveLevels, setWaveLevels] = useState<number[]>([0]);
+  const waveWidth = useSharedValue(10);
   const waveformScrollRef = useRef<ScrollView>(null);
 
   const { studioData } = useStudioContext();
   const { session } = useSession();
 
-  const { goalType, timeValues, goalDistance } = studioData;
-
-  // Charger les audios depuis le backend
-  useEffect(() => {
-    // fetchAudioList();
-    setAudioList([
-      { id: 1, title: 'Audio 1', duration: 120, start_time: '00:10:00' },
-      { id: 2, title: 'Audio 2', duration: 180, start_time: '00:00:00' },
-      { id: 3, title: 'Audio 3', duration: 240, start_time: '00:00:00' },
-    ]);
-  }, []);
-
-  const fetchAudioList = async () => {
-    try {
-      const response = await fetch('https://api.floway.edgar-lecomte.fr/api/audio', {
-        method: 'GET',
-        headers: { Authorization: `Bearer ${session}` },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setAudioList(data);
-      } else {
-        console.error('Failed to fetch audios. Status:', response.status);
-      }
-    } catch (error) {
-      console.error('Error fetching audios:', error);
-    }
-  };
+  const { title, description, goalType, timeValues, goalDistance } = studioData;
 
   const openAudioEditModal = (audio: AudioProps) => {
     setSelectedAudio(audio);
     setModalAudioTitle(audio.title);
-    setModalAudioStartTime(audio.start_time ?? '');
+    setModalAudioStartTime(audio.start_time ?? 0);
     setModalAudioStartDistance(audio.start_distance ?? 0);
   };
 
@@ -105,43 +84,8 @@ export default function StudioByType() {
 
       const audioFile = file.assets[0];
 
-      console.log('Selected file:', audioFile);
-
-      // Téléchargez le fichier comme blob
-      const response = await fetch(audioFile.uri);
-      const blob = await response.blob();
-
-      const formData = new FormData();
-      console.log('Blob:', response);
-
-      formData.append('file', blob, audioFile.name);
-      formData.append('payload', JSON.stringify({ title: audioFile.name }));
-
-      // Envoyez la requête au backend
-      const responseFromApi = await fetch('https://api.floway.edgar-lecomte.fr/api/audio', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session}`,
-        },
-        body: formData,
-      });
-
-      if (responseFromApi.status === 201) {
-        const newAudio = await responseFromApi.json();
-        console.log('Audio uploaded successfully:', newAudio);
-
-        setAudioList((prev) => [
-          ...prev,
-          {
-            id: newAudio.id,
-            title: newAudio.title,
-            duration: newAudio.duration,
-            start_time: newAudio.start_time,
-          },
-        ]);
-      } else {
-        console.error('Failed to upload audio. Status:', responseFromApi);
-      }
+      console.log('Selected audio:', audioFile.uri);
+      await uploadAudio(audioFile.uri);
     } catch (error) {
       console.error('Error during audio upload:', error);
     }
@@ -209,6 +153,9 @@ export default function StudioByType() {
     const uri = recordingInstance.getURI();
     setRecordingInstance(null);
     console.log('Recording stopped. File URI:', uri);
+
+    await uploadAudio(uri);
+
     return uri;
   };
 
@@ -231,6 +178,78 @@ export default function StudioByType() {
     console.log('Recording cancelled');
   };
 
+  const uploadAudio = async (uri: string) => {
+    try {
+      let uriParts = uri.split('.');
+      let fileType = uriParts[uriParts.length - 1];
+      const formData = new FormData();
+
+      formData.append('file', {
+        uri,
+        name: `recording.${fileType}`,
+        type: `audio/x-${fileType}`,
+      } as any);
+
+      formData.append('payload', JSON.stringify({ title: 'Nouvel audio' }));
+
+      const response = await fetch('https://api.floway.edgar-lecomte.fr/api/audio', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session}`,
+          Accept: 'application/json',
+          'Content-Type': 'multipart/form-data',
+        },
+        body: formData,
+      });
+
+      const jsonResponse = await response.json();
+      if (response.ok) {
+        console.log('Audio uploaded successfully:', jsonResponse);
+        handleAudioResponse(uri, jsonResponse);
+      } else {
+        console.error('Failed to upload audio:', jsonResponse);
+      }
+    } catch (error) {
+      console.error('Error uploading audio:', error);
+    }
+  };
+
+  const handleAudioResponse = (localUri: string, backendData: any) => {
+    const newAudio = createAudioEntry(localUri, backendData);
+    setAudioList((prev) => [...prev, newAudio]);
+    setAudioCounter((prev) => prev + 1);
+  };
+
+  const createAudioEntry = (localUri: string, backendData: any): AudioProps => {
+    const { id, title, duration } = backendData;
+    return {
+      id: audioCounter,
+      audio_id: id,
+      title,
+      duration: Math.round(duration).toString(),
+      localPath: localUri,
+      start_time: 0,
+      start_distance: 0,
+    };
+  };
+
+  // Lors de la confirmation
+  const handleEditConfirm = () => {
+    setAudioList((prev) =>
+      prev.map((audio) =>
+        audio.id === selectedAudio?.id
+          ? {
+              ...audio,
+              title: modalAudioTitle,
+              start_time: modalAudioStartTime,
+              start_distance: modalAudioStartDistance,
+            }
+          : audio,
+      ),
+    );
+    setIsAudioEditModalVisible(false);
+  };
+
   const handleMicPress = async () => {
     setIsRecordingModalVisible(true);
     await startRecording();
@@ -246,10 +265,55 @@ export default function StudioByType() {
     setIsRecordingModalVisible(false);
   };
 
-  const handleSubmit = async () => {
-    // Envoyer les données au backend
-    console.log('Submitting data..');
+  const handleDeleteAudio = async () => {
+    if (!selectedAudio) return;
+    setAudioList((prev) => prev.filter((audio) => audio.id !== selectedAudio.id));
+    setIsDeleteAudioModalVisible(false);
   };
+
+  const handleSubmit = async () => {
+    try {
+      // Construire les paramètres audio
+      const audioParams = audioList.map((audio) => ({
+        audio_id: audio.audio_id,
+        time: audio.start_time ? audio.start_time.toString() : undefined,
+        distance: audio.start_distance ? audio.start_distance.toString() : undefined,
+      }));
+
+      // Construire les données de la requête
+      const payload = {
+        audio_params: audioParams,
+        title: "Mon Run Guidé",
+        description: "Description de mon run guidé",
+        time_objective: goalType === "Temps" ? timeValues.toString() : undefined,
+        distance_objective: goalType === "Distance" ? goalDistance.toString() : undefined,
+      };
+
+      console.log("Payload envoyé :", payload);
+
+      // Envoyer les données au backend
+      const response = await fetch('https://api.floway.edgar-lecomte.fr/api/run', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        const jsonResponse = await response.json();
+        console.log('Run guidé créé avec succès:', jsonResponse);
+        // Ajouter une action comme rediriger ou afficher une confirmation
+      } else {
+        console.error('Erreur lors de la création du run guidé:', await response.json());
+      }
+    } catch (error) {
+      console.error('Erreur réseau ou logique:', error);
+    }
+  };
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -282,8 +346,10 @@ export default function StudioByType() {
                     key={audio.id}
                     id={audio.id}
                     title={audio.title}
-                    duration={audio.duration}
-                    start_time={audio.start_time ?? (audio.start_distance?.toString() as string)}
+                    duration={Math.round(Number(audio.duration))}
+                    goalType={goalType}
+                    start_time={audio.start_time}
+                    start_distance={audio.start_distance?.toString()}
                     isSelected={selectedAudio?.id === audio.id}
                     onPress={() => openAudioEditModal(audio)}
                   />
@@ -363,7 +429,7 @@ export default function StudioByType() {
         visible={isAudioEditModalVisible}
         cancelButton
         confirmButton
-        confirmAction={() => setIsAudioEditModalVisible(false)}
+        confirmAction={() => handleEditConfirm()}
         onClose={() => setIsAudioEditModalVisible(false)}>
         <View style={styles.modalContent}>
           <ThemedText type="title" style={styles.modalText}>
@@ -381,34 +447,10 @@ export default function StudioByType() {
             <ThemedText type="default">Lancement de l'audio à</ThemedText>
             <View style={styles.timeInputFields}>
               {goalType === 'Temps' ? (
-                <>
-                  <TimeInputField
-                    placeholder="00"
-                    unit="heures"
-                    value={modalAudioStartTime.split(':')[0]}
-                    onChange={(value) =>
-                      setModalAudioStartTime(`${value}:${modalAudioStartTime.split(':')[1]}`)
-                    }
-                  />
-                  <TimeInputField
-                    placeholder="00"
-                    unit="min"
-                    value={modalAudioStartTime.split(':')[1]}
-                    onChange={(value) =>
-                      setModalAudioStartTime(`${modalAudioStartTime.split(':')[0]}:${value}`)
-                    }
-                  />
-                  <TimeInputField
-                    placeholder="00"
-                    unit="sec"
-                    value={modalAudioStartTime.split(':')[2]}
-                    onChange={(value) =>
-                      setModalAudioStartTime(
-                        `${modalAudioStartTime.split(':')[0]}:${modalAudioStartTime.split(':')[1]}:${value}`,
-                      )
-                    }
-                  />
-                </>
+                <TimeInputs
+                  totalSeconds={modalAudioStartTime}
+                  onChange={(seconds) => setModalAudioStartTime(seconds)}
+                />
               ) : (
                 <DistanceInput
                   placeholder="00"
@@ -427,7 +469,7 @@ export default function StudioByType() {
         visible={isDeleteAudioModalVisible}
         cancelButton
         confirmButton
-        confirmAction={() => setIsDeleteAudioModalVisible(false)}
+        confirmAction={() => handleDeleteAudio()}
         onClose={() => setIsDeleteAudioModalVisible(false)}>
         <View style={styles.modalContent}>
           <ThemedText type="default" style={styles.modalText}>
@@ -456,7 +498,35 @@ export default function StudioByType() {
           </View>
 
           {/* Placeholder pour les ondes sonores */}
-          <Waveform waveLevels={waveLevels} />
+          <View style={styles.waveform}>
+            <ScrollView
+              ref={waveformScrollRef} // Lier la référence
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={{ width: '100%', height: '100%' }}>
+              <Animated.View
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  gap: 2,
+                  justifyContent: 'flex-start',
+                  alignItems: 'center',
+                }}>
+                {waveLevels.map((level, index) => (
+                  <Animated.View
+                    key={index}
+                    style={{
+                      height: Math.max(level, 10),
+                      width: 1,
+                      backgroundColor: 'white',
+                      borderRadius: 2,
+                      marginHorizontal: 1,
+                    }}
+                  />
+                ))}
+              </Animated.View>
+            </ScrollView>
+          </View>
         </View>
       </CustomModal>
     </SafeAreaView>
@@ -607,5 +677,15 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  waveform: {
+    height: 70,
+    width: '100%',
+    backgroundColor: Colors.light.secondaryDark,
+    borderRadius: 12,
+    padding: 10,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    pointerEvents: 'box-none',
   },
 });

@@ -1,33 +1,61 @@
 import { Colors } from '@/constants/Colors';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { ThemedText } from '../text/ThemedText';
+import { secondsToCompactReadableTime, secondsToReadableTime } from '@/utils/timeUtils';
 
 interface AudioCardProps {
   id: number;
   title: string;
   duration: number;
-  start_time: string;
+  goalType?: string;
+  start_time?: number;
+  start_distance?: string;
   onPress?: () => void;
   isSelected?: boolean;
 }
 
-export default function AudioCard({ id, title, duration, start_time, onPress, isSelected = false }: AudioCardProps) {
+export default function AudioCard({
+  id,
+  title,
+  duration,
+  goalType,
+  start_time,
+  start_distance,
+  onPress,
+  isSelected = false,
+}: AudioCardProps) {
   return (
-    <Pressable style={[styles.card, isSelected && styles.cardSelected]} onPress={onPress} >
+    <Pressable style={[styles.card, isSelected && styles.cardSelected]} onPress={onPress}>
       <View style={styles.cardHeader}>
         <View style={styles.idCircle}>
-          <ThemedText type="default" style={styles.idText}>{id}</ThemedText>
+          <ThemedText type="default" style={styles.idText}>
+            {id}
+          </ThemedText>
         </View>
         <ThemedText type="default">{title}</ThemedText>
       </View>
       <View style={styles.cardDetails}>
         <View style={styles.detailRow}>
-          <ThemedText type="default" style={styles.detailLabel}>Durée </ThemedText>
-          <ThemedText type="default" style={styles.detailValue}>{duration} sec</ThemedText>
+          <ThemedText type="default" style={styles.detailLabel}>
+            Durée{' '}
+          </ThemedText>
+          <ThemedText type="default" style={styles.detailValue}>
+            {secondsToCompactReadableTime(duration)}
+          </ThemedText>
         </View>
         <View style={styles.detailRow}>
-          <ThemedText type="default" style={styles.detailLabel}>Début à </ThemedText>
-          <ThemedText type="default" style={styles.detailValue}>{start_time}</ThemedText>
+          <ThemedText type="default" style={styles.detailLabel}>
+            Début à{' '}
+          </ThemedText>
+          {goalType === 'Temps' ? (
+            <ThemedText type="default" style={styles.detailValue}>
+              {secondsToReadableTime(start_time || 0)}
+            </ThemedText>
+          ) : (
+            <ThemedText type="default" style={styles.detailValue}>
+              {start_distance} km
+            </ThemedText>
+          )}
         </View>
       </View>
     </Pressable>

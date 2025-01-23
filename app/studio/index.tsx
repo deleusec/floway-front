@@ -3,8 +3,7 @@ import ThemedButton from '@/components/button/ThemedButton';
 import DistanceInput from '@/components/input/DistanceInput';
 import SelectInput from '@/components/input/SelectInput';
 import TextInputField from '@/components/input/TextInputField';
-import TimeInputField from '@/components/input/TimeInput';
-import TimePicker from '@/components/input/TimePicker';
+import TimeInputs from '@/components/input/TimeInputs';
 import { ThemedText } from '@/components/text/ThemedText';
 import { Colors } from '@/constants/Colors';
 import { useStudioContext } from '@/context/StudioContext';
@@ -21,8 +20,8 @@ import {
 
 export default function CreateRun() {
   const [title, setTitle] = useState<string>('');
-  const [goalType, setGoalType] = useState<string>('Temps');
-  const [timeValues, setTimeValues] = useState({ heures: '00', min: '00', sec: '00' });
+  const [goalType, setGoalType] = useState<'Temps' | 'Distance'>('Temps');
+  const [timeValues, setTimeValues] = useState<number>(0);
   const [goalDistance, setGoalDistance] = useState<number>(0);
   const [description, setDescription] = useState<string>('');
 
@@ -36,7 +35,7 @@ export default function CreateRun() {
     const data = {
       title,
       goalType,
-      timeValues,
+      goalTime: timeValues,
       goalDistance,
       description,
     };
@@ -82,12 +81,12 @@ export default function CreateRun() {
             <View style={styles.selectContainer}>
               <SelectInput
                 options={['Temps', 'Distance']}
-                onValueChange={setGoalType}
+                onValueChange={(value) => setGoalType(value as 'Temps' | 'Distance')}
                 value={goalType}
                 hidePlaceholder
               />
               {goalType === 'Temps' ? (
-                <TimePicker initialTime={timeValues} onTimeChange={setTimeValues} />
+                <TimeInputs totalSeconds={timeValues} onChange={(seconds) => setTimeValues(seconds)} status='active' />
               ) : (
                 <DistanceInput value={goalDistance} onChange={setGoalDistance} unit="km" status='default' />
               )}
