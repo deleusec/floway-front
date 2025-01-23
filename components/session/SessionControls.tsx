@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Colors } from '@/constants/Colors';
+import StopCountdown from './StopCountdown';
 
 interface SessionControlsProps {
   isRunning: boolean;
@@ -14,27 +15,57 @@ export default function SessionControls({
   isRunning,
   onPausePress,
   onStopPress,
-  style,
+  style
 }: SessionControlsProps) {
-  return (
-    <View style={[styles.controlsContainer, style]}>
-      <Pressable
-        style={[styles.pauseButton, !isRunning && styles.pauseButtonPaused]}
-        onPress={() => {
-          console.log('Pause button pressed'); // Debug log
-          onPausePress();
-        }}>
-        <MaterialIcons
-          name={isRunning ? 'pause' : 'play-arrow'}
-          size={32}
-          color={Colors.light.white}
-        />
-      </Pressable>
+  const [showStopCountdown, setShowStopCountdown] = useState(false);
+  const longPressTimeout = useRef<NodeJS.Timeout>();
 
-      <Pressable style={styles.stopButton} onPress={onStopPress}>
-        <MaterialIcons name="stop" size={24} color={Colors.light.white} />
-      </Pressable>
-    </View>
+  const handleStopPressIn = () => {
+    longPressTimeout.current = setTimeout(() => {
+      setShowStopCountdown(true);
+    }, 200);
+  };
+
+  const handleStopPressOut = () => {
+    if (longPressTimeout.current) {
+      clearTimeout(longPressTimeout.current);
+    }
+    setShowStopCountdown(false);
+  };
+
+  return (
+    <>
+      <View style={[styles.controlsContainer, style]}>
+        <Pressable 
+          style={[styles.pauseButton, !isRunning && styles.pauseButtonPaused]}
+          onPress={onPausePress}
+        >
+          <MaterialIcons 
+            name={isRunning ? "pause" : "play-arrow"} 
+            size={32} 
+            color={Colors.light.white} 
+          />
+        </Pressable>
+
+        <Pressable 
+          style={styles.stopButton}
+          onPressIn={handleStopPressIn}
+          onPressOut={handleStopPressOut}
+        >
+          <MaterialIcons 
+            name="stop" 
+            size={24} 
+            color={Colors.light.white} 
+          />
+        </Pressable>
+      </View>
+
+      <StopCountdown
+        isVisible={showStopCountdown}
+        onCancel={() => setShowStopCountdown(false)}
+        onComplete={onStopPress}
+      />
+    </>
   );
 }
 
