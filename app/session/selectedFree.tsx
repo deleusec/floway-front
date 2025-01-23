@@ -31,7 +31,7 @@ export default function FreeSession() {
   const onStopPress = () => {
     handleStop();
     clearSession();
-    router.replace('/');
+    router.replace('/session/summary');
   };
 
   console.log('Current session status:', isRunning); // Debug log

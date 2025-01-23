@@ -1,5 +1,37 @@
+export interface Coordinates {
+  latitude: number;
+  longitude: number;
+  timestamp: number;
+  altitude?: number;
+  accuracy?: number;
+  speed?: number;
+}
+
+export interface SessionSummary {
+  startDate: string;
+  endDate: string;
+  totalDistance: number;
+  averagePace: string;
+  totalCalories: number;
+  totalSteps?: number;
+  averageHeartRate?: number;
+  elevationGain?: number;
+}
+
 export interface SessionData {
+  // Basic session information
+  id: string;
   type: 'free' | 'target' | 'guided';
+  status: 'ready' | 'running' | 'paused' | 'completed';
+  name?: string;
+
+  // Timing information
+  startTime: number;
+  endTime?: number;
+  pauseTime?: number;
+  totalPauseTime: number;
+
+  // Target-specific data
   target?: {
     type: 'time' | 'distance';
     time?: {
@@ -9,6 +41,8 @@ export interface SessionData {
     };
     distance?: number;
   };
+
+  // Guided run specific data
   guidedRun?: {
     id: string;
     title: string;
@@ -17,7 +51,9 @@ export interface SessionData {
     distance?: string;
     image?: any;
   };
-  currentMetrics?: {
+
+  // Real-time metrics
+  currentMetrics: {
     time: {
       hours: string;
       minutes: string;
@@ -26,11 +62,20 @@ export interface SessionData {
     distance: string;
     pace: string;
     calories: string;
+    currentSpeed?: number;
+    instantPace?: string;
+    steps?: number;
+    heartRate?: number;
   };
-  status?: 'ready' | 'running' | 'paused' | 'completed';
-  startTime?: number;
-  pauseTime?: number;
-  totalPauseTime?: number;
-  steps?: number;
-  averageHeartRate?: number;
+
+  // Location tracking
+  locations: Coordinates[];
+  currentLocation?: Coordinates;
+  bounds?: {
+    northEast: Coordinates;
+    southWest: Coordinates;
+  };
+
+  // Session summary (populated when session is completed)
+  summary?: SessionSummary;
 }

@@ -19,7 +19,7 @@ export default function TargetSession() {
   // Initialiser la session et vérifier l'objectif
   useEffect(() => {
     if (!sessionData?.target) {
-      router.replace('/session/target/select');
+      router.replace('/session/target');
       return;
     }
 
@@ -41,7 +41,7 @@ export default function TargetSession() {
   const onStopPress = () => {
     handleStop();
     clearSession();
-    router.replace('/');
+    router.replace('/session/summary');
   };
 
   // En cas d'absence de données de session, rediriger

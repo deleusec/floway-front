@@ -19,19 +19,44 @@
           "iCloudContainerEnvironment": "Production"
         }
       ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Floway to access your location to track your running sessions.",
+          "locationAlwaysPermission": "Allow Floway to access your location in the background for accurate session tracking.",
+          "locationWhenInUsePermission": "Allow Floway to access your location during active sessions.",
+          "isIosBackgroundLocationEnabled": true,
+          "isAndroidBackgroundLocationEnabled": true
+        }
+      ],
       "expo-router",
       "expo-secure-store"
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.floway.flowayapp"
+      "bundleIdentifier": "com.floway.flowayapp",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "location",
+          "fetch"
+        ],
+        "NSLocationUsageDescription": "Floway needs access to location when open to track your running sessions.",
+        "NSLocationWhenInUseUsageDescription": "Floway needs access to location when open to track your running sessions.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Floway needs access to location to track your running sessions even when the app is in background."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.floway.flowayapp"
+      "package": "com.floway.flowayapp",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE"
+      ]
     },
     "web": {
       "bundler": "metro",

@@ -39,7 +39,7 @@ export default function GuidedSession() {
   const onStopPress = () => {
     handleStop();
     clearSession();
-    router.replace('/');
+    router.replace('/session/summary');
   };
 
   // En cas d'absence de données de session, rediriger
