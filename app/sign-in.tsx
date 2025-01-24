@@ -5,6 +5,7 @@ import { useSession } from '@/context/ctx';
 import { ThemedButton } from '@/components/button/ThemedButton';
 import React, { useState } from 'react';
 import TextInputField from "@/components/input/TextInputField";
+import { Colors } from '@/constants/Colors';
 
 export default function SignIn() {
   const { signIn } = useSession();
@@ -114,12 +115,12 @@ export default function SignIn() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1C1F26',
+    backgroundColor: Colors.dark.primaryDark
   },
   content: {
     flex: 1,
     justifyContent: 'flex-start',
-    paddingHorizontal: 26,
+    padding: 24,
   },
   title: {
     fontSize: 20,

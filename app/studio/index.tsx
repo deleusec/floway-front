@@ -86,7 +86,10 @@ export default function CreateRun() {
                 hidePlaceholder
               />
               {goalType === 'Temps' ? (
-                <TimeInputs totalSeconds={timeValues} onChange={(seconds) => setTimeValues(seconds)} status='active' />
+                <TimeInputs totalSeconds={timeValues} onChange={(seconds) => {
+                  console.log('Time values changed to', seconds);
+
+                  setTimeValues(seconds)}} status='active' />
               ) : (
                 <DistanceInput value={goalDistance} onChange={setGoalDistance} unit="km" status='default' />
               )}

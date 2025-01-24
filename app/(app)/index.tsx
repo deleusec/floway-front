@@ -109,7 +109,8 @@ const styles = StyleSheet.create({
   },
   container: {
     flexGrow: 1,
-    padding: 16,
+    paddingTop: 24,
+    paddingHorizontal: 24
   },
 
   // User section styles

@@ -8,12 +8,18 @@ import CustomModal from '@/components/modal/CustomModal';
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Link } from 'expo-router';
 import ThemedButton from '@/components/button/ThemedButton';
+import { useSession } from '@/context/ctx';
+import { secondsToCompactReadableTime } from '@/utils/timeUtils';
 
 interface Run {
+  id: number;
   title: string;
-  metrics: string[];
+  time_objective?: number;
+  distance_objective?: number;
+  is_buyable: boolean;
+  price?: number | null;
+  user_id: number;
   description: string;
-  image: any;
 }
 
 export default function AllRunsScreen() {
@@ -22,6 +28,10 @@ export default function AllRunsScreen() {
   const [selectedRun, setSelectedRun] = useState<Run | null>(null);
 
   const [audioRuns, setAudioRuns] = useState<Run[]>([]);
+  const [activationParams, setActivationParams] = useState<any[]>([]);
+  const [userDetails, setUserDetails] = useState<any[]>([]);
+
+    const { session } = useSession();
 
   const tabs = [
     { key: 'audio', label: 'Audio' },
@@ -29,21 +39,32 @@ export default function AllRunsScreen() {
   ];
 
   useEffect(() => {
-    setAudioRuns([
-      {
-        title: 'Course matinale',
-        metrics: ['45 min'],
-        description: 'Course matinale pour bien démarrer la journée',
-        image: require('@/assets/images/start.jpg'),
-      },
-      {
-        title: 'Course du soir',
-        metrics: ['30 min'],
-        description: 'Course du soir pour se détendre',
-        image: require('@/assets/images/start.jpg'),
-      },
-    ]);
+    fetchAudioRuns();
   }, []);
+
+  const fetchAudioRuns = async () => {
+    try {
+      const response = await fetch('https://api.floway.edgar-lecomte.fr/api/run', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${session}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+
+        setAudioRuns(data.runs);
+        setActivationParams(data.activation_param);
+        setUserDetails(data.users);
+      }
+    } catch (error) {
+      console.error('Error fetching audio runs:', error);
+    }
+  };
 
   const handleRunSelect = (run: Run) => {
     setSelectedRun(run);
@@ -71,9 +92,8 @@ export default function AllRunsScreen() {
                 <PictureCard
                   key={run.title}
                   title={run.title}
-                  metrics={run.metrics}
+                  metrics={[secondsToCompactReadableTime(run.time_objective || 0)]}
                   subtitle={run.description}
-                  image={run.image}
                   onPress={() => handleRunSelect(run)}
                 />
               ))
@@ -105,32 +125,29 @@ export default function AllRunsScreen() {
               onPress={() => setIsModalVisible(false)}
             />
           }>
-           <View style={styles.modal}>
-          <View style={styles.modalContent}>
-            {selectedRun && selectedRun.image && (
-              <Image source={selectedRun.image} style={styles.image} />
-            )}
-
-            <View style={styles.modalHeader}>
-              <ThemedText type="default" style={styles.modalTitle}>
-                {selectedRun?.title}
-              </ThemedText>
-              {selectedRun?.metrics && (
-                <View style={styles.modalMetricsContainer}>
-                  {selectedRun.metrics.map((metric, index) => (
-                    <Text key={index} style={styles.metric}>
-                      {metric}
-                    </Text>
-                  ))}
-                </View>
+          <View style={styles.modal}>
+            <View style={styles.modalContent}>
+              {selectedRun && (
+                <Image source={{ uri: 'https://picsum.photos/200/300' }} style={styles.image} />
               )}
-            </View>
-          </View>
 
-          {selectedRun?.description && (
-            <Text style={styles.modalSubtitle}>{selectedRun.description}</Text>
-          )}
-        </View>
+              <View style={styles.modalHeader}>
+                <ThemedText type="default" style={styles.modalTitle}>
+                  {selectedRun?.title}
+                </ThemedText>
+                {selectedRun?.time_objective && (
+                  <Text style={styles.metric}>Temps: {secondsToCompactReadableTime(selectedRun.time_objective)}</Text>
+                )}
+                {selectedRun?.distance_objective && (
+                  <Text style={styles.metric}>Distance: {selectedRun.distance_objective} km</Text>
+                )}
+              </View>
+            </View>
+
+            {selectedRun?.description && (
+              <Text style={styles.modalSubtitle}>{selectedRun.description}</Text>
+            )}
+          </View>
         </CustomModal>
       </ScrollView>
     </SafeAreaView>

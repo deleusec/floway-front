@@ -33,9 +33,11 @@ export function secondsToCompactReadableTime(totalSeconds: number) {
   const seconds = totalSeconds % 60;
 
   if (hours > 0) {
-    return `${hours.toString()}hours${minutes.toString().padStart(2, '0')}min${seconds.toString().padStart(2, '0')}sec`;
+    return `${hours.toString()}hours${minutes.toString().padStart(2, '0')}min`;
   } else if (minutes > 0) {
-    return `${minutes.toString()}min${seconds.toString().padStart(2, '0')}sec`;
+    return seconds === 0
+      ? `${minutes.toString()}min`
+      : `${minutes.toString()}min${seconds.toString().padStart(2, '0')}sec`;
   } else {
     return `${seconds.toString()}sec`;
   }
