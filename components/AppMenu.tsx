@@ -1,36 +1,61 @@
 import { Colors } from '@/constants/Colors';
-import { Link } from 'expo-router';
+import { Link, usePathname } from 'expo-router';
 import { Image, StyleSheet, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import HomeActiveIcon from '@/assets/icons/home-active.svg';
+import HomeIcon from '@/assets/icons/home.svg';
+import HeadphoneActiveIcon from '@/assets/icons/headphone-active.svg';
+import HeadphoneIcon from '@/assets/icons/headphone.svg';
 
 export default function AppMenu() {
+  const pathname = usePathname();
   return (
     <View style={styles.container}>
       {/* Wave Background */}
       <View style={styles.wave}>
         <Image source={require('@/assets/images/wave.png')} />
       </View>
-      <LinearGradient colors={['transparent', Colors.dark.primaryDark]} style={styles.bottomGradient} />
+      <LinearGradient
+        colors={['transparent', Colors.dark.primaryDark]}
+        style={styles.bottomGradient}
+      />
 
       {/* Home Link */}
       <View style={styles.navLinkContainer}>
         <Link href="/" style={styles.navLink}>
-          <Image source={require('@/assets/images/home-active.png')} style={{ width: 32, height: 32, objectFit: 'contain' }} />
+          {pathname === '/' ? (
+            <HomeActiveIcon width={32} height={32} />
+          ) : (
+            <HomeIcon width={32} height={32} />
+          )}
         </Link>
+        {pathname === '/' && (
+          <LinearGradient colors={['#C0FC95', '#91DC5C']} style={styles.activeIndicator} />
+        )}
       </View>
 
       {/* Play Button */}
       <View style={styles.playButtonContainer}>
         <Link href="/session" style={styles.playButton}>
-          <Image source={require('@/assets/images/play-button.png')} style={{ width: 64, height: 64, objectFit: 'contain' }} />
+          <Image
+            source={require('@/assets/images/play-button.png')}
+            style={{ width: 64, height: 64, objectFit: 'contain' }}
+          />
         </Link>
       </View>
 
       {/* All Runs Link */}
       <View style={styles.navLinkContainer}>
         <Link href="/all-runs" style={styles.navLink}>
-          <Image source={require('@/assets/images/headphone.png')} style={{ width: 32, height: 32, objectFit: 'contain' }} />
+          {pathname === '/all-runs' ? (
+            <HeadphoneActiveIcon width={32} height={32} />
+          ) : (
+            <HeadphoneIcon width={32} height={32} />
+          )}
         </Link>
+        {pathname === '/all-runs' && (
+          <LinearGradient colors={['#C0FC95', '#91DC5C']} style={styles.activeIndicator} />
+        )}
       </View>
     </View>
   );
@@ -55,6 +80,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 10,
+  },
+  activeIndicator: {
+    position: "absolute",
+    bottom: 0,
+    height: 3,
+    width: 30,
   },
   playButtonContainer: {
     alignItems: 'center',
@@ -85,6 +116,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     height: 40,
-    zIndex: 0
+    zIndex: 0,
   },
 });
