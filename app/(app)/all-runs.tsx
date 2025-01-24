@@ -20,6 +20,7 @@ interface Run {
   price?: number | null;
   user_id: number;
   description: string;
+  image_url: string;
 }
 
 export default function AllRunsScreen() {
@@ -31,7 +32,7 @@ export default function AllRunsScreen() {
   const [activationParams, setActivationParams] = useState<any[]>([]);
   const [userDetails, setUserDetails] = useState<any[]>([]);
 
-    const { session } = useSession();
+  const { session } = useSession();
 
   const tabs = [
     { key: 'audio', label: 'Audio' },
@@ -52,12 +53,18 @@ export default function AllRunsScreen() {
         },
       });
 
-
       if (response.ok) {
         const data = await response.json();
         console.log(data);
 
-        setAudioRuns(data.runs);
+        const runsWithImages = await Promise.all(
+          data.runs.map(async (run: any) => {
+            const imageResponse = await fetch('https://picsum.photos/200');
+            return { ...run, image_url: imageResponse.url };
+          })
+        );
+
+        setAudioRuns(runsWithImages);
         setActivationParams(data.activation_param);
         setUserDetails(data.users);
       }
@@ -92,6 +99,7 @@ export default function AllRunsScreen() {
                 <PictureCard
                   key={run.title}
                   title={run.title}
+                  image={{ uri: run.image_url }}
                   metrics={[secondsToCompactReadableTime(run.time_objective || 0)]}
                   subtitle={run.description}
                   onPress={() => handleRunSelect(run)}
@@ -128,7 +136,7 @@ export default function AllRunsScreen() {
           <View style={styles.modal}>
             <View style={styles.modalContent}>
               {selectedRun && (
-                <Image source={{ uri: 'https://picsum.photos/200/300' }} style={styles.image} />
+                <Image source={{ uri: selectedRun.image_url }} style={styles.image} />
               )}
 
               <View style={styles.modalHeader}>
@@ -136,7 +144,9 @@ export default function AllRunsScreen() {
                   {selectedRun?.title}
                 </ThemedText>
                 {selectedRun?.time_objective && (
-                  <Text style={styles.metric}>Temps: {secondsToCompactReadableTime(selectedRun.time_objective)}</Text>
+                  <Text style={styles.metric}>
+                    Temps: {secondsToCompactReadableTime(selectedRun.time_objective)}
+                  </Text>
                 )}
                 {selectedRun?.distance_objective && (
                   <Text style={styles.metric}>Distance: {selectedRun.distance_objective} km</Text>
