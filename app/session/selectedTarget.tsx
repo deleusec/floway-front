@@ -7,9 +7,9 @@ import SessionMetrics from '@/components/session/SessionMetrics';
 import SessionControls from '@/components/session/SessionControls';
 import { useSessionContext } from '@/context/SessionContext';
 import { useSessionTimer } from '@/hooks/useSessionTimer';
-import TimeInputField from '@/components/input/TimeInput';
 import { ThemedText } from '@/components/ThemedText';
 import ProgressDisplay from '@/components/session/ProgressDisplay';
+import TimeDisplay from '@/components/session/TimeDisplay';
 
 export default function TargetSession() {
   const router = useRouter();
@@ -63,28 +63,23 @@ export default function TargetSession() {
         <ThemedText style={styles.targetLabel}>Objectif de la session</ThemedText>
         <View style={styles.targetBox}>
           {sessionData.target.type === 'time' && sessionData.target.time && (
-            <View style={styles.timeInputContainer}>
-              <TimeInputField
-                placeholder="00"
-                unit="heures"
-                value={sessionData.target.time.hours}
-                onChange={() => {}}
-                status="deactivate"
-              />
-              <TimeInputField
-                placeholder="00"
-                unit="min"
-                value={sessionData.target.time.minutes}
-                onChange={() => {}}
-                status="deactivate"
-              />
-              <TimeInputField
-                placeholder="00"
-                unit="sec"
-                value={sessionData.target.time.seconds}
-                onChange={() => {}}
-                status="deactivate"
-              />
+            <View>
+              <View style={styles.timeContainer}>
+                <View style={styles.timeUnit}>
+                  <ThemedText style={styles.timeValue}>{sessionData.target.time.hours}</ThemedText>
+                  <ThemedText style={styles.timeLabel}>Heures</ThemedText>
+                </View>
+                <ThemedText style={styles.separator}>:</ThemedText>
+                <View style={styles.timeUnit}>
+                  <ThemedText style={styles.timeValue}>{sessionData.target.time.minutes}</ThemedText>
+                  <ThemedText style={styles.timeLabel}>Minutes</ThemedText>
+                </View>
+                <ThemedText style={styles.separator}>:</ThemedText>
+                <View style={styles.timeUnit}>
+                  <ThemedText style={styles.timeValue}>{sessionData.target.time.seconds}</ThemedText>
+                  <ThemedText style={styles.timeLabel}>Secondes</ThemedText>
+                </View>
+              </View>
             </View>
           )}
           {sessionData.target.type === 'distance' && (
@@ -93,23 +88,6 @@ export default function TargetSession() {
             </View>
           )}
         </View>
-      </View>
-
-      {/* Progression */}
-      <View style={styles.progressSection}>
-        <ProgressDisplay
-          current={
-            sessionData.target.type === 'distance'
-              ? parseFloat(currentMetrics?.distance || '0')
-              : parseInt(currentMetrics?.time.minutes || '0')
-          }
-          target={
-            sessionData.target.type === 'distance'
-              ? sessionData.target.distance || 0
-              : parseInt(sessionData.target.time?.minutes || '0')
-          }
-          type={sessionData.target.type}
-        />
       </View>
 
       <SessionControls
@@ -138,8 +116,8 @@ const styles = StyleSheet.create({
   targetBox: {
     backgroundColor: Colors.dark.secondaryDark,
     borderRadius: 16,
-    padding: 16,
     borderWidth: 1,
+    padding: 12,
     borderColor: 'rgba(255, 255, 255, 0.1)',
   },
   timeInputContainer: {
@@ -163,5 +141,41 @@ const styles = StyleSheet.create({
     bottom: 48,
     left: 0,
     right: 0,
+  },
+  timeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    width: '100%',
+  },
+  timeUnit: {
+    alignItems: 'center',
+    fontFamily: 'Poppins-Light',
+    minWidth: 80,
+    paddingHorizontal: 4,
+  },
+  timeValue: {
+    fontSize: 38,
+    fontFamily: 'Poppins-Medium',
+    color: Colors.light.white,
+    lineHeight: 64,
+    includeFontPadding: false,
+    textAlign: 'center',
+  },
+  separator: {
+    fontSize: 38,
+    fontWeight: '600',
+    color: Colors.light.white,
+    opacity: 0.7,
+    lineHeight: 64,
+    alignSelf: 'flex-start',
+    includeFontPadding: false,
+    marginBottom: 0,
+    paddingHorizontal: 4,
+  },
+  timeLabel: {
+    fontSize: 16,
+    color: Colors.light.white,
+    opacity: 0.7,
   },
 });

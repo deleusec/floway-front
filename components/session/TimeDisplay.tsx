@@ -35,24 +35,23 @@ export default function TimeDisplay({ hours, minutes, seconds }: TimeDisplayProp
 const styles = StyleSheet.create({
   container: {
     marginVertical: 16,
+    paddingHorizontal: 8,
   },
   timeContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'flex-end',
     width: '100%',
+    justifyContent: 'space-between',
   },
   timeUnit: {
-    alignItems: 'center',
+    fontFamily: 'Poppins-Light',
     minWidth: 80,
-    paddingHorizontal: 4,
-    flex: 1,
+    alignItems: 'center',
   },
   timeValue: {
-    fontSize: 64,
-    fontWeight: '600',
+    fontSize: 58,
+    fontFamily: 'Poppins-Medium',
     color: Colors.light.white,
-    lineHeight: 84,
+    lineHeight: 64,
     includeFontPadding: false,
     textAlign: 'center',
   },
@@ -61,7 +60,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.light.white,
     opacity: 0.7,
-    lineHeight: 84,
+    lineHeight: 54,
     alignSelf: 'flex-start',
     includeFontPadding: false,
     marginBottom: 0,
@@ -71,6 +70,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: Colors.light.white,
     opacity: 0.7,
-    marginTop: 8,
   },
 });

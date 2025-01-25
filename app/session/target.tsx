@@ -1,104 +1,84 @@
 // screens/session/GoalDefinition.tsx
 import React, { useState } from 'react';
-import { SafeAreaView, View, StyleSheet, Text, TextInput } from 'react-native';
+import { SafeAreaView, View, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import BackButton from '@/components/button/BackButton';
 import ThemedButton from '@/components/button/ThemedButton';
-import TimeInputField from '@/components/input/TimeInput';
+import TimeInputs from '@/components/input/TimeInputs';
 import SelectInput from '@/components/input/SelectInput';
+import DistanceInput from '@/components/input/DistanceInput';
 import { Colors } from '@/constants/Colors';
 import { useSessionContext } from '@/context/SessionContext';
+import { ThemedText } from '@/components/text/ThemedText';
 
 export default function GoalDefinition() {
   const router = useRouter();
   const { updateSessionTarget } = useSessionContext();
-  
-  const [hours, setHours] = useState('00');
-  const [minutes, setMinutes] = useState('00');
-  const [seconds, setSeconds] = useState('00');
+
   const [goalType, setGoalType] = useState<'Temps' | 'Distance'>('Temps');
-  const [distance, setDistance] = useState<string>('5.0');
+  const [timeValues, setTimeValues] = useState<number>(0);
+  const [goalDistance, setGoalDistance] = useState<number>(0);
 
   const handleStart = () => {
-    // Mettre à jour le contexte selon le type d'objectif
     if (goalType === 'Temps') {
+      // Convert total seconds to hours, minutes, seconds
+      const hours = Math.floor(timeValues / 3600)
+        .toString()
+        .padStart(2, '0');
+      const minutes = Math.floor((timeValues % 3600) / 60)
+        .toString()
+        .padStart(2, '0');
+      const seconds = (timeValues % 60).toString().padStart(2, '0');
+
       updateSessionTarget({
         type: 'time',
-        time: {
-          hours,
-          minutes,
-          seconds
-        }
+        time: { hours, minutes, seconds },
       });
     } else {
       updateSessionTarget({
         type: 'distance',
-        distance: parseFloat(distance)
+        distance: goalDistance,
       });
     }
 
-    // Naviguer vers la page de session
     router.push('/session/selectedTarget');
   };
 
-  const isValidGoal = goalType === 'Temps' 
-    ? (hours !== '00' || minutes !== '00' || seconds !== '00')
-    : (parseFloat(distance) > 0);
+  const isValidGoal = goalType === 'Temps' ? timeValues > 0 : goalDistance > 0;
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header avec bouton retour */}
       <View style={styles.header}>
         <BackButton />
-        <Text style={styles.title}>Définis ton objectif</Text>
+        <ThemedText type="title" style={styles.title}>
+          Définis ton objectif
+        </ThemedText>
       </View>
 
-      {/* Section objectif */}
       <View style={styles.content}>
-        <SelectInput 
-          options={['Temps', 'Distance']} 
-          onValueChange={(value) => setGoalType(value as 'Temps' | 'Distance')} 
-          value={goalType} 
-          label="Type d'objectif"
-        />
-
-        {goalType === 'Temps' ? (
-          <View style={styles.timeInputContainer}>
-            <TimeInputField 
-              placeholder="00" 
-              unit="heures" 
-              value={hours} 
-              onChange={setHours} 
+        <View style={styles.inputGroup}>
+          <ThemedText type="default">Type de l'objectif</ThemedText>
+          <View style={styles.selectContainer}>
+            <SelectInput
+              options={['Temps', 'Distance']}
+              onValueChange={(value) => setGoalType(value as 'Temps' | 'Distance')}
+              value={goalType}
+              hidePlaceholder
             />
-            <TimeInputField 
-              placeholder="00" 
-              unit="min" 
-              value={minutes} 
-              onChange={setMinutes} 
-            />
-            <TimeInputField 
-              placeholder="00" 
-              unit="sec" 
-              value={seconds} 
-              onChange={setSeconds} 
-            />
+            {goalType === 'Temps' ? (
+              <TimeInputs totalSeconds={timeValues} onChange={setTimeValues} status="active" />
+            ) : (
+              <DistanceInput
+                value={goalDistance}
+                onChange={setGoalDistance}
+                unit="km"
+                status="default"
+              />
+            )}
           </View>
-        ) : (
-          <View style={styles.distanceInputContainer}>
-            <TextInput
-              style={styles.distanceInput}
-              value={distance}
-              onChangeText={setDistance}
-              keyboardType="decimal-pad"
-              placeholder="5.0"
-              placeholderTextColor={Colors.light.mediumGrey}
-            />
-            <Text style={styles.distanceUnit}>km</Text>
-          </View>
-        )}
+        </View>
       </View>
 
-      {/* Bouton Commencer */}
       <View style={styles.buttonContainer}>
         <ThemedButton
           title="Commencer"
@@ -122,43 +102,19 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: Colors.light.white,
     marginTop: 16,
     marginLeft: 8,
   },
   content: {
-    display: 'flex',
     flex: 1,
-    justifyContent: 'center',
     padding: 24,
+  },
+  inputGroup: {
+    gap: 6,
+    marginBottom: 20,
+  },
+  selectContainer: {
     gap: 20,
-  },
-  timeInputContainer: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  distanceInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.light.secondaryDark,
-    borderRadius: 12,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  distanceInput: {
-    flex: 1,
-    color: Colors.light.white,
-    fontSize: 16,
-    padding: 0,
-  },
-  distanceUnit: {
-    color: Colors.light.white,
-    fontSize: 16,
-    marginLeft: 8,
-    opacity: 0.7,
   },
   buttonContainer: {
     padding: 24,

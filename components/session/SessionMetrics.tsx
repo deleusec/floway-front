@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { Colors } from '@/constants/Colors';
+import TimeDisplay from './TimeDisplay';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const METRICS_SCALE = SCREEN_WIDTH / 390; // Base sur iPhone 12/13/14
@@ -37,35 +38,33 @@ export default function SessionMetrics({
   return (
     <View style={styles.container}>
       {/* Timer */}
-      <View style={styles.timerContainer}>
-        <TimeUnit value={time.hours} label="Heures" />
-        <Text style={styles.separator}>:</Text>
-        <TimeUnit value={time.minutes} label="Minutes" />
-        <Text style={styles.separator}>:</Text>
-        <TimeUnit value={time.seconds} label="Secondes" />
-      </View>
+      <TimeDisplay hours={time.hours} minutes={time.minutes} seconds={time.seconds} />
 
       {/* Metrics */}
       <View style={styles.metricsContainer}>
         <View style={styles.metricItem}>
-          <Text style={styles.metricValue}>
-            {distance}<Text style={styles.metricUnit}>km</Text>
-          </Text>
-          <Text style={styles.metricLabel}>Distance</Text>
+          <View>
+            <Text style={styles.metricLabel}>Distance</Text>
+            <Text style={styles.metricValue}>
+              {distance}
+              <Text style={styles.metricUnit}>km</Text>
+            </Text>
+          </View>
         </View>
-        
+
         <View style={styles.metricItem}>
-          <Text style={styles.metricValue}>
-            {pace}
-          </Text>
           <Text style={styles.metricLabel}>Allure</Text>
+          <Text style={styles.metricValue}>{pace}</Text>
         </View>
-        
+
         <View style={styles.metricItem}>
-          <Text style={styles.metricValue}>
-            {calories}<Text style={styles.metricUnit}>kcal</Text>
-          </Text>
-          <Text style={styles.metricLabel}>Calories</Text>
+          <View>
+            <Text style={styles.metricLabel}>Calories</Text>
+            <Text style={styles.metricValue}>
+              {calories}
+              <Text style={styles.metricUnit}>kcal</Text>
+            </Text>
+          </View>
         </View>
       </View>
     </View>
@@ -124,7 +123,7 @@ const styles = StyleSheet.create({
   },
   metricLabel: {
     color: Colors.light.white,
-    fontSize: 12 * METRICS_SCALE,
+    fontSize: 16 * METRICS_SCALE,
     opacity: 0.7,
     marginTop: 4,
   },
