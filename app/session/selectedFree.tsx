@@ -14,16 +14,20 @@ export default function FreeSession() {
 
 
   useEffect(() => {
-    setSessionData({
-      type: 'free',
-      status: 'ready',
-      currentMetrics: {
-        time: { hours: '00', minutes: '00', seconds: '00' },
-        distance: '0,00',
-        pace: '0\'00"',
-        calories: '0',
-      },
-    });
+      setSessionData({
+        id: "", // Add unique ID
+        type: 'free',
+        status: 'ready',
+        startTime: Date.now(),
+        totalPauseTime: 0,
+        locations: [], // Initialize empty locations array
+        currentMetrics: {
+          time: { hours: '00', minutes: '00', seconds: '00' },
+          distance: '0,00',
+          pace: '0\'00"',
+          calories: '0',
+        },
+      });
 
     return () => clearSession();
   }, []);
