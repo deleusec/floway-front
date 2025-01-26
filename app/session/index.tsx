@@ -13,7 +13,7 @@ export default function SessionSelection() {
   const [selectedSession, setSelectedSession] = useState<'target' | 'guide' | 'free'>('free');
 
   const redirectToSession = () => {
-    const routes = {
+    const routes: { [key in 'target' | 'guide' | 'free']: '/session/target' | '/session/guide' | '/session/selectedFree' } = {
       target: '/session/target',
       guide: '/session/guide',
       free: '/session/selectedFree',
