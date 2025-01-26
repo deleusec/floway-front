@@ -6,9 +6,9 @@ import SessionMetrics from '@/components/session/SessionMetrics';
 import SessionControls from '@/components/session/SessionControls';
 import { useSessionContext } from '@/context/SessionContext';
 import TimeDisplay from '@/components/session/TimeDisplay';
-import AudioCard from '@/components/cards/AudioCard';
 import { ThemedText } from '@/components/text/ThemedText';
 import { secondsToTimeObject } from '@/utils/timeUtils';
+import SessionTarget from '@/components/session/SessionTarget';
 
 export default function FreeSession() {
   const [isPlaying, setIsPlaying] = useState(true);
@@ -21,22 +21,11 @@ export default function FreeSession() {
   const { clearSession, sessionData } = useSessionContext();
 
   useEffect(() => {
-    if (!sessionData) {
-      router.replace('/session');
-    }
-
-    return () => clearSession();
-  }, []);
-
-  useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
 
     if (isPlaying) {
       interval = setInterval(() => {
-        setTotalSeconds((prev) => {
-          const newTime = prev + 1;
-          return newTime;
-        });
+        setTotalSeconds((prev) => prev + 1);
       }, 1000);
     } else if (interval) {
       clearInterval(interval);
@@ -57,57 +46,28 @@ export default function FreeSession() {
       <View style={styles.container}>
         {/* Timer */}
         <TimeDisplay time={totalSeconds} />
+
+        {/* Metrics */}
         <SessionMetrics distance={distance} pace={pace} calories={calories} />
 
-        {/* Objectif de la session */}
-        {(sessionData?.type === 'distance' || sessionData?.type === 'time') && (
+        {/* Session Target */}
+        {(sessionData?.type === 'time' || sessionData?.type === 'distance') && (
           <View style={styles.targetSection}>
             <ThemedText style={styles.targetLabel}>Objectif de la session</ThemedText>
             <View style={styles.targetBox}>
-              {/* Temps */}
-              {sessionData?.type === 'time' && (
-                <View>
-                  <View style={styles.timeContainer}>
-                    <View style={styles.timeUnit}>
-                      <ThemedText style={styles.timeValue}>
-                        {secondsToTimeObject(sessionData.time_objective!).hours.toString().padStart(2, '0')}
-                      </ThemedText>
-                      <ThemedText style={styles.timeLabel}>Heures</ThemedText>
-                    </View>
-                    <ThemedText style={styles.separator}>:</ThemedText>
-                    <View style={styles.timeUnit}>
-                      <ThemedText style={styles.timeValue}>
-                        {secondsToTimeObject(sessionData.time_objective!).minutes.toString().padStart(2, '0')}
-                      </ThemedText>
-                      <ThemedText style={styles.timeLabel}>Minutes</ThemedText>
-                    </View>
-                    <ThemedText style={styles.separator}>:</ThemedText>
-                    <View style={styles.timeUnit}>
-                      <ThemedText style={styles.timeValue}>
-                        {secondsToTimeObject(sessionData.time_objective!).seconds.toString().padStart(2, '0')}
-                      </ThemedText>
-                      <ThemedText style={styles.timeLabel}>Secondes</ThemedText>
-                    </View>
-                  </View>
-                </View>
-              )}
-
-              {/* Distance */}
-              {sessionData?.type === 'distance' && (
-                <View style={styles.distanceContainer}>
-                  <ThemedText style={styles.distanceValue}>km</ThemedText>
-                </View>
-              )}
+              <SessionTarget
+                type={sessionData.type}
+                timeObjective={sessionData.time_objective}
+                distanceObjective={sessionData.distance_objective}
+              />
             </View>
           </View>
         )}
 
+        {/* Controls */}
         <SessionControls
           isRunning={isPlaying}
-          onPausePress={() => {
-            setIsPlaying(!isPlaying);
-            console.log('Play/Pause pressed');
-          }}
+          onPausePress={() => setIsPlaying(!isPlaying)}
           onStopPress={onStopPress}
           style={styles.controlsContainer}
         />
@@ -126,31 +86,29 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   targetSection: {
+    marginVertical: 16,
   },
   targetLabel: {
     fontSize: 16,
-    marginBottom: 16,
+    marginBottom: 12,
     fontWeight: '500',
+    color: Colors.light.white,
   },
   targetBox: {
+    height: 100,
     backgroundColor: Colors.dark.secondaryDark,
     borderRadius: 16,
     borderWidth: 1,
-    padding: 12,
+    padding: 16,
     borderColor: 'rgba(255, 255, 255, 0.1)',
   },
-  timeInputContainer: {
-    flexDirection: 'row',
-    gap: 12,
-    justifyContent: 'center',
-  },
-  distanceContainer: {
+  targetContent: {
     alignItems: 'center',
-    padding: 8,
   },
   distanceValue: {
     fontSize: 32,
     fontWeight: '600',
+    color: Colors.light.white,
   },
   controlsContainer: {
     position: 'absolute',
@@ -166,7 +124,6 @@ const styles = StyleSheet.create({
   },
   timeUnit: {
     alignItems: 'center',
-    fontFamily: 'Poppins-Light',
     minWidth: 80,
     paddingHorizontal: 4,
   },
@@ -174,8 +131,6 @@ const styles = StyleSheet.create({
     fontSize: 38,
     fontFamily: 'Poppins-Medium',
     color: Colors.light.white,
-    lineHeight: 64,
-    includeFontPadding: false,
     textAlign: 'center',
   },
   separator: {
@@ -183,11 +138,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.light.white,
     opacity: 0.7,
-    lineHeight: 64,
-    alignSelf: 'flex-start',
-    includeFontPadding: false,
-    marginBottom: 0,
-    paddingHorizontal: 4,
+    marginHorizontal: 4,
   },
   timeLabel: {
     fontSize: 16,
