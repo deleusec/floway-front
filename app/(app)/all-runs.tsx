@@ -53,7 +53,6 @@ export default function AllRunsScreen() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log(data);
 
         const runsWithImages = await Promise.all(
           data.runs.map(async (run: any) => {
@@ -190,7 +189,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginRight: 12,
   },
-  // Modal styles
   modal: {
     gap: 16,
     width: '100%',

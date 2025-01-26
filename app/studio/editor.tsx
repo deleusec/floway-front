@@ -1,18 +1,14 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import BackButton from '@/components/button/BackButton';
-import AudioCard from '@/components/cards/AudioCard';
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { ThemedText } from '@/components/text/ThemedText';
 import { Colors } from '@/constants/Colors';
 import { useStudioContext } from '@/context/StudioContext';
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 import ThemedButton from '@/components/button/ThemedButton';
 import CustomModal from '@/components/modal/CustomModal';
 import TextInputField from '@/components/input/TextInputField';
 import DistanceInput from '@/components/input/DistanceInput';
-import * as DocumentPicker from 'expo-document-picker';
 import { useSession } from '@/context/ctx';
 import { Audio } from 'expo-av';
 import Animated, { useSharedValue } from 'react-native-reanimated';
@@ -20,6 +16,8 @@ import { useRef } from 'react';
 import TimeInputs from '@/components/input/TimeInputs';
 import InformationCircleIcon from '@/assets/icons/information-circle.svg';
 import AudioListStudio from '@/components/studio/AudioListStudio';
+import useAudioPermissions from '@/hooks/useAudioPermissions';
+import { importAudioFile, uploadAudioFile } from '@/utils/audioUtils';
 
 interface AudioProps {
   id: number;
@@ -31,7 +29,7 @@ interface AudioProps {
   start_distance?: number;
 }
 
-export default function StudioByType() {
+export default function Editor() {
   // Gestion des audios
   const [audioList, setAudioList] = useState<AudioProps[]>([]);
   const [selectedAudio, setSelectedAudio] = useState<AudioProps | null>(null);
@@ -54,15 +52,17 @@ export default function StudioByType() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingInstance, setRecordingInstance] = useState<any>();
   const [recordingDuration, setRecordingDuration] = useState(0);
-  const [timerInterval, setTimerInterval] = useState<NodeJS.Timeout | null>(null);
-  const [permissionResponse, requestPermission] = Audio.usePermissions();
-  const [waveLevels, setWaveLevels] = useState<number[]>([0]);
+  const [timerInterval, setTimerInterval] = useState<{
+    waveInterval: NodeJS.Timeout | null;
+    durationInterval: NodeJS.Timeout | null;
+  } | null>(null);
+  const [waveLevels, setWaveLevels] = useState<number[]>([]);
   const waveWidth = useSharedValue(10);
   const waveformScrollRef = useRef<ScrollView>(null);
 
-  const { studioData } = useStudioContext();
+  const { ensurePermissions } = useAudioPermissions();
   const { session } = useSession();
-
+  const { studioData } = useStudioContext();
   const { title, description, goalType, goalTime, goalDistance } = studioData;
 
   const openAudioEditModal = (audio: AudioProps) => {
@@ -72,37 +72,35 @@ export default function StudioByType() {
     setModalAudioStartDistance(audio.start_distance ?? 0);
   };
 
-  const handleImportAudio = async () => {
-    try {
-      const file = await DocumentPicker.getDocumentAsync({
-        type: 'audio/*',
-        copyToCacheDirectory: true,
-      });
-
-      if (file.canceled) {
-        console.log('User canceled document picker');
-        return;
+  const handleImportAudioFile = async () => {
+    const uri = await importAudioFile();
+    if (!uri) {
+      console.log('No audio file selected');
+      return;
+    }
+    if (session) {
+      const response = await uploadAudioFile(uri, session);
+      if (response) {
+        handleAudioResponse(uri, response);
       }
-
-      const audioFile = file.assets[0];
-
-      console.log('Selected audio:', audioFile.uri);
-      await uploadAudio(audioFile.uri);
-    } catch (error) {
-      console.error('Error during audio upload:', error);
     }
   };
 
+  useEffect(() => {
+    return () => {
+      if (timerInterval) {
+        clearInterval(timerInterval.waveInterval!);
+        clearInterval(timerInterval.durationInterval!);
+      }
+    };
+  }, [timerInterval]);
+
   const startRecording = async () => {
     try {
-      if (permissionResponse && permissionResponse.status !== 'granted') {
-        console.log('Requesting permission..');
-        await requestPermission();
-      }
+      await ensurePermissions();
 
       await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
 
-      console.log('Starting recording..');
       const { recording } = await Audio.Recording.createAsync(
         Audio.RecordingOptionsPresets.HIGH_QUALITY,
       );
@@ -111,25 +109,18 @@ export default function StudioByType() {
       setIsRecording(true);
       setRecordingDuration(0);
 
-      // Démarrer le timer
-      setInterval(async () => {
+      const waveInterval = setInterval(async () => {
         const status = await recording.getStatusAsync();
         if (status.isRecording && status.metering) {
-          setWaveLevels((prevLevels) => {
-            const updatedLevels = [...prevLevels, Math.max(0, (status.metering ?? 0) + 100)];
-            setTimeout(() => {
-              waveformScrollRef.current?.scrollToEnd({ animated: true });
-            }, 50);
-
-            return updatedLevels;
-          });
+          setWaveLevels((prevLevels) => [...prevLevels, Math.max(0, (status.metering ?? 0) + 100)]);
         }
       }, 100);
 
-      const interval = setInterval(async () => {
+      const durationInterval = setInterval(() => {
         setRecordingDuration((prev) => prev + 1);
       }, 1000);
-      setTimerInterval(interval);
+
+      setTimerInterval({ waveInterval, durationInterval });
 
       console.log('Recording started');
     } catch (err) {
@@ -140,23 +131,30 @@ export default function StudioByType() {
   const stopRecording = async () => {
     if (!recordingInstance) return;
 
-    console.log('Stopping recording...');
     setIsRecording(false);
 
-    clearInterval(timerInterval!);
-    setTimerInterval(null);
+    // Nettoyage des intervalles
+    if (timerInterval) {
+      clearInterval(timerInterval.waveInterval!);
+      clearInterval(timerInterval.durationInterval!);
+      setTimerInterval(null); // Réinitialise l'état
+    }
 
     await recordingInstance.stopAndUnloadAsync();
     await Audio.setAudioModeAsync({ allowsRecordingIOS: false });
 
-    setWaveLevels([0]); // Réinitialise les ondes
-    waveWidth.value = 10; // Réinitialise la largeur
+    setWaveLevels([0]);
+    waveWidth.value = 10;
 
     const uri = recordingInstance.getURI();
     setRecordingInstance(null);
-    console.log('Recording stopped. File URI:', uri);
 
-    await uploadAudio(uri);
+    if (uri && session) {
+      const response = await uploadAudioFile(uri, session);
+      if (response) {
+        handleAudioResponse(uri, response);
+      }
+    }
 
     return uri;
   };
@@ -164,59 +162,30 @@ export default function StudioByType() {
   const cancelRecording = async () => {
     if (!recordingInstance) return;
 
-    console.log('Cancelling recording...');
     setIsRecording(false);
 
-    clearInterval(timerInterval!);
-    setTimerInterval(null);
+    if (timerInterval) {
+      clearInterval(timerInterval.waveInterval!);
+      clearInterval(timerInterval.durationInterval!);
+      setTimerInterval(null);
+    }
 
     await recordingInstance.stopAndUnloadAsync();
     await Audio.setAudioModeAsync({ allowsRecordingIOS: false });
 
-    setWaveLevels([0]); // Réinitialise les ondes
-    waveWidth.value = 10; // Réinitialise la largeur
+    setWaveLevels([0]);
+    waveWidth.value = 10;
 
     setRecordingInstance(null);
     console.log('Recording cancelled');
   };
 
-  const uploadAudio = async (uri: string) => {
-    try {
-      let uriParts = uri.split('.');
-      let fileType = uriParts[uriParts.length - 1];
-      const formData = new FormData();
-
-      formData.append('file', {
-        uri,
-        name: `recording.${fileType}`,
-        type: `audio/x-${fileType}`,
-      } as any);
-
-      formData.append('payload', JSON.stringify({ title: 'Nouvel audio' }));
-
-      const response = await fetch('https://api.floway.edgar-lecomte.fr/api/audio', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session}`,
-          Accept: 'application/json',
-          'Content-Type': 'multipart/form-data',
-        },
-        body: formData,
-      });
-
-      const jsonResponse = await response.json();
-      if (response.ok) {
-        console.log('Audio uploaded successfully:', jsonResponse);
-        handleAudioResponse(uri, jsonResponse);
-      } else {
-        console.error('Failed to upload audio:', jsonResponse);
-      }
-    } catch (error) {
-      console.error('Error uploading audio:', error);
-    }
-  };
-
   const handleAudioResponse = (localUri: string, backendData: any) => {
+    if (!backendData || !backendData.id || !localUri) {
+      console.error('Invalid backend data or local URI:', { localUri, backendData });
+      return;
+    }
+
     const newAudio = createAudioEntry(localUri, backendData);
     setAudioList((prev) => [...prev, newAudio]);
     setAudioCounter((prev) => prev + 1);
@@ -235,8 +204,7 @@ export default function StudioByType() {
     };
   };
 
-  // Lors de la confirmation
-  const handleEditConfirm = () => {
+  const confirmAudioEdit = () => {
     setAudioList((prev) =>
       prev.map((audio) =>
         audio.id === selectedAudio?.id
@@ -252,7 +220,7 @@ export default function StudioByType() {
     setIsAudioEditModalVisible(false);
   };
 
-  const handleMicPress = async () => {
+  const startRecordingProcess = async () => {
     setIsRecordingModalVisible(true);
     await startRecording();
   };
@@ -272,7 +240,8 @@ export default function StudioByType() {
     setAudioList((prev) => prev.filter((audio) => audio.id !== selectedAudio.id));
     setIsDeleteAudioModalVisible(false);
   };
-  const handleSubmit = async () => {
+
+  const createRun = async () => {
     try {
       const audioParams = audioList.map((audio) => ({
         audio_id: audio.audio_id,
@@ -280,10 +249,7 @@ export default function StudioByType() {
         distance: audio.start_distance ? audio.start_distance.toFixed(1) : null,
       }));
 
-      if (audioParams.length === 0) {
-        console.error('Audio parameters are required.');
-        return;
-      }
+      if (audioParams.length === 0) return;
 
       const payload = {
         audio_params: audioParams,
@@ -294,13 +260,11 @@ export default function StudioByType() {
         price: null,
       };
 
-      console.log('Payload envoyé :', payload);
-
       // Envoyer au backend
       const response = await fetch('https://api.floway.edgar-lecomte.fr/api/run', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${session}`, // Assurez-vous que la session est valide
+          Authorization: `Bearer ${session}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
@@ -309,7 +273,6 @@ export default function StudioByType() {
       if (response.ok) {
         const jsonResponse = await response.json();
         console.log('Run guidé créé avec succès:', jsonResponse);
-        // Ajouter une redirection ou un message de succès
       } else {
         const errorData = await response.json();
         console.error('Erreur lors de la création du run guidé:', errorData);
@@ -317,6 +280,10 @@ export default function StudioByType() {
     } catch (error) {
       console.error('Erreur réseau ou logique:', error);
     }
+  };
+
+  const handleSubmit = async () => {
+    await createRun();
   };
 
   return (
@@ -335,14 +302,12 @@ export default function StudioByType() {
         <ThemedText type="title" style={{ paddingHorizontal: 24 }}>
           Mes audios
         </ThemedText>
-        <View style={styles.audioListWrapper}>
-          <AudioListStudio
-            audioList={audioList}
-            selectedAudio={selectedAudio}
-            openAudioEditModal={openAudioEditModal}
-            goalType={goalType}
-          />
-        </View>
+        <AudioListSection
+          audioList={audioList}
+          selectedAudio={selectedAudio}
+          openAudioEditModal={openAudioEditModal}
+          goalType={goalType}
+        />
       </View>
       <View style={styles.timelineSection}>
         <View style={styles.actionBarContainer}>
@@ -383,8 +348,8 @@ export default function StudioByType() {
               <Ionicons name="play-forward" size={20} color="white" />
             </View>
             <View style={styles.actionBarElement}>
-              <Ionicons name="mic" size={20} color="white" onPress={handleMicPress} />
-              <Ionicons name="file-tray" size={20} color="white" onPress={handleImportAudio} />
+              <Ionicons name="mic" size={20} color="white" onPress={startRecordingProcess} />
+              <Ionicons name="file-tray" size={20} color="white" onPress={handleImportAudioFile} />
             </View>
           </View>
         </View>
@@ -406,7 +371,7 @@ export default function StudioByType() {
         visible={isAudioEditModalVisible}
         cancelButton
         confirmButton
-        confirmAction={() => handleEditConfirm()}
+        confirmAction={() => confirmAudioEdit()}
         onClose={() => setIsAudioEditModalVisible(false)}>
         <View style={styles.modalContent}>
           <ThemedText type="title" style={styles.modalText}>
@@ -509,6 +474,27 @@ export default function StudioByType() {
     </SafeAreaView>
   );
 }
+
+const AudioListSection = ({
+  audioList,
+  selectedAudio,
+  openAudioEditModal,
+  goalType,
+}: {
+  audioList: AudioProps[];
+  selectedAudio: AudioProps | null;
+  openAudioEditModal: (audio: AudioProps) => void;
+  goalType: string;
+}) => (
+  <View style={styles.audioListWrapper}>
+    <AudioListStudio
+      audioList={audioList}
+      selectedAudio={selectedAudio}
+      openAudioEditModal={openAudioEditModal}
+      goalType={goalType}
+    />
+  </View>
+);
 
 const styles = StyleSheet.create({
   container: {

@@ -6,7 +6,11 @@ export const StudioProvider = ({ children }: { children: React.ReactNode }) => {
   const [studioData, setStudioData] = useState(null);
 
   return (
-    <StudioContext.Provider value={{ studioData, setStudioData }}>
+    <StudioContext.Provider
+      value={{
+        studioData,
+        setStudioData,
+      }}>
       {children}
     </StudioContext.Provider>
   );

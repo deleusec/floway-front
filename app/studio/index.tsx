@@ -8,7 +8,7 @@ import { ThemedText } from '@/components/text/ThemedText';
 import { Colors } from '@/constants/Colors';
 import { useStudioContext } from '@/context/StudioContext';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
