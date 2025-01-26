@@ -57,28 +57,27 @@ const CustomModal = ({
 
           {/* Slot Footer */}
           {footer && <View style={styles.modalFooter}>{footer}</View>}
-          {(cancelButton || confirmButton || cross) &&
-            (confirmButton && (
-              <View style={styles.buttonGroup}>
-                {cancelButton && (
-                  <ThemedButton
-                    title="Annuler"
-                    buttonSize="small"
-                    buttonType="cancel"
-                    onPress={cancelAction || onClose}
-                    style={styles.cancelButton}
-                  />
-                )}
-                {confirmButton && (
-                  <ThemedButton
-                    title="Confirmer"
-                    buttonSize="small"
-                    buttonType="confirm"
-                    onPress={confirmAction || onClose}
-                  />
-                )}
-              </View>
-            ))}
+          {(cancelButton || confirmButton || cross) && confirmButton && (
+            <View style={styles.buttonGroup}>
+              {cancelButton && (
+                <ThemedButton
+                  title="Annuler"
+                  buttonSize="small"
+                  buttonType="cancel"
+                  onPress={cancelAction || onClose}
+                  style={styles.cancelButton}
+                />
+              )}
+              {confirmButton && (
+                <ThemedButton
+                  title="Confirmer"
+                  buttonSize="small"
+                  buttonType="confirm"
+                  onPress={confirmAction || onClose}
+                />
+              )}
+            </View>
+          )}
         </Pressable>
       </Pressable>
     </Modal>

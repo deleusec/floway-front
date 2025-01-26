@@ -12,22 +12,21 @@ export default function FreeSession() {
   const { clearSession, setSessionData } = useSessionContext();
   const { isRunning, currentMetrics, handlePlayPause, handleStop } = useSessionTimer();
 
-
   useEffect(() => {
-      setSessionData({
-        id: "", // Add unique ID
-        type: 'free',
-        status: 'ready',
-        startTime: Date.now(),
-        totalPauseTime: 0,
-        locations: [], // Initialize empty locations array
-        currentMetrics: {
-          time: { hours: '00', minutes: '00', seconds: '00' },
-          distance: '0,00',
-          pace: '0\'00"',
-          calories: '0',
-        },
-      });
+    setSessionData({
+      id: '', // Add unique ID
+      type: 'free',
+      status: 'ready',
+      startTime: Date.now(),
+      totalPauseTime: 0,
+      locations: [], // Initialize empty locations array
+      currentMetrics: {
+        time: { hours: '00', minutes: '00', seconds: '00' },
+        distance: '0,00',
+        pace: '0\'00"',
+        calories: '0',
+      },
+    });
 
     return () => clearSession();
   }, []);

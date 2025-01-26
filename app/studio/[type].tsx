@@ -287,8 +287,8 @@ export default function StudioByType() {
 
       const payload = {
         audio_params: audioParams,
-        title: title || "Default Title",
-        description: description || "Default Description",
+        title: title || 'Default Title',
+        description: description || 'Default Description',
         time_objective: goalType === 'Temps' ? goalTime : null,
         distance_objective: goalType === 'Distance' ? goalDistance : null,
         price: null,
@@ -319,7 +319,6 @@ export default function StudioByType() {
     }
   };
 
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.mainContent}>
@@ -337,7 +336,12 @@ export default function StudioByType() {
           Mes audios
         </ThemedText>
         <View style={styles.audioListWrapper}>
-          <AudioListStudio audioList={audioList} selectedAudio={selectedAudio} openAudioEditModal={openAudioEditModal} goalType={goalType} />
+          <AudioListStudio
+            audioList={audioList}
+            selectedAudio={selectedAudio}
+            openAudioEditModal={openAudioEditModal}
+            goalType={goalType}
+          />
         </View>
       </View>
       <View style={styles.timelineSection}>

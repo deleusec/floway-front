@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   activeIndicator: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 0,
     height: 3,
     width: 30,

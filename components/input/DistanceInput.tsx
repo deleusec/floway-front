@@ -67,12 +67,7 @@ export default function DistanceInput({
 
   return (
     <View>
-      <View
-        style={[
-          styles.container,
-          { borderColor },
-          isDisabled && styles.disabledContainer,
-        ]}>
+      <View style={[styles.container, { borderColor }, isDisabled && styles.disabledContainer]}>
         <TextInput
           style={[styles.input, isDisabled && styles.inputDisabled]}
           value={inputValue}

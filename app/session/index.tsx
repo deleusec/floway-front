@@ -10,18 +10,17 @@ import TargetIcon from '@/components/icons/TargetIcon';
 import HeadphoneIcon from '@/components/icons/HeadphoneIcon';
 
 export default function SessionSelection() {
-
   const [selectedSession, setSelectedSession] = useState<'target' | 'guide' | 'free'>('free');
 
   const redirectTarget = () => {
-    if(selectedSession === 'target') {
+    if (selectedSession === 'target') {
       router.push('/session/target');
     } else if (selectedSession === 'guide') {
       router.push('/session/guide');
     } else {
       router.push('/session/selectedFree');
     }
-  }
+  };
 
   const handleGoalSession = () => {
     setSelectedSession('target');
@@ -46,28 +45,33 @@ export default function SessionSelection() {
 
       {/* Boutons */}
       <View style={styles.buttonContainer}>
+        <CustomButton
+          text="Session libre"
+          state={selectedSession === 'free' ? 'selected' : 'default'}
+          onPress={handleFreeSession}
+          style={styles.sessionButton}
+          icon={
+            <ButterflyIcon
+              state={selectedSession === 'free' ? 'selected' : 'default'}
+              width={24}
+              height={24}
+            />
+          }
+        />
 
-          <CustomButton
-            text="Session libre"
-            state={selectedSession === 'free' ? 'selected' : 'default'}
-            onPress={handleFreeSession}
-            style={styles.sessionButton}
-            icon={
-              <ButterflyIcon state={selectedSession === 'free' ? 'selected' : 'default'} width={24} height={24} />
-            }
-          />
-
-
-          <CustomButton
-            text="Session avec objectif"
-            state={selectedSession === 'target' ? 'selected' : 'default'}
-            onPress={handleGoalSession}
-            style={styles.sessionButton}
-            icon={
-              <TargetIcon state={selectedSession === 'target' ? 'selected' : 'default'} width={24} height={24} />
-            }
-          />
-
+        <CustomButton
+          text="Session avec objectif"
+          state={selectedSession === 'target' ? 'selected' : 'default'}
+          onPress={handleGoalSession}
+          style={styles.sessionButton}
+          icon={
+            <TargetIcon
+              state={selectedSession === 'target' ? 'selected' : 'default'}
+              width={24}
+              height={24}
+            />
+          }
+        />
 
         <CustomButton
           text="Session avec run guidée"
@@ -75,7 +79,11 @@ export default function SessionSelection() {
           onPress={handleGuidedSession}
           style={styles.sessionButton}
           icon={
-            <HeadphoneIcon state={selectedSession === 'guide' ? 'selected' : 'default'} width={24} height={24} />
+            <HeadphoneIcon
+              state={selectedSession === 'guide' ? 'selected' : 'default'}
+              width={24}
+              height={24}
+            />
           }
         />
       </View>

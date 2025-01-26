@@ -125,18 +125,20 @@ export default function SelectInput({
               data={options}
               keyExtractor={(item, index) => index.toString()}
               renderItem={({ item }) => (
-                <Pressable
-                  style={styles.androidOption}
-                  onPress={() => handleValueChange(item)}>
-                  <Text style={[styles.androidOptionText, {color: item === selectedValue ? Colors.light.primary : Colors.light.white}]}>{item}</Text>
+                <Pressable style={styles.androidOption} onPress={() => handleValueChange(item)}>
+                  <Text
+                    style={[
+                      styles.androidOptionText,
+                      { color: item === selectedValue ? Colors.light.primary : Colors.light.white },
+                    ]}>
+                    {item}
+                  </Text>
                 </Pressable>
               )}
               ListHeaderComponent={
                 !hidePlaceholder ? (
-                  <Pressable
-                    style={styles.androidOption}
-                    onPress={() => handleValueChange('')}>
-                    <Text style={[styles.androidOptionText, {color: Colors.dark.mediumGrey}]}>
+                  <Pressable style={styles.androidOption} onPress={() => handleValueChange('')}>
+                    <Text style={[styles.androidOptionText, { color: Colors.dark.mediumGrey }]}>
                       {placeholder}
                     </Text>
                   </Pressable>

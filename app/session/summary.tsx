@@ -18,10 +18,7 @@ export default function SessionSummary() {
   const { sessionData } = useSessionContext();
   const formattedDate = format(new Date(), "dd/MM/yyyy 'à' HH:mm", { locale: fr });
 
-  const onPress = () => {
-
-
-  };
+  const onPress = () => {};
 
   return (
     <SafeAreaView style={styles.container}>
@@ -144,24 +141,24 @@ const styles = StyleSheet.create({
 const darkMapStyle = [
   {
     elementType: 'geometry',
-    stylers: [{ color: '#242f3e' }]
+    stylers: [{ color: '#242f3e' }],
   },
   {
     elementType: 'labels.text.fill',
-    stylers: [{ color: '#746855' }]
+    stylers: [{ color: '#746855' }],
   },
   {
     elementType: 'labels.text.stroke',
-    stylers: [{ color: '#242f3e' }]
+    stylers: [{ color: '#242f3e' }],
   },
   {
     featureType: 'road',
     elementType: 'geometry',
-    stylers: [{ color: '#38414e' }]
+    stylers: [{ color: '#38414e' }],
   },
   {
     featureType: 'road',
     elementType: 'geometry.stroke',
-    stylers: [{ color: '#212a37' }]
-  }
+    stylers: [{ color: '#212a37' }],
+  },
 ];

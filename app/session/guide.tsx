@@ -17,8 +17,8 @@ interface GuidedRun {
 }
 
 export default function GuidedRunSelection() {
-const { updateGuidedRun, setSessionData } = useSessionContext();
-const [selectedRun, setSelectedRun] = useState<string | null>(null);
+  const { updateGuidedRun, setSessionData } = useSessionContext();
+  const [selectedRun, setSelectedRun] = useState<string | null>(null);
 
   const guidedRuns: GuidedRun[] = [
     {

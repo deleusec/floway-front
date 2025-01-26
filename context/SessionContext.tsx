@@ -33,7 +33,6 @@ const getValidDate = (timestamp: number | undefined): string => {
   }
 };
 
-
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 export const SessionProvider = ({ children }: { children: React.ReactNode }) => {
@@ -41,67 +40,67 @@ export const SessionProvider = ({ children }: { children: React.ReactNode }) => 
   const [locationSubscription, setLocationSubscription] =
     useState<Location.LocationSubscription | null>(null);
 
- const updateSessionTarget = useCallback((target: SessionData['target']) => {
-   setSessionData((prev) => {
-     if (!prev) {
-       const newSession: SessionData = {
-         id: generateSessionId(),
-         type: 'target',
-         target,
-         status: 'ready',
-         startTime: Date.now(),
-         totalPauseTime: 0,
-         locations: [],
-         currentMetrics: {
-           time: { hours: '00', minutes: '00', seconds: '00' },
-           distance: '0,00',
-           pace: '0\'00"',
-           calories: '0',
-         },
-       };
-       return newSession;
-     }
-     return { ...prev, target };
-   });
- }, []);
+  const updateSessionTarget = useCallback((target: SessionData['target']) => {
+    setSessionData((prev) => {
+      if (!prev) {
+        const newSession: SessionData = {
+          id: generateSessionId(),
+          type: 'target',
+          target,
+          status: 'ready',
+          startTime: Date.now(),
+          totalPauseTime: 0,
+          locations: [],
+          currentMetrics: {
+            time: { hours: '00', minutes: '00', seconds: '00' },
+            distance: '0,00',
+            pace: '0\'00"',
+            calories: '0',
+          },
+        };
+        return newSession;
+      }
+      return { ...prev, target };
+    });
+  }, []);
 
- const updateGuidedRun = useCallback((guidedRun: SessionData['guidedRun']) => {
-   setSessionData((prev) => {
-     if (!prev) {
-       const newSession: SessionData = {
-         id: generateSessionId(),
-         type: 'guided',
-         guidedRun,
-         status: 'ready',
-         startTime: Date.now(),
-         totalPauseTime: 0,
-         locations: [],
-         currentMetrics: {
-           time: { hours: '00', minutes: '00', seconds: '00' },
-           distance: '0,00',
-           pace: '0\'00"',
-           calories: '0',
-         },
-       };
-       return newSession;
-     }
-     return { ...prev, guidedRun };
-   });
- }, []);
+  const updateGuidedRun = useCallback((guidedRun: SessionData['guidedRun']) => {
+    setSessionData((prev) => {
+      if (!prev) {
+        const newSession: SessionData = {
+          id: generateSessionId(),
+          type: 'guided',
+          guidedRun,
+          status: 'ready',
+          startTime: Date.now(),
+          totalPauseTime: 0,
+          locations: [],
+          currentMetrics: {
+            time: { hours: '00', minutes: '00', seconds: '00' },
+            distance: '0,00',
+            pace: '0\'00"',
+            calories: '0',
+          },
+        };
+        return newSession;
+      }
+      return { ...prev, guidedRun };
+    });
+  }, []);
 
- const updateCurrentMetrics = useCallback((metrics: Partial<SessionData['currentMetrics']>) => {
-   setSessionData((prev) => {
-     if (!prev) return null;
-     return {
-       ...prev,
-       currentMetrics: {
-         ...prev.currentMetrics,
-         ...metrics,
-       },
-     };
-   });
- }, []);
-    
+  const updateCurrentMetrics = useCallback((metrics: Partial<SessionData['currentMetrics']>) => {
+    setSessionData((prev) => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        currentMetrics: {
+          ...prev.currentMetrics,
+          ...metrics,
+        },
+      };
+    });
+  }, []);
+
   const updateLocation = useCallback((location: Location.LocationObject) => {
     const newCoordinates: Coordinates = {
       latitude: location.coords.latitude,

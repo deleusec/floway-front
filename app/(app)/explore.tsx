@@ -20,27 +20,78 @@ export default function InputComponentsDemo() {
           <View style={styles.demoSection}>
             <Text style={styles.stateTitle}>Active State</Text>
             <View style={styles.row}>
-              <TimeInputField placeholder="00" unit="heures" value="1" onChange={(value) => console.log(value)} />
-              <TimeInputField placeholder="00" unit="min" value="30" onChange={(value) => console.log(value)} />
-              <TimeInputField placeholder="00" unit="sec" value="45" onChange={(value) => console.log(value)} />
+              <TimeInputField
+                placeholder="00"
+                unit="heures"
+                value="1"
+                onChange={(value) => console.log(value)}
+              />
+              <TimeInputField
+                placeholder="00"
+                unit="min"
+                value="30"
+                onChange={(value) => console.log(value)}
+              />
+              <TimeInputField
+                placeholder="00"
+                unit="sec"
+                value="45"
+                onChange={(value) => console.log(value)}
+              />
             </View>
           </View>
 
           <View style={styles.demoSection}>
             <Text style={styles.stateTitle}>Disabled State</Text>
             <View style={styles.row}>
-              <TimeInputField placeholder="00" unit="heures" status="deactivate" value="1" onChange={(value) => console.log(value)} />
-              <TimeInputField placeholder="00" unit="min" status="deactivate" value="30" onChange={(value) => console.log(value)} />
-              <TimeInputField placeholder="00" unit="sec" status="deactivate" value="45" onChange={(value) => console.log(value)} />
+              <TimeInputField
+                placeholder="00"
+                unit="heures"
+                status="deactivate"
+                value="1"
+                onChange={(value) => console.log(value)}
+              />
+              <TimeInputField
+                placeholder="00"
+                unit="min"
+                status="deactivate"
+                value="30"
+                onChange={(value) => console.log(value)}
+              />
+              <TimeInputField
+                placeholder="00"
+                unit="sec"
+                status="deactivate"
+                value="45"
+                onChange={(value) => console.log(value)}
+              />
             </View>
           </View>
 
           <View style={styles.demoSection}>
             <Text style={styles.stateTitle}>Error State</Text>
             <View style={styles.row}>
-              <TimeInputField placeholder="00" unit="heures" status="error" value="" onChange={(value) => console.log(value)} />
-              <TimeInputField placeholder="00" unit="min" status="error" value="" onChange={(value) => console.log(value)} />
-              <TimeInputField placeholder="00" unit="sec" status="error" value="" onChange={(value) => console.log(value)} />
+              <TimeInputField
+                placeholder="00"
+                unit="heures"
+                status="error"
+                value=""
+                onChange={(value) => console.log(value)}
+              />
+              <TimeInputField
+                placeholder="00"
+                unit="min"
+                status="error"
+                value=""
+                onChange={(value) => console.log(value)}
+              />
+              <TimeInputField
+                placeholder="00"
+                unit="sec"
+                status="error"
+                value=""
+                onChange={(value) => console.log(value)}
+              />
             </View>
           </View>
         </View>

@@ -45,8 +45,7 @@ export default function TextInputField({
           styles.container,
           { borderColor: BORDER_COLORS[status] },
           multiline && styles.multilineContainer,
-        ]}
-      >
+        ]}>
         <TextInput
           placeholder={placeholder}
           placeholderTextColor={Colors.light.mediumGrey}

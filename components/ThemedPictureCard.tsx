@@ -40,7 +40,11 @@ export const PictureCard: React.FC<PictureCardProps> = ({
       disabled={!onPress} // Désactive le clic si aucune action n'est fournie
     >
       {/* Image à gauche */}
-      {image ? <Image source={image} style={styles.image} /> : <Image src='https://picsum.photos/200/300' style={styles.image} />}
+      {image ? (
+        <Image source={image} style={styles.image} />
+      ) : (
+        <Image src="https://picsum.photos/200/300" style={styles.image} />
+      )}
 
       {/* Contenu principal */}
       <View style={styles.content}>

@@ -4,7 +4,7 @@ import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView } from 'react-na
 import { useSession } from '@/context/ctx';
 import { ThemedButton } from '@/components/button/ThemedButton';
 import React, { useState } from 'react';
-import TextInputField from "@/components/input/TextInputField";
+import TextInputField from '@/components/input/TextInputField';
 import { Colors } from '@/constants/Colors';
 
 export default function SignIn() {
@@ -35,7 +35,7 @@ export default function SignIn() {
 
     setFieldErrors(newFieldErrors);
 
-    return !Object.values(newFieldErrors).some(error => error !== '');
+    return !Object.values(newFieldErrors).some((error) => error !== '');
   };
 
   const handleSignIn = async () => {
@@ -115,7 +115,7 @@ export default function SignIn() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.dark.primaryDark
+    backgroundColor: Colors.dark.primaryDark,
   },
   content: {
     flex: 1,
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 16,
-    marginBottom: 14
+    marginBottom: 14,
   },
   signUpContainer: {
     justifyContent: 'flex-end',
@@ -153,5 +153,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#D13F11',
     textAlign: 'center',
-  }
+  },
 });

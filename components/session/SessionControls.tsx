@@ -16,7 +16,7 @@ export default function SessionControls({
   isRunning,
   onPausePress,
   onStopPress,
-  style
+  style,
 }: SessionControlsProps) {
   const [showStopCountdown, setShowStopCountdown] = useState(false);
   const longPressTimeout = useRef<NodeJS.Timeout>();
@@ -37,25 +37,19 @@ export default function SessionControls({
   return (
     <>
       <View style={[styles.controlsContainer, style]}>
-        <View style={ styles.stopButton }></View>
-        <Pressable
-          style={styles.pauseButton}
-          onPress={onPausePress}
-        >
-          {
-            !isRunning ? (
-              <PlayButtonIcon width={80} height={80} />
-            ) : (
-              <PauseButtonIcon width={80} height={80} />
-            )
-          }
+        <View style={styles.stopButton}></View>
+        <Pressable style={styles.pauseButton} onPress={onPausePress}>
+          {!isRunning ? (
+            <PlayButtonIcon width={80} height={80} />
+          ) : (
+            <PauseButtonIcon width={80} height={80} />
+          )}
         </Pressable>
 
         <Pressable
           style={styles.stopButton}
           onPressIn={handleStopPressIn}
-          onPressOut={handleStopPressOut}
-        >
+          onPressOut={handleStopPressOut}>
           <StopButtonIcon width={51} height={51} />
         </Pressable>
       </View>

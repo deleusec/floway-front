@@ -61,7 +61,7 @@ export default function AllRunsScreen() {
           data.runs.map(async (run: any) => {
             const imageResponse = await fetch('https://picsum.photos/200');
             return { ...run, image_url: imageResponse.url };
-          })
+          }),
         );
 
         setAudioRuns(runsWithImages);

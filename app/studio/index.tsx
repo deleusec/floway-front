@@ -44,7 +44,7 @@ export default function CreateRun() {
     setStudioData(data);
 
     // Détermine le type en fonction de goalType
-    const type = goalType === "Temps" ? "time" : "distance";
+    const type = goalType === 'Temps' ? 'time' : 'distance';
 
     // Redirection vers la page /studio/[type]
     router.push({
@@ -73,7 +73,11 @@ export default function CreateRun() {
 
           <View style={styles.inputGroup}>
             <ThemedText type="default">Titre de la Run</ThemedText>
-            <TextInputField placeholder="Ma première Run guidée" value={title} onChange={setTitle} />
+            <TextInputField
+              placeholder="Ma première Run guidée"
+              value={title}
+              onChange={setTitle}
+            />
           </View>
 
           <View style={styles.inputGroup}>
@@ -86,12 +90,22 @@ export default function CreateRun() {
                 hidePlaceholder
               />
               {goalType === 'Temps' ? (
-                <TimeInputs totalSeconds={timeValues} onChange={(seconds) => {
-                  console.log('Time values changed to', seconds);
+                <TimeInputs
+                  totalSeconds={timeValues}
+                  onChange={(seconds) => {
+                    console.log('Time values changed to', seconds);
 
-                  setTimeValues(seconds)}} status='active' />
+                    setTimeValues(seconds);
+                  }}
+                  status="active"
+                />
               ) : (
-                <DistanceInput value={goalDistance} onChange={setGoalDistance} unit="km" status='default' />
+                <DistanceInput
+                  value={goalDistance}
+                  onChange={setGoalDistance}
+                  unit="km"
+                  status="default"
+                />
               )}
             </View>
           </View>

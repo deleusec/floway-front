@@ -8,11 +8,7 @@ interface TimeInputsProps {
   status?: 'active' | 'deactivate' | 'error';
 }
 
-export default function TimeInputs({
-  totalSeconds,
-  onChange,
-  status = 'active',
-}: TimeInputsProps) {
+export default function TimeInputs({ totalSeconds, onChange, status = 'active' }: TimeInputsProps) {
   const [hours, setHours] = useState(() =>
     Math.floor(totalSeconds / 3600)
       .toString()
@@ -30,14 +26,22 @@ export default function TimeInputs({
   const minuteRef = useRef<TextInput>(null);
   const secondRef = useRef<TextInput>(null);
 
-  const handleFocus = (field: 'hours' | 'minutes' | 'seconds', setter: (value: string) => void, value: string) => {
+  const handleFocus = (
+    field: 'hours' | 'minutes' | 'seconds',
+    setter: (value: string) => void,
+    value: string,
+  ) => {
     setFocusedField(field);
     if (value === '00') {
       setter('');
     }
   };
 
-  const handleBlur = (field: 'hours' | 'minutes' | 'seconds', setter: (value: string) => void, value: string) => {
+  const handleBlur = (
+    field: 'hours' | 'minutes' | 'seconds',
+    setter: (value: string) => void,
+    value: string,
+  ) => {
     if (focusedField === field) {
       setFocusedField(null);
     }
@@ -68,15 +72,9 @@ export default function TimeInputs({
     focusedField === field && styles.focused,
   ];
 
-  const textStyles = [
-    styles.input,
-    status === 'deactivate' && styles.disabledInput,
-  ];
+  const textStyles = [styles.input, status === 'deactivate' && styles.disabledInput];
 
-  const unitStyles = [
-    styles.unit,
-    status === 'deactivate' && styles.disabledUnit,
-  ];
+  const unitStyles = [styles.unit, status === 'deactivate' && styles.disabledUnit];
 
   return (
     <View style={styles.wrapper}>

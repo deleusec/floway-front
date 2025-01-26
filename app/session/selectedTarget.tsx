@@ -71,12 +71,16 @@ export default function TargetSession() {
                 </View>
                 <ThemedText style={styles.separator}>:</ThemedText>
                 <View style={styles.timeUnit}>
-                  <ThemedText style={styles.timeValue}>{sessionData.target.time.minutes}</ThemedText>
+                  <ThemedText style={styles.timeValue}>
+                    {sessionData.target.time.minutes}
+                  </ThemedText>
                   <ThemedText style={styles.timeLabel}>Minutes</ThemedText>
                 </View>
                 <ThemedText style={styles.separator}>:</ThemedText>
                 <View style={styles.timeUnit}>
-                  <ThemedText style={styles.timeValue}>{sessionData.target.time.seconds}</ThemedText>
+                  <ThemedText style={styles.timeValue}>
+                    {sessionData.target.time.seconds}
+                  </ThemedText>
                   <ThemedText style={styles.timeLabel}>Secondes</ThemedText>
                 </View>
               </View>

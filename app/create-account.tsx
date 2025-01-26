@@ -39,7 +39,7 @@ export default function CreateAccount() {
 
     setFieldErrors(newFieldErrors);
 
-    return !Object.values(newFieldErrors).some(error => error !== '');
+    return !Object.values(newFieldErrors).some((error) => error !== '');
   };
 
   const handleRegister = async () => {
@@ -171,5 +171,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#D13F11',
     textAlign: 'center',
-  }
+  },
 });

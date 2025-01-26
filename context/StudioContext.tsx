@@ -1,8 +1,8 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState } from 'react';
 
 const StudioContext = createContext<any>(null);
 
-export const StudioProvider = ({ children } : { children: React.ReactNode }) => {
+export const StudioProvider = ({ children }: { children: React.ReactNode }) => {
   const [studioData, setStudioData] = useState(null);
 
   return (
@@ -10,6 +10,6 @@ export const StudioProvider = ({ children } : { children: React.ReactNode }) => 
       {children}
     </StudioContext.Provider>
   );
-}
+};
 
 export const useStudioContext = () => useContext(StudioContext);

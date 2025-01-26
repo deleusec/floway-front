@@ -36,10 +36,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.floway.flowayapp",
       "infoPlist": {
-        "UIBackgroundModes": [
-          "location",
-          "fetch"
-        ],
+        "UIBackgroundModes": ["location", "fetch"],
         "NSLocationUsageDescription": "Floway needs access to location when open to track your running sessions.",
         "NSLocationWhenInUseUsageDescription": "Floway needs access to location when open to track your running sessions.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Floway needs access to location to track your running sessions even when the app is in background."

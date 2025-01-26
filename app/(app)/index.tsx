@@ -4,9 +4,7 @@ import { Colors } from '@/constants/Colors';
 import { PictureCard } from '@/components/ThemedPictureCard';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSession } from '@/context/ctx';
-import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import SettingsIcon from '@/assets/icons/settings.svg';
 
 export default function HomeScreen() {
@@ -19,7 +17,7 @@ export default function HomeScreen() {
         <View style={styles.userSection}>
           <View style={styles.userInfo}>
             <Link href="/start" style={styles.userImage}>
-              <Image source={require('@/assets/images/start.jpg')}  style={styles.userImage} />
+              <Image source={require('@/assets/images/start.jpg')} style={styles.userImage} />
             </Link>
             <View>
               <Text style={styles.userGreeting}>{`Bonjour ${user?.firstName || 'Coureur'}`}</Text>
@@ -56,10 +54,6 @@ export default function HomeScreen() {
         <View style={styles.coursesContainer}>
           <Text style={styles.coursesTitle}>Courses récentes</Text>
           <View style={styles.coursesScrollWrapper}>
-            <LinearGradient
-              colors={[Colors.dark.primaryDark, 'transparent']}
-              style={styles.topGradient}
-            />
             <ScrollView
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.scrollContent}
@@ -111,7 +105,7 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     paddingTop: 24,
-    paddingHorizontal: 24
+    paddingHorizontal: 24,
   },
 
   // User section styles
