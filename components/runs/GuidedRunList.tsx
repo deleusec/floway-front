@@ -3,7 +3,7 @@ import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { ThemedText } from '@/components/text/ThemedText';
 import { PictureCard } from '@/components/ThemedPictureCard';
-import { useSession } from '@/context/ctx';
+import { useAuth } from '@/context/ctx';
 import { secondsToCompactReadableTime } from '@/utils/timeUtils';
 
 interface Run {
@@ -27,7 +27,7 @@ export const GuidedRunList: React.FC<GuidedRunListProps> = ({ onRunSelect, enabl
   const [runs, setRuns] = useState<Run[]>([]);
   const [selectedRun, setSelectedRun] = useState<Run | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { session } = useSession();
+  const { authToken } = useAuth();
 
   useEffect(() => {
     fetchRuns();
@@ -43,7 +43,7 @@ export const GuidedRunList: React.FC<GuidedRunListProps> = ({ onRunSelect, enabl
       const response = await fetch('https://api.floway.edgar-lecomte.fr/api/run', {
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${session}`,
+          Authorization: `Bearer ${authToken}`,
           'Content-Type': 'application/json',
         },
       });

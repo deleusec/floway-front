@@ -9,7 +9,7 @@ import ThemedButton from '@/components/button/ThemedButton';
 import CustomModal from '@/components/modal/CustomModal';
 import TextInputField from '@/components/input/TextInputField';
 import DistanceInput from '@/components/input/DistanceInput';
-import { useSession } from '@/context/ctx';
+import { useAuth } from '@/context/ctx';
 import { Audio } from 'expo-av';
 import Animated, { useSharedValue } from 'react-native-reanimated';
 import { useRef } from 'react';
@@ -61,7 +61,7 @@ export default function Editor() {
   const waveformScrollRef = useRef<ScrollView>(null);
 
   const { ensurePermissions } = useAudioPermissions();
-  const { session } = useSession();
+  const { authToken } = useAuth();
   const { studioData } = useStudioContext();
   const { title, description, goalType, goalTime, goalDistance } = studioData;
 
@@ -78,8 +78,8 @@ export default function Editor() {
       console.log('No audio file selected');
       return;
     }
-    if (session) {
-      const response = await uploadAudioFile(uri, session);
+    if (authToken) {
+      const response = await uploadAudioFile(uri, authToken);
       if (response) {
         handleAudioResponse(uri, response);
       }
@@ -149,8 +149,8 @@ export default function Editor() {
     const uri = recordingInstance.getURI();
     setRecordingInstance(null);
 
-    if (uri && session) {
-      const response = await uploadAudioFile(uri, session);
+    if (uri && authToken) {
+      const response = await uploadAudioFile(uri, authToken);
       if (response) {
         handleAudioResponse(uri, response);
       }
@@ -264,7 +264,7 @@ export default function Editor() {
       const response = await fetch('https://api.floway.edgar-lecomte.fr/api/run', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${session}`,
+          Authorization: `Bearer ${authToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),

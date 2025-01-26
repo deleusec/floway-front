@@ -1,17 +1,17 @@
 import { Redirect, Slot } from 'expo-router';
 import React from 'react';
 import { Text } from 'react-native';
-import { useSession } from '@/context/ctx';
+import { useAuth } from '@/context/ctx';
 import { SessionProvider } from '@/context/SessionContext';
 
 export default function SessionLayout() {
-  const { session, isLoading } = useSession();
+  const { authToken, isLoading } = useAuth();
 
   if (isLoading) {
     return <Text>Loading...</Text>;
   }
 
-  if (!session) {
+  if (!authToken) {
     return <Redirect href="/start" />;
   }
 

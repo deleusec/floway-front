@@ -1,12 +1,12 @@
 import { router } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, SafeAreaView, View } from 'react-native';
-import { useSession } from '@/context/ctx';
+import { useAuth } from '@/context/ctx';
 import { ThemedButton } from '@/components/button/ThemedButton';
 import TextInputField from '@/components/input/TextInputField';
 import React, { useState } from 'react';
 
 export default function CreateAccount() {
-  const { register } = useSession();
+  const { register } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');

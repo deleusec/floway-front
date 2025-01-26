@@ -13,30 +13,30 @@ const AuthContext = createContext<{
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => void;
   register: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
-  session?: string | null;
+  authToken?: string | null;
   user: UserInfo | null;
   isLoading: boolean;
 }>({
   signIn: async () => {},
   signOut: () => null,
   register: async () => {},
-  session: null,
+  authToken: null,
   user: null,
   isLoading: false,
 });
 
-export function useSession() {
+export function useAuth() {
   const value = useContext(AuthContext);
   if (process.env.NODE_ENV !== 'production') {
     if (!value) {
-      throw new Error('useSession must be wrapped in a <SessionProvider />');
+      throw new Error('useAuth must be wrapped in a <AuthProvider />');
     }
   }
   return value;
 }
 
-export function SessionProvider({ children }: PropsWithChildren) {
-  const [[isLoading, session], setSession] = useStorageState('session');
+export function AuthProvider({ children }: PropsWithChildren) {
+  const [[isLoading, authToken], setAuthToken] = useStorageState('authToken');
   const [user, setUser] = useState<UserInfo | null>(null);
 
   const fetchUserInfo = async (token: string) => {
@@ -61,12 +61,12 @@ export function SessionProvider({ children }: PropsWithChildren) {
   };
 
   useEffect(() => {
-    if (session) {
-      fetchUserInfo(session);
+    if (authToken) {
+      fetchUserInfo(authToken);
     } else {
       setUser(null);
     }
-  }, [session]);
+  }, [authToken]);
 
   return (
     <AuthContext.Provider
@@ -82,14 +82,14 @@ export function SessionProvider({ children }: PropsWithChildren) {
               throw new Error('Invalid credentials');
             }
             const { token } = await response.json();
-            setSession(token);
+            setAuthToken(token);
           } catch (error) {
             console.error('Login error:', error);
             throw error;
           }
         },
         signOut: () => {
-          setSession(null);
+          setAuthToken(null);
           setUser(null);
         },
         register: async (email, password, firstName, lastName) => {
@@ -107,7 +107,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
             throw error;
           }
         },
-        session,
+        authToken,
         user,
         isLoading,
       }}>

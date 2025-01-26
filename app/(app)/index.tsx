@@ -1,14 +1,34 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { PictureCard } from '@/components/ThemedPictureCard';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useSession } from '@/context/ctx';
+import { useAuth } from '@/context/ctx';
 import { Link } from 'expo-router';
 import SettingsIcon from '@/assets/icons/settings.svg';
+import {useSessionContext} from "@/context/SessionContext";
 
 export default function HomeScreen() {
-  const { user } = useSession();
+  const { user, authToken } = useAuth();
+  const { userSessions, fetchUserSessions } = useSessionContext();
+
+  useEffect(() => {
+    if (user?.id && authToken) {
+      fetchUserSessions(user.id, authToken);
+    }
+  }, [user?.id, authToken]);
+
+  const formatTime = (minutes: number) => {
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return hrs > 0 ? `${hrs}h${mins}min` : `${mins}min`;
+  };
+
+  const formatPace = (pace: number) => {
+    const minutes = Math.floor(pace);
+    const seconds = Math.round((pace - minutes) * 60);
+    return `${minutes}'${seconds.toString().padStart(2, '0')}"`;
+  };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -58,36 +78,26 @@ export default function HomeScreen() {
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.scrollContent}
               style={styles.scrollView}>
-              <PictureCard
-                title="Hier, course de 7km"
-                metrics={['45 min', '232kcal', "5'10''"]}
-                image={require('@/assets/images/start.jpg')}
-              />
-
-              <PictureCard
-                title="Hier, course de 7km"
-                metrics={['45 min', '232kcal', "5'10''"]}
-                image={require('@/assets/images/start.jpg')}
-                onPress={() => console.log('Course pressed')}
-                isSelected={false}
-              />
-
-              <PictureCard
-                title="Hier, course de 7km"
-                metrics={['45 min', '232kcal', "5'10''"]}
-                image={require('@/assets/images/start.jpg')}
-                onPress={() => console.log('Course pressed')}
-                isSelected={false}
-              />
-
-              <PictureCard
-                title="Premier run"
-                subtitle="Une run de récupération sur 5km pour débuter."
-                metrics={['5km']}
-                image={require('@/assets/images/start.jpg')}
-                onPress={() => console.log('Run selected')}
-                isSelected={true}
-              />
+              {userSessions.length === 0 ? (
+                <View style={styles.placeholder}>
+                  <Text style={styles.placeholderText}>
+                    Aucune course enregistrée. Commencez votre première course !
+                  </Text>
+                </View>
+              ) : (
+                userSessions.map((session) => (
+                  <PictureCard
+                    key={session._id}
+                    title={session.title || `Course du ${new Date(session.reference_day).toLocaleDateString()}`}
+                    metrics={[
+                      formatTime(session.time),
+                      `${session.calories}kcal`,
+                      formatPace(session.allure),
+                    ]}
+                    image={require('@/assets/images/start.jpg')}
+                  />
+                ))
+              )}
             </ScrollView>
           </View>
         </View>
@@ -202,5 +212,15 @@ const styles = StyleSheet.create({
     right: 0,
     height: 20,
     zIndex: 10,
+  },
+  placeholder: {
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  placeholderText: {
+    color: Colors.light.mediumGrey,
+    fontFamily: 'Poppins-Regular',
+    textAlign: 'center',
   },
 });

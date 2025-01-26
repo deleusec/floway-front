@@ -25,6 +25,7 @@ export interface SessionData {
 
 export interface SessionContextType {
   sessionData: SessionData | null;
+  userSessions: Session[];
   setSessionData: (data: SessionData | null) => void;
   initializeSession: (
     type: SessionType,
@@ -37,6 +38,7 @@ export interface SessionContextType {
   stopSession: () => Promise<void>;
   updateLocation: (location: LocationObject) => void;
   clearSession: () => void;
+  fetchUserSessions: (userId: number, token: string) => Promise<void>;
 }
 
 export interface SessionPayload {
@@ -51,4 +53,21 @@ export interface SessionPayload {
   time_objective?: number;
   distance_objective?: number;
   run_id?: number;
+}
+
+export interface Session {
+  _id: string;
+  id: string;
+  reference_day: string;
+  session_type: SessionType;
+  user_id: number;
+  title: string;
+  distance: number;
+  calories: number;
+  allure: number;
+  time: number;
+  tps: [number, number, number][];
+  time_objective: number | null;
+  distance_objective: number | null;
+  run_id: number | null;
 }

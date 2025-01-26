@@ -1,14 +1,14 @@
 import { router } from 'expo-router';
 import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView } from 'react-native';
 
-import { useSession } from '@/context/ctx';
+import { useAuth } from '@/context/ctx';
 import { ThemedButton } from '@/components/button/ThemedButton';
 import React, { useState } from 'react';
 import TextInputField from '@/components/input/TextInputField';
 import { Colors } from '@/constants/Colors';
 
 export default function SignIn() {
-  const { signIn } = useSession();
+  const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);

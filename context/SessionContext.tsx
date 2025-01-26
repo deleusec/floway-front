@@ -5,6 +5,7 @@ import {
   SessionType,
   SessionContextType,
   LocationData,
+  Session
 } from '@/constants/SessionData';
 
 // Context creation
@@ -14,6 +15,24 @@ const SessionContext = createContext<SessionContextType | undefined>(undefined);
 export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [sessionData, setSessionData] = useState<SessionData | null>(null);
   const locationSubscription = useRef<Location.LocationSubscription | null>(null);
+  const [userSessions, setUserSessions] = useState<Session[]>([]);
+
+  const fetchUserSessions = useCallback(async (userId: number, token: string) => {
+    try {
+      const response = await fetch(`https://node.floway.edgar-lecomte.fr/session/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error('Failed to fetch sessions');
+      const data = await response.json();
+      setUserSessions(data);
+    } catch (error) {
+      console.error('Error fetching sessions:', error);
+      setUserSessions([]);
+    }
+  }, []);
 
   const initializeSession = useCallback(
     (
@@ -146,6 +165,8 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         stopSession,
         updateLocation,
         clearSession,
+        userSessions,
+        fetchUserSessions,
       }}>
       {children}
     </SessionContext.Provider>
