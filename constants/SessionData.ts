@@ -1,81 +1,63 @@
-export interface Coordinates {
+// constants/SessionData.ts
+import type { LocationObject } from 'expo-location';
+
+export interface LocationData {
   latitude: number;
   longitude: number;
   timestamp: number;
-  altitude?: number;
-  accuracy?: number;
-  speed?: number;
 }
 
-export interface SessionSummary {
-  startDate: string;
-  endDate: string;
-  totalDistance: number;
-  averagePace: string;
-  totalCalories: number;
-  totalSteps?: number;
-  averageHeartRate?: number;
-  elevationGain?: number;
-}
+export type SessionType = 'free' | 'time' | 'distance' | 'run';
 
 export interface SessionData {
-  // Basic session information
-  id: string;
-  type: 'free' | 'target' | 'guided';
+  type: SessionType;
+  startTime?: number;
   status: 'ready' | 'running' | 'paused' | 'completed';
-  name?: string;
-
-  // Timing information
-  startTime: number;
-  endTime?: number;
-  pauseTime?: number;
-  totalPauseTime: number;
-
-  // Target-specific data
-  target?: {
-    type: 'time' | 'distance';
-    time?: {
-      hours: string;
-      minutes: string;
-      seconds: string;
-    };
-    distance?: number;
-  };
-
-  // Guided run specific data
-  guidedRun?: {
-    id: string;
-    title: string;
-    description: string;
-    duration: string;
-    distance?: string;
-    image?: any;
-  };
-
-  // Real-time metrics
   currentMetrics: {
     time: {
       hours: string;
       minutes: string;
       seconds: string;
+      totalSeconds: number;
     };
-    distance: string;
+    distance: number;
     pace: string;
-    calories: string;
-    currentSpeed?: number;
-    instantPace?: string;
-    steps?: number;
-    heartRate?: number;
+    calories: number;
   };
-
-  // Location tracking
-  locations: Coordinates[];
-  currentLocation?: Coordinates;
-  bounds?: {
-    northEast: Coordinates;
-    southWest: Coordinates;
+  locations: LocationData[];
+  objective?: {
+    type: 'time' | 'distance';
+    value: number;
   };
+  runId?: number;
+}
 
-  // Session summary (populated when session is completed)
-  summary?: SessionSummary;
+export interface SessionContextType {
+  sessionData: SessionData | null;
+  setSessionData: (data: SessionData | null) => void;
+  initializeSession: (
+    type: SessionType,
+    objective?: { type: 'time' | 'distance'; value: number },
+    runId?: number,
+  ) => void;
+  startSession: () => Promise<void>;
+  pauseSession: () => void;
+  resumeSession: () => void;
+  stopSession: () => Promise<void>;
+  updateLocation: (location: LocationObject) => void;
+  clearSession: () => void;
+}
+
+export interface SessionPayload {
+  session_type: SessionType;
+  user_id: number;
+  title: string;
+  distance: number;
+  calories: number;
+  allure: number;
+  time: number;
+  tps: [number, number, number][];
+  time_objective?: number;
+  distance_objective?: number;
+  run_id?: number;
 }

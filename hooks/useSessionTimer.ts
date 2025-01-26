@@ -1,57 +1,70 @@
-import { SessionData } from '@/constants/SessionData';
-import { useSessionContext } from '@/context/SessionContext';
-import { useCallback, useEffect, useRef } from 'react';
+// hooks/useSessionTimer.ts
+import { useRef, useCallback, useEffect } from 'react';
+import { useSessionContext } from '../context/SessionContext';
+import { SessionData } from '../constants/SessionData';
 
 export function useSessionTimer() {
-  const {
-    sessionData,
-    updateCurrentMetrics,
-    startSession,
-    pauseSession,
-    resumeSession,
-    stopSession,
-  } = useSessionContext();
+  const { sessionData, setSessionData } = useSessionContext();
 
-  // Store elapsed time in milliseconds
-  const elapsedTimeRef = useRef(0);
+  const elapsedTimeRef = useRef<number>(0);
   const intervalRef = useRef<ReturnType<typeof setInterval>>();
   const lastTickRef = useRef<number | null>(null);
-
-  const formatTime = (milliseconds: number) => {
-    const totalSeconds = Math.floor(milliseconds / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    return {
-      hours: hours.toString().padStart(2, '0'),
-      minutes: minutes.toString().padStart(2, '0'),
-      seconds: seconds.toString().padStart(2, '0'),
-    };
-  };
+  const lastTimeValuesRef = useRef({
+    hours: '00',
+    minutes: '00',
+    seconds: '00',
+    totalSeconds: 0,
+  });
 
   const updateTimer = useCallback(() => {
-    if (!lastTickRef.current) return;
+    if (!lastTickRef.current || !sessionData) return;
 
     const now = Date.now();
     const delta = now - lastTickRef.current;
     elapsedTimeRef.current += delta;
     lastTickRef.current = now;
 
-    const formattedTime = formatTime(elapsedTimeRef.current);
+    const totalSeconds = Math.floor(elapsedTimeRef.current / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
 
-    updateCurrentMetrics({
-      time: formattedTime,
-      distance: sessionData?.currentMetrics?.distance || '0,00',
-      pace: sessionData?.currentMetrics?.pace || '0\'00"',
-      calories: sessionData?.currentMetrics?.calories || '0',
-    });
-  }, [sessionData?.currentMetrics, updateCurrentMetrics]);
+    const newTimeValues = {
+      hours: hours.toString().padStart(2, '0'),
+      minutes: minutes.toString().padStart(2, '0'),
+      seconds: seconds.toString().padStart(2, '0'),
+      totalSeconds,
+    };
+
+    lastTimeValuesRef.current = newTimeValues;
+
+    const updatedSession: SessionData = {
+      ...sessionData,
+      currentMetrics: {
+        ...sessionData.currentMetrics,
+        time: newTimeValues,
+      },
+    };
+
+    setSessionData(updatedSession);
+  }, [sessionData, setSessionData]);
 
   const startTimer = useCallback(() => {
+    if (!sessionData) return;
+
+    const updatedSession: SessionData = {
+      ...sessionData,
+      currentMetrics: {
+        ...sessionData.currentMetrics,
+        time: lastTimeValuesRef.current,
+      },
+    };
+
+    setSessionData(updatedSession);
+
     lastTickRef.current = Date.now();
     intervalRef.current = setInterval(updateTimer, 1000);
-  }, [updateTimer]);
+  }, [sessionData, updateTimer, setSessionData]);
 
   const stopTimer = useCallback(() => {
     if (intervalRef.current) {
@@ -66,6 +79,14 @@ export function useSessionTimer() {
       startTimer();
     } else if (sessionData?.status === 'paused') {
       stopTimer();
+    } else if (sessionData?.status === 'ready') {
+      elapsedTimeRef.current = 0;
+      lastTimeValuesRef.current = {
+        hours: '00',
+        minutes: '00',
+        seconds: '00',
+        totalSeconds: 0,
+      };
     }
 
     return () => {
@@ -73,23 +94,9 @@ export function useSessionTimer() {
     };
   }, [sessionData?.status, startTimer, stopTimer]);
 
-  const handlePlayPause = useCallback(() => {
-    if (!sessionData) return;
-
-    if (sessionData.status === 'running') {
-      pauseSession();
-    } else if (sessionData.status === 'paused') {
-      resumeSession();
-    } else if (sessionData.status === 'ready') {
-      elapsedTimeRef.current = 0;
-      startSession();
-    }
-  }, [sessionData?.status, pauseSession, resumeSession, startSession]);
-
   return {
     isRunning: sessionData?.status === 'running',
     currentMetrics: sessionData?.currentMetrics,
-    handlePlayPause,
-    handleStop: stopSession,
+    elapsedTime: elapsedTimeRef.current,
   };
 }
