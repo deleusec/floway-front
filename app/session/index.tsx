@@ -12,131 +12,116 @@ import HeadphoneIcon from '@/components/icons/HeadphoneIcon';
 export default function SessionSelection() {
   const [selectedSession, setSelectedSession] = useState<'target' | 'guide' | 'free'>('free');
 
-  const redirectTarget = () => {
-    if (selectedSession === 'target') {
-      router.push('/session/target');
-    } else if (selectedSession === 'guide') {
-      router.push('/session/guide');
-    } else {
-      router.push('/session/selectedFree');
-    }
+  const redirectToSession = () => {
+    const routes = {
+      target: '/session/target',
+      guide: '/session/guide',
+      free: '/session/selectedFree',
+    };
+    router.push(routes[selectedSession]);
   };
 
-  const handleGoalSession = () => {
-    setSelectedSession('target');
-  };
-
-  const handleGuidedSession = () => {
-    setSelectedSession('guide');
-  };
-
-  const handleFreeSession = () => {
-    setSelectedSession('free');
+  const handleSessionSelect = (session: 'target' | 'guide' | 'free') => {
+    setSelectedSession(session);
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Bouton retour */}
-      <View style={styles.backButtonContainer}>
-        <BackButton />
-        {/* Titre */}
-        <Text style={styles.title}>Choisis une session</Text>
-      </View>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        {/* Header Section */}
+        <View style={styles.headerContainer}>
+          <BackButton />
+          <Text style={styles.title}>Choisis une session</Text>
+        </View>
 
-      {/* Boutons */}
-      <View style={styles.buttonContainer}>
-        <CustomButton
-          text="Session libre"
-          state={selectedSession === 'free' ? 'selected' : 'default'}
-          onPress={handleFreeSession}
-          style={styles.sessionButton}
-          icon={
-            <ButterflyIcon
-              state={selectedSession === 'free' ? 'selected' : 'default'}
-              width={24}
-              height={24}
-            />
-          }
-        />
+        {/* Session Buttons */}
+        <View style={styles.sessionButtonsContainer}>
+          <CustomButton
+            text="Session libre"
+            state={selectedSession === 'free' ? 'selected' : 'default'}
+            onPress={() => handleSessionSelect('free')}
+            style={styles.sessionButton}
+            icon={
+              <ButterflyIcon
+                state={selectedSession === 'free' ? 'selected' : 'default'}
+                width={24}
+                height={24}
+              />
+            }
+          />
+          <CustomButton
+            text="Session avec objectif"
+            state={selectedSession === 'target' ? 'selected' : 'default'}
+            onPress={() => handleSessionSelect('target')}
+            style={styles.sessionButton}
+            icon={
+              <TargetIcon
+                state={selectedSession === 'target' ? 'selected' : 'default'}
+                width={24}
+                height={24}
+              />
+            }
+          />
+          <CustomButton
+            text="Session avec run guidée"
+            state={selectedSession === 'guide' ? 'selected' : 'default'}
+            onPress={() => handleSessionSelect('guide')}
+            style={styles.sessionButton}
+            icon={
+              <HeadphoneIcon
+                state={selectedSession === 'guide' ? 'selected' : 'default'}
+                width={24}
+                height={24}
+              />
+            }
+          />
+        </View>
 
-        <CustomButton
-          text="Session avec objectif"
-          state={selectedSession === 'target' ? 'selected' : 'default'}
-          onPress={handleGoalSession}
-          style={styles.sessionButton}
-          icon={
-            <TargetIcon
-              state={selectedSession === 'target' ? 'selected' : 'default'}
-              width={24}
-              height={24}
-            />
-          }
-        />
-
-        <CustomButton
-          text="Session avec run guidée"
-          state={selectedSession === 'guide' ? 'selected' : 'default'}
-          onPress={handleGuidedSession}
-          style={styles.sessionButton}
-          icon={
-            <HeadphoneIcon
-              state={selectedSession === 'guide' ? 'selected' : 'default'}
-              width={24}
-              height={24}
-            />
-          }
-        />
-      </View>
-
-      {/* Bouton Commencer */}
-      <View style={styles.startButtonContainer}>
-        <ThemedButton
-          title="Commencer"
-          buttonSize="large"
-          buttonType="confirm"
-          buttonState="default"
-          onPress={redirectTarget}
-        />
+        {/* Start Button */}
+        <View style={styles.startButtonContainer}>
+          <ThemedButton
+            title="Commencer"
+            buttonSize="medium"
+            buttonType="confirm"
+            buttonState="default"
+            onPress={redirectToSession}
+          />
+        </View>
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
+  safeArea: {
     flex: 1,
     backgroundColor: Colors.dark.primaryDark,
   },
-  backButtonContainer: {
-    marginBottom: 16,
+  container: {
+    flex: 1,
     padding: 24,
+  },
+  headerContainer: {
+    marginBottom: 16,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: Colors.light.white,
     marginTop: 16,
-    marginLeft: 8,
   },
-  buttonContainer: {
-    display: 'flex',
-    flexDirection: 'column',
+  sessionButtonsContainer: {
     flex: 1,
-    justifyContent: 'flex-end',
-    padding: 24,
-    gap: 16,
+    justifyContent: 'center',
+    gap: 32,
+    paddingBottom: 32,
   },
   sessionButton: {
     width: '100%',
     alignSelf: 'center',
   },
   startButtonContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    flex: 1,
-    justifyContent: 'flex-end',
-    paddingHorizontal: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
