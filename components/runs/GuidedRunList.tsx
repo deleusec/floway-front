@@ -20,10 +20,10 @@ interface Run {
 
 interface GuidedRunListProps {
   onRunSelect: (run: Run) => void;
-
+  enableSelection?: boolean;
 }
 
-export const GuidedRunList: React.FC<GuidedRunListProps> = ({ onRunSelect }) => {
+export const GuidedRunList: React.FC<GuidedRunListProps> = ({ onRunSelect, enableSelection = false }) => {
   const [runs, setRuns] = useState<Run[]>([]);
   const [selectedRun, setSelectedRun] = useState<Run | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -89,7 +89,7 @@ export const GuidedRunList: React.FC<GuidedRunListProps> = ({ onRunSelect }) => 
     <View style={styles.listContainer}>
       {runs.map((run) => (
         <PictureCard
-          isSelected={selectedRun?.id === run.id}
+          isSelected={enableSelection && selectedRun?.id === run.id}
           key={run.id}
           title={run.title}
           image={{ uri: run.image_url }}

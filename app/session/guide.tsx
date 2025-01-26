@@ -55,7 +55,7 @@ export default function GuidedRunSelection() {
 
         {/* Content */}
         <ScrollView style={styles.content}>
-          <GuidedRunList onRunSelect={handleRunSelect} />
+          <GuidedRunList onRunSelect={handleRunSelect} enableSelection={true} />
         </ScrollView>
 
         {/* Start Button */}
