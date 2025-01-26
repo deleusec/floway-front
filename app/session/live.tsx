@@ -19,7 +19,7 @@ export default function FreeSession() {
   const [calories, setCalories] = useState(0);
 
   const router = useRouter();
-  const { clearSession, sessionData } = useSessionContext();
+  const { sessionData } = useSessionContext();
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -38,7 +38,6 @@ export default function FreeSession() {
   }, [isPlaying]);
 
   const onStopPress = () => {
-    clearSession();
     router.replace('/session/summary');
   };
 

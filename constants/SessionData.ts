@@ -66,7 +66,7 @@ export interface SessionContextType {
   startSession: () => Promise<void>;
   pauseSession: () => void;
   resumeSession: () => void;
-  stopSession: () => Promise<void>;
+  saveSession: () => Promise<void>;
   updateLocation: (location: LocationObject) => void;
   clearSession: () => void;
   fetchUserSessions: (userId: number, token: string) => Promise<void>;
