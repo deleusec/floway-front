@@ -11,24 +11,15 @@ export type SessionType = 'free' | 'time' | 'distance' | 'run';
 
 export interface SessionData {
   type: SessionType;
-  startTime?: number;
-  status: 'ready' | 'running' | 'paused' | 'completed';
-  currentMetrics: {
-    time: {
-      hours: string;
-      minutes: string;
-      seconds: string;
-      totalSeconds: number;
-    };
+  time: number;
+  metrics: {
     distance: number;
-    pace: string;
+    pace: number;
     calories: number;
   };
   locations: LocationData[];
-  objective?: {
-    type: 'time' | 'distance';
-    value: number;
-  };
+  time_objective?: number;
+  distance_objective?: number;
   runId?: number;
 }
 
@@ -37,7 +28,7 @@ export interface SessionContextType {
   setSessionData: (data: SessionData | null) => void;
   initializeSession: (
     type: SessionType,
-    objective?: { type: 'time' | 'distance'; value: number },
+    objective?: number,
     runId?: number,
   ) => void;
   startSession: () => Promise<void>;

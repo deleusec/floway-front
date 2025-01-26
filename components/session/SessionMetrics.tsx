@@ -1,44 +1,22 @@
 import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { Colors } from '@/constants/Colors';
-import TimeDisplay from './TimeDisplay';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const METRICS_SCALE = SCREEN_WIDTH / 390; // Base sur iPhone 12/13/14
-
-interface TimeUnitProps {
-  value: string;
-  label: string;
-}
-
-const TimeUnit = ({ value, label }: TimeUnitProps) => (
-  <View style={styles.timeUnit}>
-    <Text style={styles.timeValue}>{value}</Text>
-    <Text style={styles.timeLabel}>{label}</Text>
-  </View>
-);
-
 interface SessionMetricsProps {
-  time?: {
-    hours: string;
-    minutes: string;
-    seconds: string;
-  };
-  distance?: string;
-  pace?: string;
-  calories?: string;
+  distance?: number;
+  pace?: number;
+  calories?: number;
 }
 
 export default function SessionMetrics({
-  time = { hours: '00', minutes: '00', seconds: '00' },
-  distance = '0,00',
-  pace = '0\'00"',
-  calories = '0',
+  distance = 0.0,
+  pace = 0.0,
+  calories = 0,
 }: SessionMetricsProps) {
   return (
     <View style={styles.container}>
-      {/* Timer */}
-      <TimeDisplay hours={time.hours} minutes={time.minutes} seconds={time.seconds} />
 
       {/* Metrics */}
       <View style={styles.metricsContainer}>
@@ -74,13 +52,6 @@ export default function SessionMetrics({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    paddingHorizontal: 16,
-  },
-  timerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
   },
   timeUnit: {
     alignItems: 'center',

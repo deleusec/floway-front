@@ -42,7 +42,7 @@ export default function SessionScreen() {
     switch (selectedSession) {
       case 'free':
         initializeSession('free');
-        router.push('/session/selected-free');
+        router.push('/session/live');
         break;
       case 'target':
         setCurrentStep('target-config');
@@ -55,23 +55,16 @@ export default function SessionScreen() {
 
   const handleTargetStart = () => {
     if (goalType === 'Temps') {
-      initializeSession('time', {
-        type: 'time',
-        value: timeValues,
-      });
+      initializeSession('time', timeValues);
     } else {
-      initializeSession('distance', {
-        type: 'distance',
-        value: goalDistance,
-      });
+      initializeSession('distance', goalDistance);
     }
-    router.push('/session/selected-target');
+    router.push('/session/live');
   };
 
   const handleGuideStart = () => {
     if (selectedRun) {
       initializeSession('run', undefined, selectedRun.id);
-      router.push('/session/selected-guided');
     }
   };
 
@@ -138,7 +131,7 @@ export default function SessionScreen() {
 
   const renderTargetConfig = () => (
     <>
-      <View style={styles.header}>
+      <View style={styles.headerContainer}>
         <BackButton onPress={() => setCurrentStep('selection')} />
         <ThemedText type="title" style={styles.title}>
           Définis ton objectif
@@ -169,16 +162,12 @@ export default function SessionScreen() {
         </View>
       </View>
 
-      <View style={styles.buttonContainer}>
+      <View style={styles.startButtonContainer}>
         <ThemedButton
           title="Commencer"
-          buttonSize="large"
+          buttonSize="medium"
           buttonType="confirm"
-          buttonState={
-            goalType === 'Temps' ? timeValues > 0 : goalDistance > 0 ? 'default' : 'disabled'
-          }
           onPress={handleTargetStart}
-          style={styles.startButton}
         />
       </View>
     </>
@@ -187,16 +176,17 @@ export default function SessionScreen() {
   const renderGuideSelection = () => (
     <>
       <BackButton onPress={() => setCurrentStep('selection')} />
-      <View style={styles.header}>
+      <View style={styles.headerContainer}>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>Sélectionne une run guidée</Text>
-          <TabBarIcon name="information-circle-outline" color={Colors.dark.primary} />
         </View>
       </View>
 
-      <ScrollView style={styles.content}>
-        <GuidedRunList onRunSelect={setSelectedRun} enableSelection={true} />
-      </ScrollView>
+      <View style={styles.content}>
+        <ScrollView style={styles.listContainer}>
+          <GuidedRunList onRunSelect={setSelectedRun} enableSelection={true} />
+        </ScrollView>
+      </View>
 
       <View style={styles.startButtonContainer}>
         <ThemedButton
@@ -239,18 +229,13 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   headerContainer: {
-    marginBottom: 16,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: 'column',
+    gap: 8,
   },
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginTop: 16,
   },
   title: {
     fontSize: 24,
@@ -259,6 +244,11 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   content: {
+    flex: 1,
+    justifyContent: 'center',
+    gap: 32,
+  },
+  listContainer: {
     flex: 1,
   },
   sessionButtonsContainer: {

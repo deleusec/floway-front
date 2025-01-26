@@ -18,27 +18,27 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const initializeSession = useCallback(
     (
       type: SessionType,
-      objective?: { type: 'time' | 'distance'; value: number },
+      objective?: number,
       runId?: number,
     ) => {
       const newSession: SessionData = {
         type,
-        status: 'ready',
-        currentMetrics: {
-          time: {
-            hours: '00',
-            minutes: '00',
-            seconds: '00',
-            totalSeconds: 0,
-          },
-          distance: 0,
-          pace: '0\'00"',
+        time: 0,
+        metrics: {
+          distance: 0.0,
+          pace: 0.0,
           calories: 0,
         },
         locations: [],
-        objective,
         runId,
       };
+
+      if (type === 'time') {
+        newSession.time_objective = objective;
+      } else if (type === 'distance') {
+        newSession.distance_objective = objective;
+      }
+
       setSessionData(newSession);
     },
     [],
@@ -103,27 +103,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (!sessionData) return;
 
     try {
-      // Prepare data for backend
-      const sessionPayload = {
-        session_type: sessionData.type,
-        user_id: 1, // Should come from auth context
-        title: `Session ${new Date().toLocaleDateString()}`,
-        distance: sessionData.currentMetrics.distance,
-        calories: sessionData.currentMetrics.calories,
-        allure: parseFloat(sessionData.currentMetrics.pace.replace("'", '.')),
-        time: sessionData.currentMetrics.time.totalSeconds,
-        tps: sessionData.locations.map((loc) => [loc.latitude, loc.longitude, loc.timestamp]),
-        ...(sessionData.objective?.type === 'time' && {
-          time_objective: sessionData.objective.value,
-        }),
-        ...(sessionData.objective?.type === 'distance' && {
-          distance_objective: sessionData.objective.value,
-        }),
-        ...(sessionData.runId && { run_id: sessionData.runId }),
-      };
-
-      // Here you would typically send the data to your backend
-      // await api.post('/sessions', sessionPayload);
+      // TODO: Save session data to API
 
       clearSession();
     } catch (error) {
