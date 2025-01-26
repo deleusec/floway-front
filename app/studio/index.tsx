@@ -25,10 +25,6 @@ export default function CreateRun() {
   const [goalDistance, setGoalDistance] = useState<number>(0);
   const [description, setDescription] = useState<string>('');
 
-  useEffect(() => {
-    console.log('Goal type changed to', goalType);
-  }, [goalType]);
-
   const { setStudioData } = useStudioContext();
 
   const handleNext = () => {
@@ -40,16 +36,11 @@ export default function CreateRun() {
       description,
     };
 
-    console.log(data);
     setStudioData(data);
 
-    // Détermine le type en fonction de goalType
-    const type = goalType === 'Temps' ? 'time' : 'distance';
-
-    // Redirection vers la page /studio/[type]
+    // Redirection vers la page /studio/editor
     router.push({
-      pathname: `/studio/[type]`,
-      params: { type },
+      pathname: `/studio/editor`,
     });
   };
 
