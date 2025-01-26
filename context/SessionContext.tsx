@@ -5,7 +5,8 @@ import {
   SessionType,
   SessionContextType,
   LocationData,
-  Session
+  Session,
+  RunData
 } from '@/constants/SessionData';
 
 // Context creation
@@ -38,7 +39,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     (
       type: SessionType,
       objective?: number,
-      runId?: number,
+      run?: RunData,
     ) => {
       const newSession: SessionData = {
         type,
@@ -49,7 +50,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
           calories: 0,
         },
         locations: [],
-        runId,
+        run: run || null,
       };
 
       if (type === 'time') {

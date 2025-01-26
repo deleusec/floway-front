@@ -14,6 +14,9 @@ import { useSessionContext } from '@/context/SessionContext';
 import ButterflyIcon from '@/components/icons/ButterflyIcon';
 import TargetIcon from '@/components/icons/TargetIcon';
 import HeadphoneIcon from '@/components/icons/HeadphoneIcon';
+import { useAuth } from '@/context/ctx';
+import * as FileSystem from 'expo-file-system';
+
 
 type SessionStep = 'selection' | 'target-config' | 'guide-selection';
 type SessionType = 'free' | 'target' | 'guide';
@@ -27,6 +30,8 @@ export default function SessionScreen() {
   const [timeValues, setTimeValues] = useState<number>(0);
   const [goalDistance, setGoalDistance] = useState<number>(0);
   const [selectedRun, setSelectedRun] = useState<any | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+    const { authToken } = useAuth();
 
   const handleSessionSelect = (session: SessionType) => setSelectedSession(session);
 
@@ -54,10 +59,97 @@ export default function SessionScreen() {
     router.push('/session/live');
   };
 
-  const handleGuideStart = () => {
-    if (selectedRun) {
-      initializeSession('run', undefined, selectedRun.id);
+
+  const handleGuideStart = async () => {
+    if (!selectedRun) return;
+
+    setIsLoading(true);
+
+    try {
+      // Récupération des détails de la run
+      const runResponse = await fetch(
+        `https://api.floway.edgar-lecomte.fr/api/run/${selectedRun.id}`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      if (!runResponse.ok) {
+        console.error('Failed to fetch run');
+        return;
+      }
+
+      const runData = await runResponse.json();
+
+      // Télécharger les fichiers audio et les ajouter à `activation_param`
+      const activationParamsWithAudio = await Promise.all(
+        runData.activation_param.map(async (param: any) => {
+          try {
+            const audioResponse = await fetch(
+              `https://api.floway.edgar-lecomte.fr/api/audio/${param.audio_id}`,
+              {
+                method: 'GET',
+                headers: {
+                  Authorization: `Bearer ${authToken}`,
+                },
+              },
+            );
+
+            if (!audioResponse.ok) {
+              console.error(`Failed to fetch audio for ID: ${param.audio_id}`);
+              return { ...param, audioFile: null };
+            }
+
+            // Récupérer le type MIME et définir l'extension
+            const contentType = audioResponse.headers.get('Content-Type');
+            const extension = contentType?.split('/')[1] || 'mp3'; // Par défaut, mp3
+
+            // Chemin local pour sauvegarder l'audio
+            const localPath = `${FileSystem.documentDirectory}audio_${param.audio_id}.${extension}`;
+
+            // Télécharger et sauvegarder l'audio localement
+            const audioBlob = await audioResponse.blob();
+            const reader = new FileReader();
+
+            await new Promise((resolve, reject) => {
+              reader.onloadend = async () => {
+                try {
+                  const base64Data = reader.result?.toString().split(',')[1] || '';
+                  await FileSystem.writeAsStringAsync(localPath, base64Data, {
+                    encoding: FileSystem.EncodingType.Base64,
+                  });
+                  resolve(null);
+                } catch (err) {
+                  reject(err);
+                }
+              };
+              reader.onerror = reject;
+              reader.readAsDataURL(audioBlob);
+            });
+            return { ...param, audioFile: localPath };
+          } catch (error) {
+            console.error(`Error fetching audio ID ${param.audio_id}:`, error);
+            return { ...param, audioFile: null };
+          }
+        }),
+      );
+
+      // Intégrer les audios préchargés dans `runData`
+      runData.activation_param = activationParamsWithAudio;
+
+      console.log('Préchargement des audios terminé:', runData);
+
+      // Initialiser la session et rediriger
+      initializeSession('run', undefined, runData);
       router.push('/session/live');
+    } catch (error) {
+      console.error('Erreur lors du préchargement des audios:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 

@@ -8,6 +8,8 @@ import { useSessionContext } from '@/context/SessionContext';
 import TimeDisplay from '@/components/session/TimeDisplay';
 import { ThemedText } from '@/components/text/ThemedText';
 import SessionTarget from '@/components/session/SessionTarget';
+import { PictureCard } from '@/components/ThemedPictureCard';
+import { secondsToCompactReadableTime } from '@/utils/timeUtils';
 
 export default function FreeSession() {
   const [isPlaying, setIsPlaying] = useState(true);
@@ -60,6 +62,26 @@ export default function FreeSession() {
                 distanceObjective={sessionData.distance_objective}
               />
             </View>
+          </View>
+        )}
+
+        {/* Guided Run */}
+        {sessionData?.run && (
+          <View style={styles.targetSection}>
+            <ThemedText style={styles.targetLabel}>Course guidée</ThemedText>
+
+            <PictureCard
+              key={sessionData?.run.run.id}
+              title={sessionData?.run.run.title}
+              image={{ uri: 'https://picsum.photos/200' }}
+              metrics={
+                sessionData?.run.run.distance_objective
+                  ? [`${sessionData?.run.run.distance_objective} km`]
+                  : [secondsToCompactReadableTime(sessionData?.run.run.time_objective || 0)]
+              }
+              subtitle={sessionData?.run.run.description}
+              onPress={() => {}}
+            />
           </View>
         )}
 

@@ -20,8 +20,39 @@ export interface SessionData {
   locations: LocationData[];
   time_objective?: number;
   distance_objective?: number;
-  runId?: number;
+  run?: RunData | null;
 }
+
+interface Run {
+  id: number;
+  title: string;
+  time_objective: number;
+  distance_objective: number;
+  price: number;
+  is_buyable: boolean;
+  description: string;
+}
+
+interface ActivationParam {
+  run_id: number;
+  audio_id: number;
+  audioFile?: File;
+  time: number;
+  distance: number;
+}
+
+interface User {
+  first_name: string;
+  last_name: string;
+  picture_path: string;
+}
+
+export interface RunData {
+  run: Run;
+  activation_param: ActivationParam[];
+  user: User;
+}
+
 
 export interface SessionContextType {
   sessionData: SessionData | null;
@@ -30,7 +61,7 @@ export interface SessionContextType {
   initializeSession: (
     type: SessionType,
     objective?: number,
-    runId?: number,
+    run?: RunData,
   ) => void;
   startSession: () => Promise<void>;
   pauseSession: () => void;
