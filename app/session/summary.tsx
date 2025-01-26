@@ -52,27 +52,23 @@ export default function SessionSummary() {
         </MapView>
       </View>
 
-      <TimeDisplay
-        hours={sessionData?.currentMetrics?.time.hours || '00'}
-        minutes={sessionData?.currentMetrics?.time.minutes || '32'}
-        seconds={sessionData?.currentMetrics?.time.seconds || '00'}
-      />
+      <TimeDisplay time={sessionData?.time || 0}/>
 
       <View style={styles.metricsContainer}>
         <View style={styles.metricItem}>
           <ThemedText type="default">Distance</ThemedText>
           <ThemedText type="subtitle">
-            {sessionData?.currentMetrics?.distance || '2,58'}km
+            {sessionData?.metrics?.distance || 0.0}km
           </ThemedText>
         </View>
         <View style={styles.metricItem}>
           <ThemedText type="default">Allure</ThemedText>
-          <ThemedText type="subtitle">{sessionData?.currentMetrics?.pace || '5\'10"'}</ThemedText>
+          <ThemedText type="subtitle">{sessionData?.metrics?.pace || 0.0}</ThemedText>
         </View>
         <View style={styles.metricItem}>
           <ThemedText type="default">Calories</ThemedText>
           <ThemedText type="subtitle">
-            {sessionData?.currentMetrics?.calories || '232'}kcal
+            {sessionData?.metrics?.calories || 0}kcal
           </ThemedText>
         </View>
       </View>
