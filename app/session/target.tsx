@@ -1,4 +1,3 @@
-// screens/session/GoalDefinition.tsx
 import React, { useState } from 'react';
 import { SafeAreaView, View, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -41,7 +40,7 @@ export default function GoalDefinition() {
       });
     }
 
-    router.push('/session/selectedTarget');
+    router.push('/session/selected-target');
   };
 
   const isValidGoal = goalType === 'Temps' ? timeValues > 0 : goalDistance > 0;

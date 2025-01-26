@@ -18,8 +18,6 @@ export default function SessionSummary() {
   const { sessionData } = useSessionContext();
   const formattedDate = format(new Date(), "dd/MM/yyyy 'à' HH:mm", { locale: fr });
 
-  const onPress = () => {};
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>

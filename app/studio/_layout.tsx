@@ -1,7 +1,6 @@
 import { Redirect, Slot } from 'expo-router';
 import React from 'react';
 import { Text } from 'react-native';
-
 import { useSession } from '@/context/ctx';
 import { StudioProvider } from '@/context/StudioContext';
 

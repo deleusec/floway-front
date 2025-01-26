@@ -74,8 +74,12 @@ export default function GuidedRunSelection() {
             pace: '0\'00"',
             calories: '0',
           },
+          id: '',
+          startTime: 0,
+          totalPauseTime: 0,
+          locations: []
         });
-        router.push('/session/selectedGuided');
+        router.push('/session/selected-guided');
       }
     }
   };
