@@ -7,7 +7,6 @@ import SessionControls from '@/components/session/SessionControls';
 import { useSessionContext } from '@/context/SessionContext';
 import TimeDisplay from '@/components/session/TimeDisplay';
 import { ThemedText } from '@/components/text/ThemedText';
-import { secondsToTimeObject } from '@/utils/timeUtils';
 import SessionTarget from '@/components/session/SessionTarget';
 
 export default function FreeSession() {
@@ -102,47 +101,10 @@ const styles = StyleSheet.create({
     padding: 16,
     borderColor: 'rgba(255, 255, 255, 0.1)',
   },
-  targetContent: {
-    alignItems: 'center',
-  },
-  distanceValue: {
-    fontSize: 32,
-    fontWeight: '600',
-    color: Colors.light.white,
-  },
   controlsContainer: {
     position: 'absolute',
     bottom: 48,
     left: 0,
     right: 0,
-  },
-  timeContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-    width: '100%',
-  },
-  timeUnit: {
-    alignItems: 'center',
-    minWidth: 80,
-    paddingHorizontal: 4,
-  },
-  timeValue: {
-    fontSize: 38,
-    fontFamily: 'Poppins-Medium',
-    color: Colors.light.white,
-    textAlign: 'center',
-  },
-  separator: {
-    fontSize: 38,
-    fontWeight: '600',
-    color: Colors.light.white,
-    opacity: 0.7,
-    marginHorizontal: 4,
-  },
-  timeLabel: {
-    fontSize: 16,
-    color: Colors.light.white,
-    opacity: 0.7,
   },
 });

@@ -1,4 +1,3 @@
-// screens/session/index.tsx
 import React, { useState } from 'react';
 import { SafeAreaView, View, StyleSheet, Text, ScrollView } from 'react-native';
 import { router } from 'expo-router';
@@ -7,7 +6,6 @@ import BackButton from '@/components/button/BackButton';
 import ThemedButton from '@/components/button/ThemedButton';
 import { CustomButton } from '@/components/button/ConfigButton';
 import { ThemedText } from '@/components/text/ThemedText';
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { GuidedRunList } from '@/components/runs/GuidedRunList';
 import TimeInputs from '@/components/input/TimeInputs';
 import SelectInput from '@/components/input/SelectInput';
@@ -25,18 +23,12 @@ export default function SessionScreen() {
   const { initializeSession } = useSessionContext();
   const [currentStep, setCurrentStep] = useState<SessionStep>('selection');
   const [selectedSession, setSelectedSession] = useState<SessionType>('free');
-
-  // Target specific state
   const [goalType, setGoalType] = useState<GoalType>('Temps');
   const [timeValues, setTimeValues] = useState<number>(0);
   const [goalDistance, setGoalDistance] = useState<number>(0);
-
-  // Guide specific state
   const [selectedRun, setSelectedRun] = useState<any | null>(null);
 
-  const handleSessionSelect = (session: SessionType) => {
-    setSelectedSession(session);
-  };
+  const handleSessionSelect = (session: SessionType) => setSelectedSession(session);
 
   const handleContinue = () => {
     switch (selectedSession) {
@@ -65,14 +57,15 @@ export default function SessionScreen() {
   const handleGuideStart = () => {
     if (selectedRun) {
       initializeSession('run', undefined, selectedRun.id);
+      router.push('/session/live');
     }
   };
 
   const renderSelectionStep = () => (
     <>
-      <View style={styles.headerContainer}>
+      <View style={styles.header}>
         <BackButton onPress={() => router.back()} />
-        <Text style={styles.title}>Choisis une session</Text>
+        <ThemedText style={styles.title}>Choisis une session</ThemedText>
       </View>
 
       <View style={styles.sessionButtonsContainer}>
@@ -131,16 +124,14 @@ export default function SessionScreen() {
 
   const renderTargetConfig = () => (
     <>
-      <View style={styles.headerContainer}>
+      <View style={styles.header}>
         <BackButton onPress={() => setCurrentStep('selection')} />
-        <ThemedText type="title" style={styles.title}>
-          Définis ton objectif
-        </ThemedText>
+        <ThemedText style={styles.title}>Définis ton objectif</ThemedText>
       </View>
 
       <View style={styles.content}>
         <View style={styles.inputGroup}>
-          <ThemedText type="default">Type de l'objectif</ThemedText>
+          <ThemedText style={styles.label}>Type de l'objectif</ThemedText>
           <View style={styles.selectContainer}>
             <SelectInput
               options={['Temps', 'Distance']}
@@ -175,15 +166,13 @@ export default function SessionScreen() {
 
   const renderGuideSelection = () => (
     <>
-      <BackButton onPress={() => setCurrentStep('selection')} />
-      <View style={styles.headerContainer}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>Sélectionne une run guidée</Text>
-        </View>
+      <View style={styles.header}>
+        <BackButton onPress={() => setCurrentStep('selection')} />
+        <ThemedText style={styles.title}>Sélectionne une run guidée</ThemedText>
       </View>
 
       <View style={styles.content}>
-        <ScrollView style={styles.listContainer}>
+        <ScrollView style={{ width: '100%', flex: 1 }}>
           <GuidedRunList onRunSelect={setSelectedRun} enableSelection={true} />
         </ScrollView>
       </View>
@@ -228,14 +217,8 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 24,
   },
-  headerContainer: {
-    flexDirection: 'column',
-    gap: 8,
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  header: {
+    gap: 16,
   },
   title: {
     fontSize: 24,
@@ -245,11 +228,10 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
     gap: 32,
-  },
-  listContainer: {
-    flex: 1,
+    paddingBottom: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   sessionButtonsContainer: {
     flex: 1,
@@ -262,17 +244,14 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   inputGroup: {
-    gap: 6,
-    marginBottom: 20,
+    gap: 8,
+  },
+  label: {
+    fontSize: 16,
+    color: Colors.light.white,
   },
   selectContainer: {
     gap: 20,
-  },
-  buttonContainer: {
-    padding: 24,
-  },
-  startButton: {
-    width: '100%',
   },
   startButtonContainer: {
     justifyContent: 'center',

@@ -104,8 +104,8 @@ export const GuidedRunList: React.FC<GuidedRunListProps> = ({ onRunSelect, enabl
 
 const styles = StyleSheet.create({
   listContainer: {
-    marginTop: 16,
     flex: 1,
+    marginTop: 16,
     alignItems: 'center',
   },
   loadingContainer: {
