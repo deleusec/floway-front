@@ -26,12 +26,16 @@ export default function SessionSelection() {
     setSelectedSession(session);
   };
 
+  const handleBack = () => {
+    router.back();
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         {/* Header Section */}
         <View style={styles.headerContainer}>
-          <BackButton />
+          <BackButton onPress={handleBack} />
           <Text style={styles.title}>Choisis une session</Text>
         </View>
 
