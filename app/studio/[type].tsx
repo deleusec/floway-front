@@ -18,6 +18,8 @@ import { Audio } from 'expo-av';
 import Animated, { useSharedValue } from 'react-native-reanimated';
 import { useRef } from 'react';
 import TimeInputs from '@/components/input/TimeInputs';
+import InformationCircleIcon from '@/assets/icons/information-circle.svg';
+import AudioListStudio from '@/components/studio/AudioListStudio';
 
 interface AudioProps {
   id: number;
@@ -326,48 +328,16 @@ export default function StudioByType() {
             <BackButton />
           </View>
           <View style={styles.infoIcon}>
-            <TabBarIcon name="information-circle-outline" color={Colors.dark.primary} />
+            <InformationCircleIcon />
           </View>
         </View>
 
+        {/* Audio list */}
         <ThemedText type="title" style={{ paddingHorizontal: 24 }}>
           Mes audios
         </ThemedText>
         <View style={styles.audioListWrapper}>
-          <LinearGradient
-            colors={[Colors.dark.primaryDark, 'transparent']}
-            style={styles.topGradient}
-          />
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            style={styles.audioList}
-            contentContainerStyle={styles.audioListContent}>
-            <View style={styles.audioListContent}>
-              {audioList.length > 0 ? (
-                audioList.map((audio) => (
-                  <AudioCard
-                    key={audio.id}
-                    id={audio.id}
-                    title={audio.title}
-                    duration={Math.round(Number(audio.duration))}
-                    goalType={goalType}
-                    start_time={audio.start_time}
-                    start_distance={audio.start_distance?.toString()}
-                    isSelected={selectedAudio?.id === audio.id}
-                    onPress={() => openAudioEditModal(audio)}
-                  />
-                ))
-              ) : (
-                <ThemedText type="legend" style={styles.emptyMessage}>
-                  Aucun audio n’a été ajouté. Créez ou importez le votre en cliquant ci-dessous !
-                </ThemedText>
-              )}
-            </View>
-          </ScrollView>
-          <LinearGradient
-            colors={['transparent', Colors.dark.primaryDark]}
-            style={styles.bottomGradient}
-          />
+          <AudioListStudio audioList={audioList} selectedAudio={selectedAudio} openAudioEditModal={openAudioEditModal} goalType={goalType} />
         </View>
       </View>
       <View style={styles.timelineSection}>

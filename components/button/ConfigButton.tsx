@@ -1,19 +1,11 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  ViewStyle,
-  ImageSourcePropType,
-} from 'react-native';
+import { Text, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { Colors } from '@/constants/Colors';
 
 interface ButtonProps {
   text: string; // Texte du bouton
   state: 'default' | 'disabled' | 'selected'; // États du bouton
-  icon?: ImageSourcePropType; // Icône à afficher
+  icon?: React.ReactElement; // Icône à gauche du texte
   onPress?: () => void; // Action au clic
   style?: ViewStyle; // Style personnalisé
 }
@@ -31,7 +23,7 @@ export const CustomButton: React.FC<ButtonProps> = ({ text, state, icon, onPress
       onPress={onPress}
       disabled={state === 'disabled'}>
       {/* Icône à gauche */}
-      {icon && <Image source={icon} style={[styles.icon]} />}
+      <Text>{icon && icon}</Text>
 
       {/* Texte du bouton */}
       <Text
@@ -50,6 +42,7 @@ export const CustomButton: React.FC<ButtonProps> = ({ text, state, icon, onPress
 const styles = StyleSheet.create({
   button: {
     flexDirection: 'row',
+    gap: 12,
     alignItems: 'center',
     justifyContent: 'center',
     width: 340,
@@ -89,6 +82,10 @@ const styles = StyleSheet.create({
     height: 20,
     marginRight: 8,
     tintColor: Colors.light.white,
+  },
+  buttonText: {
+    fontSize: 16,
+    letterSpacing: 0.2,
   },
 });
 

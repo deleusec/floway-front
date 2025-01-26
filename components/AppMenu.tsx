@@ -6,6 +6,8 @@ import HomeActiveIcon from '@/assets/icons/home-active.svg';
 import HomeIcon from '@/assets/icons/home.svg';
 import HeadphoneActiveIcon from '@/assets/icons/headphone-active.svg';
 import HeadphoneIcon from '@/assets/icons/headphone.svg';
+import StartButtonIcon from '@/assets/icons/start-button.svg';
+import ShadowBottomSvg from '@/assets/icons/shadow-bottom.svg';
 
 export default function AppMenu() {
   const pathname = usePathname();
@@ -15,10 +17,7 @@ export default function AppMenu() {
       <View style={styles.wave}>
         <Image source={require('@/assets/images/wave.png')} />
       </View>
-      <LinearGradient
-        colors={['transparent', Colors.dark.primaryDark]}
-        style={styles.bottomGradient}
-      />
+      <ShadowBottomSvg style={styles.bottomGradient} />
 
       {/* Home Link */}
       <View style={styles.navLinkContainer}>
@@ -37,10 +36,7 @@ export default function AppMenu() {
       {/* Play Button */}
       <View style={styles.playButtonContainer}>
         <Link href="/session" style={styles.playButton}>
-          <Image
-            source={require('@/assets/images/play-button.png')}
-            style={{ width: 64, height: 64, objectFit: 'contain' }}
-          />
+          <StartButtonIcon width={64} height={64} />
         </Link>
       </View>
 
@@ -115,7 +111,6 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 40,
     zIndex: 0,
   },
 });

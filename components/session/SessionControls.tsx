@@ -1,8 +1,9 @@
 import React, { useRef, useState } from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import { Colors } from '@/constants/Colors';
 import StopCountdown from './StopCountdown';
+import PlayButtonIcon from '@/assets/icons/play-button.svg';
+import PauseButtonIcon from '@/assets/icons/pause-button.svg';
+import StopButtonIcon from '@/assets/icons/stop-button.svg';
 
 interface SessionControlsProps {
   isRunning: boolean;
@@ -36,27 +37,26 @@ export default function SessionControls({
   return (
     <>
       <View style={[styles.controlsContainer, style]}>
-        <Pressable 
-          style={[styles.pauseButton, !isRunning && styles.pauseButtonPaused]}
+        <View style={ styles.stopButton }></View>
+        <Pressable
+          style={styles.pauseButton}
           onPress={onPausePress}
         >
-          <MaterialIcons 
-            name={isRunning ? "pause" : "play-arrow"} 
-            size={32} 
-            color={Colors.light.white} 
-          />
+          {
+            !isRunning ? (
+              <PlayButtonIcon width={80} height={80} />
+            ) : (
+              <PauseButtonIcon width={80} height={80} />
+            )
+          }
         </Pressable>
 
-        <Pressable 
+        <Pressable
           style={styles.stopButton}
           onPressIn={handleStopPressIn}
           onPressOut={handleStopPressOut}
         >
-          <MaterialIcons 
-            name="stop" 
-            size={24} 
-            color={Colors.light.white} 
-          />
+          <StopButtonIcon width={51} height={51} />
         </Pressable>
       </View>
 
@@ -74,42 +74,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 16,
+    gap: 32,
     padding: 24,
   },
   pauseButton: {
     height: 64,
     width: 64,
     borderRadius: 32,
-    backgroundColor: Colors.light.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: Colors.light.primary,
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 8,
-  },
-  pauseButtonPaused: {
-    backgroundColor: Colors.light.error,
   },
   stopButton: {
     height: 48,
     width: 48,
     borderRadius: 24,
-    backgroundColor: Colors.light.secondaryDark,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
 });

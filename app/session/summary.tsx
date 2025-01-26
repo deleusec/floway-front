@@ -3,15 +3,13 @@ import { SafeAreaView, View, StyleSheet, Dimensions } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedButton } from '@/components/button/ThemedButton';
-import MapView, { Polyline, Marker } from 'react-native-maps';
+import MapView, { Polyline } from 'react-native-maps';
 import { useRouter } from 'expo-router';
 import { useSessionContext } from '@/context/SessionContext';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Ionicons } from '@expo/vector-icons';
 import TimeDisplay from '@/components/session/TimeDisplay';
-import CustomButton from '@/components/button/ConfigButton';
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
+import EditPencilIcon from '@/assets/icons/edit-pencil.svg';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -34,7 +32,7 @@ export default function SessionSummary() {
             {formattedDate}
           </ThemedText>
         </View>
-        <TabBarIcon name="add-circle-outline" color="white" size={28} />
+        <EditPencilIcon width={24} height={24} />
       </View>
 
       <View style={styles.mapContainer}>

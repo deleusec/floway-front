@@ -1,29 +1,38 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SafeAreaView, View, StyleSheet, Text } from 'react-native';
 import BackButton from '@/components/button/BackButton';
 import ThemedButton from '@/components/button/ThemedButton';
 import { CustomButton } from '@/components/button/ConfigButton';
 import { Colors } from '@/constants/Colors';
-import { Link } from 'expo-router';
 import { router } from 'expo-router';
+import ButterflyIcon from '@/components/icons/ButterflyIcon';
+import TargetIcon from '@/components/icons/TargetIcon';
+import HeadphoneIcon from '@/components/icons/HeadphoneIcon';
 
 export default function SessionSelection() {
-  const handleFreeSession = () => {
-    console.log('Session libre');
-  };
+
+  const [selectedSession, setSelectedSession] = useState<'target' | 'guide' | 'free'>('free');
+
+  const redirectTarget = () => {
+    if(selectedSession === 'target') {
+      router.push('/session/target');
+    } else if (selectedSession === 'guide') {
+      router.push('/session/guide');
+    } else {
+      router.push('/session/selectedFree');
+    }
+  }
 
   const handleGoalSession = () => {
-    router.push('/session/target');
+    setSelectedSession('target');
   };
 
   const handleGuidedSession = () => {
-    router.push('/session/guide');
-    console.log('Session avec run guidée');
+    setSelectedSession('guide');
   };
 
-  const handleStart = () => {
-    router.push('/session/selectedFree');
-    console.log('Commencer');
+  const handleFreeSession = () => {
+    setSelectedSession('free');
   };
 
   return (
@@ -37,31 +46,37 @@ export default function SessionSelection() {
 
       {/* Boutons */}
       <View style={styles.buttonContainer}>
-   
+
           <CustomButton
             text="Session libre"
-            state="selected"
+            state={selectedSession === 'free' ? 'selected' : 'default'}
             onPress={handleFreeSession}
             style={styles.sessionButton}
-            icon={require('@/assets/images/home-active.png')}
+            icon={
+              <ButterflyIcon state={selectedSession === 'free' ? 'selected' : 'default'} width={24} height={24} />
+            }
           />
 
-    
+
           <CustomButton
             text="Session avec objectif"
-            state="default"
+            state={selectedSession === 'target' ? 'selected' : 'default'}
             onPress={handleGoalSession}
             style={styles.sessionButton}
-            icon={require('@/assets/images/home-active.png')}
+            icon={
+              <TargetIcon state={selectedSession === 'target' ? 'selected' : 'default'} width={24} height={24} />
+            }
           />
-    
-        
+
+
         <CustomButton
           text="Session avec run guidée"
-          state="default"
+          state={selectedSession === 'guide' ? 'selected' : 'default'}
           onPress={handleGuidedSession}
           style={styles.sessionButton}
-          icon={require('@/assets/images/home-active.png')}
+          icon={
+            <HeadphoneIcon state={selectedSession === 'guide' ? 'selected' : 'default'} width={24} height={24} />
+          }
         />
       </View>
 
@@ -72,7 +87,7 @@ export default function SessionSelection() {
           buttonSize="large"
           buttonType="confirm"
           buttonState="default"
-          onPress={handleStart}
+          onPress={redirectTarget}
         />
       </View>
     </SafeAreaView>

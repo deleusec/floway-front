@@ -7,6 +7,7 @@ import { useSession } from '@/context/ctx';
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import SettingsIcon from '@/assets/icons/settings.svg';
 
 export default function HomeScreen() {
   const { user } = useSession();
@@ -27,7 +28,7 @@ export default function HomeScreen() {
           </View>
           <View style={styles.settingsIcon}>
             <Link href="/explore">
-              <Ionicons name="settings" size={24} color={Colors.light.primary} />
+              <SettingsIcon width={24} height={24} fill={Colors.light.primary} />
             </Link>
           </View>
         </View>
