@@ -1,7 +1,6 @@
-import { Redirect, Slot, Tabs } from 'expo-router';
+import { Redirect, Slot } from 'expo-router';
 import React from 'react';
 import { Text } from 'react-native';
-import { useColorScheme } from '@/hooks/useColorScheme';
 
 import { useSession } from '@/context/ctx';
 import AppMenu from '@/components/AppMenu';

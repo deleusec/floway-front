@@ -29,8 +29,6 @@ export default function AllRunsScreen() {
   const [selectedRun, setSelectedRun] = useState<Run | null>(null);
 
   const [audioRuns, setAudioRuns] = useState<Run[]>([]);
-  const [activationParams, setActivationParams] = useState<any[]>([]);
-  const [userDetails, setUserDetails] = useState<any[]>([]);
 
   const { session } = useSession();
 
@@ -65,8 +63,6 @@ export default function AllRunsScreen() {
         );
 
         setAudioRuns(runsWithImages);
-        setActivationParams(data.activation_param);
-        setUserDetails(data.users);
       }
     } catch (error) {
       console.error('Error fetching audio runs:', error);
