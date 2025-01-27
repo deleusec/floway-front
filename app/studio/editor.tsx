@@ -48,6 +48,9 @@ export default function Editor() {
   const [isDeleteAudioModalVisible, setIsDeleteAudioModalVisible] = useState(false);
   const [isRecordingModalVisible, setIsRecordingModalVisible] = useState(false);
 
+  const [currentAudioPlayer, setCurrentAudioPlayer] = useState<Audio.Sound | null>(null);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+
   // Enregistrement audio
   const [isRecording, setIsRecording] = useState(false);
   const [recordingInstance, setRecordingInstance] = useState<any>();
@@ -286,6 +289,52 @@ export default function Editor() {
     await createRun();
   };
 
+  useEffect(() => {
+    return () => {
+      if (currentAudioPlayer) {
+        currentAudioPlayer.unloadAsync();
+      }
+    };
+  }, [currentAudioPlayer]);
+  const handlePlayAudio = async () => {
+    if (!selectedAudio || !selectedAudio.localPath) {
+      console.log("Aucun audio sélectionné ou chemin introuvable");
+      return;
+    }
+
+    try {
+      if (currentAudioPlayer) {
+        if (isAudioPlaying) {
+          setPlayerState('paused');
+          await currentAudioPlayer.pauseAsync();
+          setIsAudioPlaying(false);
+        } else {
+          setPlayerState('playing');
+          await currentAudioPlayer.playAsync();
+          setIsAudioPlaying(true);
+        }
+      } else {
+        console.log("Chargement de l'audio :", selectedAudio.localPath);
+        const { sound } = await Audio.Sound.createAsync({ uri: selectedAudio.localPath });
+        setCurrentAudioPlayer(sound);
+        await sound.playAsync();
+        setIsAudioPlaying(true);
+        setPlayerState('playing');
+
+        sound.setOnPlaybackStatusUpdate((status) => {
+          if (status.isLoaded && status.didJustFinish) {
+            sound.unloadAsync();
+            setIsAudioPlaying(false);
+            setCurrentAudioPlayer(null);
+            setPlayerState('paused');
+          }
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la lecture de l'audio :", error);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.mainContent}>
@@ -335,14 +384,14 @@ export default function Editor() {
                   name="pause"
                   size={24}
                   color="white"
-                  onPress={() => setPlayerState('paused')}
+                  onPress={handlePlayAudio}
                 />
               ) : (
                 <Ionicons
                   name="play"
                   size={24}
                   color="white"
-                  onPress={() => setPlayerState('playing')}
+                  onPress={handlePlayAudio}
                 />
               )}
               <Ionicons name="play-forward" size={20} color="white" />

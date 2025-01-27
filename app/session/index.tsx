@@ -17,7 +17,6 @@ import HeadphoneIcon from '@/components/icons/HeadphoneIcon';
 import { useAuth } from '@/context/ctx';
 import * as FileSystem from 'expo-file-system';
 
-
 type SessionStep = 'selection' | 'target-config' | 'guide-selection';
 type SessionType = 'free' | 'target' | 'guide';
 type GoalType = 'Temps' | 'Distance';
@@ -31,7 +30,7 @@ export default function SessionScreen() {
   const [goalDistance, setGoalDistance] = useState<number>(0);
   const [selectedRun, setSelectedRun] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-    const { authToken } = useAuth();
+  const { authToken } = useAuth();
 
   const handleSessionSelect = (session: SessionType) => setSelectedSession(session);
 
@@ -58,7 +57,6 @@ export default function SessionScreen() {
     }
     router.push('/session/live');
   };
-
 
   const handleGuideStart = async () => {
     if (!selectedRun) return;
@@ -264,9 +262,7 @@ export default function SessionScreen() {
       </View>
 
       <View style={styles.content}>
-        <ScrollView style={{ width: '100%', flex: 1 }}>
-          <GuidedRunList onRunSelect={setSelectedRun} enableSelection={true} />
-        </ScrollView>
+        <GuidedRunList onRunSelect={setSelectedRun} enableSelection={true} />
       </View>
 
       <View style={styles.startButtonContainer}>

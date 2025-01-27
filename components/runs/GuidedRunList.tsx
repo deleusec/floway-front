@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { ThemedText } from '@/components/text/ThemedText';
 import { PictureCard } from '@/components/ThemedPictureCard';
@@ -86,7 +86,8 @@ export const GuidedRunList: React.FC<GuidedRunListProps> = ({ onRunSelect, enabl
   }
 
   return (
-    <View style={styles.listContainer}>
+    <ScrollView style={styles.scrollContent} contentContainerStyle={{ alignItems: 'center' }} showsVerticalScrollIndicator={false}>
+      <View style={styles.content }>
       {runs.map((run) => (
         <PictureCard
           isSelected={enableSelection && selectedRun?.id === run.id}
@@ -98,15 +99,22 @@ export const GuidedRunList: React.FC<GuidedRunListProps> = ({ onRunSelect, enabl
           onPress={() => handleRunSelect(run)}
         />
       ))}
-    </View>
+
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  listContainer: {
+  scrollContent: {
     flex: 1,
-    marginTop: 16,
-    alignItems: 'center',
+    width: '100%',
+  },
+  content: {
+    flex: 1,
+    width: '100%',
+    paddingTop: 16,
+    paddingBottom: 32,
   },
   loadingContainer: {
     flex: 1,

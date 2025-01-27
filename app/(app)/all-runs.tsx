@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, View, Image, Text } from 'react-native';
+import { SafeAreaView, StyleSheet, View, Image, Text, ScrollView } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { ThemedText } from '@/components/text/ThemedText';
 import { Tabs } from '@/components/tabs/Tabs';
@@ -40,7 +40,9 @@ export default function AllRunsScreen() {
         <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
         {activeTab === 'audio' ? (
-          <GuidedRunList onRunSelect={handleRunSelect} />
+          <View style={ styles.listContainer }>
+            <GuidedRunList onRunSelect={handleRunSelect} />
+          </View>
         ) : (
           <View style={styles.emptyProgramContainer}>
             <ThemedText type="legend" style={styles.emptyProgramText}>
@@ -100,13 +102,17 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    padding: 24,
+    paddingHorizontal: 24,
+    paddingTop: 24,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 24,
+  },
+  listContainer: {
+    flex: 1,
   },
   emptyProgramContainer: {
     flex: 1,
