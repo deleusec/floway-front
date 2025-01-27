@@ -123,23 +123,22 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const saveSession = useCallback(async () => {
     if (!sessionData || !user || !authToken) return;
-
+      console.log('sessionData', sessionData);
     // TODO: Intégrer vrai data
 
     const payload = {
-      session_type: "run",
+      session_type: sessionData.type,
       user_id: user.id,
       title: "Morning Run",
-      distance: 5.2,
-      calories: 350,
-      allure: 6.5,
-      time: 1800,
+      distance: sessionData?.metrics?.distance || 0,
+      calories: sessionData?.metrics?.calories || 0,
+      allure: sessionData?.metrics?.pace || 0,
+      time: sessionData?.time || 0,
       tps: [
-        [48.8566, 2.3522, 1694342400],
-        [48.8575, 2.354, 1694343000]
+        sessionData?.locations || {latitude: 0, longitude: 0, timestamp: 0},
       ],
-      time_objective: 3600,
-      distance_objective: 10,
+      time_objective: sessionData?.time_objective || 0,
+      distance_objective: sessionData?.distance_objective || 0,
       run_id: 1
     };
 

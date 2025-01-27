@@ -12,7 +12,9 @@ import SessionTarget from '@/components/session/SessionTarget';
 import { PictureCard } from '@/components/ThemedPictureCard';
 import { secondsToCompactReadableTime } from '@/utils/timeUtils';
 import CustomModal from '@/components/modal/CustomModal';
-import { useNavigation } from '@react-navigation/native';
+import { calculateDistance, calculatePace, calculateCalories } from '@/utils/metricsUtils';
+import { se } from 'date-fns/locale';
+
 
 export default function FreeSession() {
   const [isPlaying, setIsPlaying] = useState(true);
@@ -24,15 +26,42 @@ export default function FreeSession() {
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<Audio.Sound | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [isStopCountingDown, setIsStopCountingDown] = useState(false);
 
   const router = useRouter();
-  const { clearSession, sessionData } = useSessionContext();
+  const { sessionData, startSession, setSessionData } = useSessionContext();
+  // Démarrage initial de la session
+  useEffect(() => {
+    if (sessionData) {
+      startSession();
+    }
+  }, []);
+
+  // Calcul des métriques
+  useEffect(() => {
+    if (!isPlaying) return;
+
+    const interval = setInterval(() => {
+      if (sessionData?.locations) {
+        console.log(sessionData.locations);
+        const currentDistance = calculateDistance(sessionData.locations);
+        const currentPace = calculatePace(currentDistance, totalSeconds);
+        const currentCalories = calculateCalories(currentDistance);
+
+        setDistance(currentDistance);
+        setPace(currentPace);
+        setCalories(currentCalories);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isPlaying, sessionData, totalSeconds]);
 
   // Main timer
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
 
-    if (isPlaying) {
+    if (isPlaying && !isStopCountingDown) {
       interval = setInterval(() => {
         setTotalSeconds((prev) => prev + 1);
       }, 1000);
@@ -43,7 +72,7 @@ export default function FreeSession() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isPlaying]);
+  }, [isPlaying, isStopCountingDown]);
 
   // Distance & Pace
   useEffect(() => {
@@ -108,7 +137,7 @@ export default function FreeSession() {
         await currentAudio.stopAsync();
         await currentAudio.unloadAsync();
       } catch (error) {
-        console.error('Erreur lors de l\'arrêt de l\'audio actuel:', error);
+        console.error("Erreur lors de l'arrêt de l'audio actuel:", error);
       }
       setCurrentAudio(null);
     }
@@ -118,14 +147,25 @@ export default function FreeSession() {
 
   const onStopPress = async () => {
     await stopAllAudios();
-    clearSession();
+    console.log('sessionData', "STOPER");
+    if (sessionData) {
+      setSessionData({
+        ...sessionData,
+        metrics: {
+          distance,
+          pace,
+          calories
+        },
+        time: totalSeconds,
+      });
+    }
     router.replace('/session/summary');
   };
 
   const confirmExit = async () => {
     setShowModal(false);
     await stopAllAudios();
-    clearSession();
+    
     router.replace('/session');
   };
 
@@ -144,7 +184,7 @@ export default function FreeSession() {
       return () => {
         BackHandler.removeEventListener('hardwareBackPress', onBackPress);
       };
-    }, [])
+    }, []),
   );
 
   return (
@@ -195,6 +235,7 @@ export default function FreeSession() {
           isRunning={isPlaying}
           onPausePress={() => setIsPlaying(!isPlaying)}
           onStopPress={onStopPress}
+          onStopCountdownChange={setIsStopCountingDown} 
           style={styles.controlsContainer}
         />
 
@@ -261,3 +302,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
+

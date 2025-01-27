@@ -7,6 +7,7 @@ import { useAuth } from '@/context/ctx';
 import { Link } from 'expo-router';
 import SettingsIcon from '@/assets/icons/settings.svg';
 import {useSessionContext} from "@/context/SessionContext";
+import { secondsToCompactReadableTime } from '@/utils/timeUtils';
 
 export default function HomeScreen() {
   const { user, authToken } = useAuth();
@@ -17,18 +18,6 @@ export default function HomeScreen() {
       fetchUserSessions(user.id, authToken);
     }
   }, [user?.id, authToken]);
-
-  const formatTime = (minutes: number) => {
-    const hrs = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return hrs > 0 ? `${hrs}h${mins}min` : `${mins}min`;
-  };
-
-  const formatPace = (pace: number) => {
-    const minutes = Math.floor(pace);
-    const seconds = Math.round((pace - minutes) * 60);
-    return `${minutes}'${seconds.toString().padStart(2, '0')}"`;
-  };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -88,11 +77,13 @@ export default function HomeScreen() {
                 userSessions.map((session) => (
                   <PictureCard
                     key={session._id}
-                    title={session.title || `Course du ${new Date(session.reference_day).toLocaleDateString()}`}
+                    title={
+                      session.title 
+                    }
                     metrics={[
-                      formatTime(session.time),
+                      secondsToCompactReadableTime(session.time),
                       `${session.calories}kcal`,
-                      formatPace(session.allure),
+                      `${session.allure}Km/h`,
                     ]}
                     image={require('@/assets/images/start.jpg')}
                   />

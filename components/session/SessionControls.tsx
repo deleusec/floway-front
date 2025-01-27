@@ -9,6 +9,7 @@ interface SessionControlsProps {
   isRunning: boolean;
   onPausePress: () => void;
   onStopPress: () => void;
+  onStopCountdownChange: (isCountingDown: boolean) => void;
   style?: object;
 }
 
@@ -16,6 +17,7 @@ export default function SessionControls({
   isRunning,
   onPausePress,
   onStopPress,
+  onStopCountdownChange,
   style,
 }: SessionControlsProps) {
   const [showStopCountdown, setShowStopCountdown] = useState(false);
@@ -24,6 +26,7 @@ export default function SessionControls({
   const handleStopPressIn = () => {
     longPressTimeout.current = setTimeout(() => {
       setShowStopCountdown(true);
+      onStopCountdownChange(true); // Informer le parent
     }, 200);
   };
 
@@ -32,6 +35,7 @@ export default function SessionControls({
       clearTimeout(longPressTimeout.current);
     }
     setShowStopCountdown(false);
+    onStopCountdownChange(false); // Informer le parent
   };
 
   return (
@@ -39,7 +43,7 @@ export default function SessionControls({
       <View style={[styles.controlsContainer, style]}>
         <View style={styles.stopButton}></View>
         <Pressable style={styles.pauseButton} onPress={onPausePress}>
-          {!isRunning ? (
+          {!isRunning || showStopCountdown ? (
             <PlayButtonIcon width={80} height={80} />
           ) : (
             <PauseButtonIcon width={80} height={80} />
@@ -56,7 +60,10 @@ export default function SessionControls({
 
       <StopCountdown
         isVisible={showStopCountdown}
-        onCancel={() => setShowStopCountdown(false)}
+        onCancel={() => {
+          setShowStopCountdown(false);
+          onStopCountdownChange(false);
+        }}
         onComplete={onStopPress}
       />
     </>
