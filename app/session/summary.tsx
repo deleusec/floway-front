@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { SafeAreaView, View, StyleSheet, Dimensions } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { ThemedText } from '@/components/ThemedText';
@@ -15,8 +15,12 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function SessionSummary() {
   const router = useRouter();
-  const { sessionData } = useSessionContext();
+  const { sessionData, saveSession } = useSessionContext();
   const formattedDate = format(new Date(), "dd/MM/yyyy 'à' HH:mm", { locale: fr });
+
+  useEffect(() => {
+    saveSession();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>

@@ -8,6 +8,7 @@ import {
   Session,
   RunData
 } from '@/constants/SessionData';
+import {useAuth} from "@/context/ctx";
 
 // Context creation
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
@@ -17,6 +18,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [sessionData, setSessionData] = useState<SessionData | null>(null);
   const locationSubscription = useRef<Location.LocationSubscription | null>(null);
   const [userSessions, setUserSessions] = useState<Session[]>([]);
+  const {user, authToken} = useAuth();
 
   const fetchUserSessions = useCallback(async (userId: number, token: string) => {
     try {
@@ -119,18 +121,45 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     });
   }, []);
 
-  const stopSession = useCallback(async () => {
-    if (!sessionData) return;
+  const saveSession = useCallback(async () => {
+    if (!sessionData || !user || !authToken) return;
+
+    // TODO: Intégrer vrai data
+
+    const payload = {
+      session_type: "run",
+      user_id: user.id,
+      title: "Morning Run",
+      distance: 5.2,
+      calories: 350,
+      allure: 6.5,
+      time: 1800,
+      tps: [
+        [48.8566, 2.3522, 1694342400],
+        [48.8575, 2.354, 1694343000]
+      ],
+      time_objective: 3600,
+      distance_objective: 10,
+      run_id: 1
+    };
 
     try {
-      // TODO: Save session data to API
+      const response = await fetch('https://node.floway.edgar-lecomte.fr/session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify(payload)
+      });
 
-      clearSession();
+      const responseData = await response.json();
+      if (!response.ok) throw new Error(`Failed to save session: ${responseData?.message}`);
     } catch (error) {
-      console.error('Failed to stop session:', error);
+      console.error('Error details:', error);
       throw error;
     }
-  }, [sessionData]);
+  }, [sessionData, user, authToken]);
 
   const updateLocation = useCallback((location: Location.LocationObject) => {
     setSessionData((prev) => {
@@ -163,7 +192,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         startSession,
         pauseSession,
         resumeSession,
-        stopSession,
+        saveSession,
         updateLocation,
         clearSession,
         userSessions,
