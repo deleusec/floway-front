@@ -156,7 +156,7 @@ export default function LiveSession() {
         metrics: {
           distance,
           pace,
-          calories
+          calories,
         },
         time: totalSeconds,
       });
@@ -244,16 +244,14 @@ export default function LiveSession() {
           visible={showModal}
           onClose={cancelExit}
           header={<ThemedText style={styles.modalHeader}>Quitter la session ?</ThemedText>}
-          body={
-            <ThemedText style={styles.modalBody}>
-              Êtes-vous sûr de vouloir arrêter la session ? Les données actuelles seront perdues.
-            </ThemedText>
-          }
           cancelButton={true}
           confirmButton={true}
           cancelAction={cancelExit}
-          confirmAction={confirmExit}
-        />
+          confirmAction={confirmExit}>
+          <ThemedText style={styles.modalBody}>
+            Êtes-vous sûr de vouloir arrêter la session ? Les données actuelles seront perdues.
+          </ThemedText>
+        </CustomModal>
       </View>
     </SafeAreaView>
   );
@@ -297,10 +295,8 @@ const styles = StyleSheet.create({
     color: Colors.dark.white,
   },
   modalBody: {
-    fontSize: 16,
+    fontSize: 14,
     color: Colors.dark.white,
     textAlign: 'center',
   },
 });
-
-

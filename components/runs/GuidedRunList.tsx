@@ -5,6 +5,7 @@ import { ThemedText } from '@/components/text/ThemedText';
 import { PictureCard } from '@/components/ThemedPictureCard';
 import { useAuth } from '@/context/ctx';
 import { secondsToCompactReadableTime } from '@/utils/timeUtils';
+import ShadowTopSvg from '@/assets/icons/shadow-top.svg';
 
 interface Run {
   id: number;
@@ -23,7 +24,10 @@ interface GuidedRunListProps {
   enableSelection?: boolean;
 }
 
-export const GuidedRunList: React.FC<GuidedRunListProps> = ({ onRunSelect, enableSelection = false }) => {
+export const GuidedRunList: React.FC<GuidedRunListProps> = ({
+  onRunSelect,
+  enableSelection = false,
+}) => {
   const [runs, setRuns] = useState<Run[]>([]);
   const [selectedRun, setSelectedRun] = useState<Run | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -54,7 +58,7 @@ export const GuidedRunList: React.FC<GuidedRunListProps> = ({ onRunSelect, enabl
           data.runs.map(async (run: any) => {
             const imageResponse = await fetch('https://picsum.photos/200');
             return { ...run, image_url: imageResponse.url };
-          })
+          }),
         );
         setRuns(runsWithImages);
       } else {
@@ -86,28 +90,45 @@ export const GuidedRunList: React.FC<GuidedRunListProps> = ({ onRunSelect, enabl
   }
 
   return (
-    <ScrollView style={styles.scrollContent} contentContainerStyle={{ alignItems: 'center' }} showsVerticalScrollIndicator={false}>
-      <View style={styles.content }>
-      {runs.map((run) => (
-        <PictureCard
-          isSelected={enableSelection && selectedRun?.id === run.id}
-          key={run.id}
-          title={run.title}
-          image={{ uri: run.image_url }}
-          metrics={[secondsToCompactReadableTime(run.time_objective || 0)]}
-          subtitle={run.description}
-          onPress={() => handleRunSelect(run)}
-        />
-      ))}
-
-      </View>
-    </ScrollView>
+    <View style={ styles.container }>
+      <ShadowTopSvg style={styles.topGradient} />
+      <ScrollView
+        style={styles.scrollContent}
+        contentContainerStyle={{ alignItems: 'center' }}
+        showsVerticalScrollIndicator={false}>
+        <View style={styles.content}>
+          {runs.map((run) => (
+            <PictureCard
+              isSelected={enableSelection && selectedRun?.id === run.id}
+              key={run.id}
+              title={run.title}
+              image={{ uri: run.image_url }}
+              metrics={[secondsToCompactReadableTime(run.time_objective || 0)]}
+              subtitle={run.description}
+              onPress={() => handleRunSelect(run)}
+            />
+          ))}
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    width: '100%',
+  },
   scrollContent: {
     flex: 1,
+    width: '100%',
+  },
+  topGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
     width: '100%',
   },
   content: {

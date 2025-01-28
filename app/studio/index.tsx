@@ -8,7 +8,7 @@ import { ThemedText } from '@/components/text/ThemedText';
 import { Colors } from '@/constants/Colors';
 import { useStudioContext } from '@/context/StudioContext';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -64,6 +64,12 @@ export default function CreateRun() {
     });
   };
 
+  useEffect(() => {
+    if (errors.title || errors.goal || errors.description) {
+      validateFields();
+    }
+  }, [title, goalType, timeValues, goalDistance, description]);
+
   return (
     <SafeAreaView style={styles.screen}>
       {/* KeyboardAvoidingView pour gérer le clavier */}
@@ -105,7 +111,11 @@ export default function CreateRun() {
               {goalType === 'Temps' ? (
                 <TimeInputs
                   totalSeconds={timeValues}
-                  onChange={(seconds) => setTimeValues(seconds)}
+                  onChange={(seconds) => {
+                    console.log(seconds);
+
+                    setTimeValues(seconds);
+                  }}
                   status={errors.goal ? 'error' : 'default'}
                   errorMessage={errors.goal}
                 />

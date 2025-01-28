@@ -48,7 +48,7 @@ export const PictureCard: React.FC<PictureCardProps> = ({
 
       {/* Contenu principal */}
       <View style={styles.content}>
-        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">{title}</Text>
         {subtitle && (
           <Text style={styles.subtitle} numberOfLines={1} ellipsizeMode="tail">
             {subtitle}

@@ -113,6 +113,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     flex: 1,
+    paddingTop: 4,
   },
   emptyProgramContainer: {
     flex: 1,
