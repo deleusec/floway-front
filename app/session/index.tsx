@@ -22,7 +22,6 @@ type SessionType = 'free' | 'target' | 'guide';
 type GoalType = 'Temps' | 'Distance';
 
 export default function SessionScreen() {
-  const { initializeSession } = useSessionContext();
   const [currentStep, setCurrentStep] = useState<SessionStep>('selection');
   const [selectedSession, setSelectedSession] = useState<SessionType>('free');
   const [goalType, setGoalType] = useState<GoalType>('Temps');
@@ -30,7 +29,9 @@ export default function SessionScreen() {
   const [goalDistance, setGoalDistance] = useState<number>(0);
   const [selectedRun, setSelectedRun] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
   const { authToken } = useAuth();
+  const { initializeSession } = useSessionContext();
 
   const handleSessionSelect = (session: SessionType) => setSelectedSession(session);
 
