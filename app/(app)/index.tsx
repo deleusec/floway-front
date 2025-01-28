@@ -70,7 +70,8 @@ export default function HomeScreen() {
               {userSessions.length === 0 ? (
                 <View style={styles.placeholder}>
                   <Text style={styles.placeholderText}>
-                    Aucune course enregistrée. Commencez votre première course !
+                    Vous n’avez pas encore lancer une course.
+                    Cliquez sur le bouton “play” pour lancer une course !
                   </Text>
                 </View>
               ) : (

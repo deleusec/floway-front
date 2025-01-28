@@ -14,11 +14,11 @@ import { Audio } from 'expo-av';
 import Animated, { useSharedValue } from 'react-native-reanimated';
 import { useRef } from 'react';
 import TimeInputs from '@/components/input/TimeInputs';
-import InformationCircleIcon from '@/assets/icons/information-circle.svg';
 import AudioListStudio from '@/components/studio/AudioListStudio';
 import useAudioPermissions from '@/hooks/useAudioPermissions';
 import { importAudioFile, uploadAudioFile } from '@/utils/audioUtils';
 import { router } from 'expo-router';
+import Tooltip from "@/components/Tooltip";
 
 interface AudioProps {
   id: number;
@@ -345,9 +345,11 @@ export default function Editor() {
           <View>
             <BackButton />
           </View>
-          <View style={styles.infoIcon}>
-            <InformationCircleIcon />
-          </View>
+          <Tooltip
+            message="Une run guidée est une session audio motivante avec un objectif de temps ou de distance prédéfini."
+            title="Run guidée"
+            position="right"
+          />
         </View>
 
         {/* Audio list */}
