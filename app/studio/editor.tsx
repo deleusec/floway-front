@@ -18,6 +18,7 @@ import InformationCircleIcon from '@/assets/icons/information-circle.svg';
 import AudioListStudio from '@/components/studio/AudioListStudio';
 import useAudioPermissions from '@/hooks/useAudioPermissions';
 import { importAudioFile, uploadAudioFile } from '@/utils/audioUtils';
+import { router } from 'expo-router';
 
 interface AudioProps {
   id: number;
@@ -286,7 +287,9 @@ export default function Editor() {
   };
 
   const handleSubmit = async () => {
-    await createRun();
+    await createRun().then(() => {
+      router.push('/all-runs');
+    });
   };
 
   useEffect(() => {
