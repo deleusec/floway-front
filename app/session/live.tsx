@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, View, BackHandler  } from 'react-native';
+import { SafeAreaView, StyleSheet, View, BackHandler } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Colors } from '@/constants/Colors';
 import { Audio } from 'expo-av';
@@ -13,10 +13,8 @@ import { PictureCard } from '@/components/ThemedPictureCard';
 import { secondsToCompactReadableTime } from '@/utils/timeUtils';
 import CustomModal from '@/components/modal/CustomModal';
 import { calculateDistance, calculatePace, calculateCalories } from '@/utils/metricsUtils';
-import { se } from 'date-fns/locale';
 
-
-export default function FreeSession() {
+export default function LiveSession() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [totalSeconds, setTotalSeconds] = useState(0);
   const [distance, setDistance] = useState(0.0);
@@ -27,17 +25,17 @@ export default function FreeSession() {
   const [currentAudio, setCurrentAudio] = useState<Audio.Sound | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [isStopCountingDown, setIsStopCountingDown] = useState(false);
+  const [playedAudios, setPlayedAudios] = useState<Set<string>>(new Set());
 
   const router = useRouter();
   const { sessionData, startSession, setSessionData } = useSessionContext();
-  // Démarrage initial de la session
+
   useEffect(() => {
     if (sessionData) {
       startSession();
     }
   }, []);
 
-  // Calcul des métriques
   useEffect(() => {
     if (!isPlaying) return;
 
@@ -57,7 +55,6 @@ export default function FreeSession() {
     return () => clearInterval(interval);
   }, [isPlaying, sessionData, totalSeconds]);
 
-  // Main timer
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
 
@@ -74,47 +71,54 @@ export default function FreeSession() {
     };
   }, [isPlaying, isStopCountingDown]);
 
-  // Distance & Pace
+  const addToQueue = (audioFile: string) => {
+    setAudioQueue((prevQueue) => {
+      if (!prevQueue.includes(audioFile)) {
+        return [...prevQueue, audioFile];
+      }
+      return prevQueue;
+    });
+  };
+
   useEffect(() => {
     if (!sessionData?.run?.activation_param) return;
 
     const interval = setInterval(() => {
-      const newQueue = [...audioQueue];
-
       sessionData.run?.activation_param.forEach((param: any) => {
-        // Vérifie si le paramètre doit être activé
-        if (
-          (param.time !== undefined && param.time <= totalSeconds) ||
-          (param.distance !== undefined && param.distance <= distance)
-        ) {
-          if (!newQueue.includes(param.audioFile)) {
-            newQueue.push(param.audioFile);
-          }
+        const shouldTrigger =
+          (param.time && param.time <= totalSeconds) ||
+          (param.distance && param.distance <= distance);
+
+        if (shouldTrigger && !playedAudios.has(param.audioFile)) {
+          addToQueue(param.audioFile);
+          setPlayedAudios((prev) => new Set(prev).add(param.audioFile));
         }
       });
-
-      setAudioQueue(newQueue);
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [totalSeconds, distance, sessionData?.run, audioQueue]);
+  }, [totalSeconds, distance, sessionData?.run, playedAudios]);
 
-  // Audio player
   useEffect(() => {
     const playAudio = async (audioFile: string) => {
       setIsAudioPlaying(true);
 
       try {
+        if (currentAudio) {
+          await currentAudio.stopAsync();
+          await currentAudio.unloadAsync();
+        }
+
         const { sound } = await Audio.Sound.createAsync({ uri: audioFile });
         setCurrentAudio(sound);
+
         await sound.playAsync();
 
-        // Attend que l'audio soit terminé
-        sound.setOnPlaybackStatusUpdate((status: any) => {
+        sound.setOnPlaybackStatusUpdate((status) => {
           if (status.isLoaded && status.didJustFinish) {
             sound.unloadAsync();
-            setIsAudioPlaying(false);
             setCurrentAudio(null);
+            setIsAudioPlaying(false);
           }
         });
       } catch (error) {
@@ -124,13 +128,12 @@ export default function FreeSession() {
     };
 
     if (!isAudioPlaying && audioQueue.length > 0) {
-      const nextAudio = audioQueue[0];
-      setAudioQueue((prev) => prev.slice(1));
+      const [nextAudio, ...remainingQueue] = audioQueue;
+      setAudioQueue(remainingQueue);
       playAudio(nextAudio);
     }
-  }, [isAudioPlaying, audioQueue]);
+  }, [isAudioPlaying, audioQueue, currentAudio]);
 
-  // Nettoyer les audios en cours
   const stopAllAudios = async () => {
     if (currentAudio) {
       try {
@@ -147,7 +150,6 @@ export default function FreeSession() {
 
   const onStopPress = async () => {
     await stopAllAudios();
-    console.log('sessionData', "STOPER");
     if (sessionData) {
       setSessionData({
         ...sessionData,
@@ -165,22 +167,20 @@ export default function FreeSession() {
   const confirmExit = async () => {
     setShowModal(false);
     await stopAllAudios();
-    
+
     router.replace('/session');
   };
 
   const cancelExit = () => setShowModal(false);
 
-  // Intercepter le bouton retour (back button)
+  // BackHandler
   useFocusEffect(
     useCallback(() => {
       const onBackPress = () => {
         setShowModal(true);
-        return true; // Empêche le retour direct
+        return true;
       };
-
       BackHandler.addEventListener('hardwareBackPress', onBackPress);
-
       return () => {
         BackHandler.removeEventListener('hardwareBackPress', onBackPress);
       };
@@ -235,7 +235,7 @@ export default function FreeSession() {
           isRunning={isPlaying}
           onPausePress={() => setIsPlaying(!isPlaying)}
           onStopPress={onStopPress}
-          onStopCountdownChange={setIsStopCountingDown} 
+          onStopCountdownChange={setIsStopCountingDown}
           style={styles.controlsContainer}
         />
 
