@@ -9,7 +9,7 @@ import { useSessionContext } from '@/context/SessionContext';
 import TimeDisplay from '@/components/session/TimeDisplay';
 import { ThemedText } from '@/components/text/ThemedText';
 import SessionTarget from '@/components/session/SessionTarget';
-import { PictureCard } from '@/components/ThemedPictureCard';
+import { PictureCard } from '@/components/cards/ThemedPictureCard';
 import { secondsToCompactReadableTime } from '@/utils/timeUtils';
 import CustomModal from '@/components/modal/CustomModal';
 import { calculateDistance, calculatePace, calculateCalories } from '@/utils/metricsUtils';

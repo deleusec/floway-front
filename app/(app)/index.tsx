@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
 import { Colors } from '@/constants/Colors';
-import { PictureCard } from '@/components/ThemedPictureCard';
+import { PictureCard } from '@/components/cards/ThemedPictureCard';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/context/ctx';
 import { Link } from 'expo-router';
@@ -78,7 +78,7 @@ export default function HomeScreen() {
                   <PictureCard
                     key={session._id}
                     title={
-                      session.title 
+                      session.title
                     }
                     metrics={[
                       secondsToCompactReadableTime(session.time),

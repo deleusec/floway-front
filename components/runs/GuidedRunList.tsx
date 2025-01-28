@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { ThemedText } from '@/components/text/ThemedText';
-import { PictureCard } from '@/components/ThemedPictureCard';
+import { PictureCard } from '@/components/cards/ThemedPictureCard';
 import { useAuth } from '@/context/ctx';
 import { secondsToCompactReadableTime } from '@/utils/timeUtils';
 import ShadowTopSvg from '@/assets/icons/shadow-top.svg';
