@@ -5,10 +5,16 @@ import { Colors } from '@/constants/Colors';
 interface TimeInputsProps {
   totalSeconds: number;
   onChange: (seconds: number) => void;
-  status?: 'active' | 'deactivate' | 'error';
+  status?: 'active' | 'deactivate' | 'error' | 'default';
+  errorMessage?: string;
 }
 
-export default function TimeInputs({ totalSeconds, onChange, status = 'active' }: TimeInputsProps) {
+export default function TimeInputs({
+  totalSeconds,
+  onChange,
+  status = 'active',
+  errorMessage,
+}: TimeInputsProps) {
   const [hours, setHours] = useState(() =>
     Math.floor(totalSeconds / 3600)
       .toString()
@@ -70,6 +76,7 @@ export default function TimeInputs({ totalSeconds, onChange, status = 'active' }
   const containerStyles = (field: 'hours' | 'minutes' | 'seconds') => [
     styles.container,
     focusedField === field && styles.focused,
+    status === 'error' && styles.error,
   ];
 
   const textStyles = [styles.input, status === 'deactivate' && styles.disabledInput];
@@ -77,63 +84,69 @@ export default function TimeInputs({ totalSeconds, onChange, status = 'active' }
   const unitStyles = [styles.unit, status === 'deactivate' && styles.disabledUnit];
 
   return (
-    <View style={styles.wrapper}>
-      <View style={containerStyles('hours')}>
-        <View style={styles.inputWrapper}>
-          <TextInput
-            placeholder="00"
-            placeholderTextColor={Colors.light.mediumGrey}
-            keyboardType="numeric"
-            maxLength={2}
-            value={hours}
-            onFocus={() => handleFocus('hours', setHours, hours)}
-            onBlur={() => handleBlur('hours', setHours, hours)}
-            onChangeText={(value) => {
-              setHours(value.replace(/[^0-9]/g, ''));
-              handleNextField(value, 24, minuteRef);
-            }}
-            style={textStyles}
-          />
-          <Text style={unitStyles}>heures</Text>
+    <View>
+      <View style={styles.wrapper}>
+        <View style={containerStyles('hours')}>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              placeholder="00"
+              placeholderTextColor={Colors.light.mediumGrey}
+              keyboardType="numeric"
+              maxLength={2}
+              value={hours}
+              onFocus={() => handleFocus('hours', setHours, hours)}
+              onBlur={() => handleBlur('hours', setHours, hours)}
+              onChangeText={(value) => {
+                setHours(value.replace(/[^0-9]/g, ''));
+                handleNextField(value, 24, minuteRef);
+              }}
+              style={textStyles}
+            />
+            <Text style={unitStyles}>heures</Text>
+          </View>
+        </View>
+        <View style={containerStyles('minutes')}>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              ref={minuteRef}
+              placeholder="00"
+              placeholderTextColor={Colors.light.mediumGrey}
+              keyboardType="numeric"
+              maxLength={2}
+              value={minutes}
+              onFocus={() => handleFocus('minutes', setMinutes, minutes)}
+              onBlur={() => handleBlur('minutes', setMinutes, minutes)}
+              onChangeText={(value) => {
+                setMinutes(value.replace(/[^0-9]/g, ''));
+                handleNextField(value, 60, secondRef);
+              }}
+              style={textStyles}
+            />
+            <Text style={unitStyles}>min</Text>
+          </View>
+        </View>
+        <View style={containerStyles('seconds')}>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              ref={secondRef}
+              placeholder="00"
+              placeholderTextColor={Colors.light.mediumGrey}
+              keyboardType="numeric"
+              maxLength={2}
+              value={seconds}
+              onFocus={() => handleFocus('seconds', setSeconds, seconds)}
+              onBlur={() => handleBlur('seconds', setSeconds, seconds)}
+              onChangeText={(value) => setSeconds(value.replace(/[^0-9]/g, ''))}
+              style={textStyles}
+            />
+            <Text style={unitStyles}>sec</Text>
+          </View>
         </View>
       </View>
-      <View style={containerStyles('minutes')}>
-        <View style={styles.inputWrapper}>
-          <TextInput
-            ref={minuteRef}
-            placeholder="00"
-            placeholderTextColor={Colors.light.mediumGrey}
-            keyboardType="numeric"
-            maxLength={2}
-            value={minutes}
-            onFocus={() => handleFocus('minutes', setMinutes, minutes)}
-            onBlur={() => handleBlur('minutes', setMinutes, minutes)}
-            onChangeText={(value) => {
-              setMinutes(value.replace(/[^0-9]/g, ''));
-              handleNextField(value, 60, secondRef);
-            }}
-            style={textStyles}
-          />
-          <Text style={unitStyles}>min</Text>
-        </View>
-      </View>
-      <View style={containerStyles('seconds')}>
-        <View style={styles.inputWrapper}>
-          <TextInput
-            ref={secondRef}
-            placeholder="00"
-            placeholderTextColor={Colors.light.mediumGrey}
-            keyboardType="numeric"
-            maxLength={2}
-            value={seconds}
-            onFocus={() => handleFocus('seconds', setSeconds, seconds)}
-            onBlur={() => handleBlur('seconds', setSeconds, seconds)}
-            onChangeText={(value) => setSeconds(value.replace(/[^0-9]/g, ''))}
-            style={textStyles}
-          />
-          <Text style={unitStyles}>sec</Text>
-        </View>
-      </View>
+
+      {status === 'error' && errorMessage && (
+        <Text style={styles.errorMessage}>{errorMessage}</Text>
+      )}
     </View>
   );
 }
@@ -181,5 +194,13 @@ const styles = StyleSheet.create({
   },
   focused: {
     borderColor: Colors.light.primary,
+  },
+  error: {
+    borderColor: '#D13F11',
+  },
+  errorMessage: {
+    color: '#D13F11',
+    fontSize: 12,
+    marginTop: 4,
   },
 });

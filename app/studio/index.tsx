@@ -24,10 +24,30 @@ export default function CreateRun() {
   const [timeValues, setTimeValues] = useState<number>(0);
   const [goalDistance, setGoalDistance] = useState<number>(0);
   const [description, setDescription] = useState<string>('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { setStudioData } = useStudioContext();
 
+  const validateFields = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!title.trim()) newErrors.title = 'Le titre est requis.';
+    if (!description.trim()) newErrors.description = 'La description est requise.';
+
+    if (goalType === 'Temps' && timeValues <= 0) {
+      newErrors.goal = 'Le temps doit être supérieur à 0.';
+    } else if (goalType === 'Distance' && goalDistance <= 0) {
+      newErrors.goal = 'La distance doit être supérieure à 0.';
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleNext = () => {
+    if (!validateFields()) return;
+
     const data = {
       title,
       goalType,
@@ -68,6 +88,8 @@ export default function CreateRun() {
               placeholder="Ma première Run guidée"
               value={title}
               onChange={setTitle}
+              status={errors.title ? 'error' : 'default'}
+              errorMessage={errors.title}
             />
           </View>
 
@@ -83,19 +105,17 @@ export default function CreateRun() {
               {goalType === 'Temps' ? (
                 <TimeInputs
                   totalSeconds={timeValues}
-                  onChange={(seconds) => {
-                    console.log('Time values changed to', seconds);
-
-                    setTimeValues(seconds);
-                  }}
-                  status="active"
+                  onChange={(seconds) => setTimeValues(seconds)}
+                  status={errors.goal ? 'error' : 'default'}
+                  errorMessage={errors.goal}
                 />
               ) : (
                 <DistanceInput
                   value={goalDistance}
                   onChange={setGoalDistance}
                   unit="km"
-                  status="default"
+                  status={errors.goal ? 'error' : 'default'}
+                  errorMessage={errors.goal}
                 />
               )}
             </View>
@@ -108,6 +128,8 @@ export default function CreateRun() {
               multiline
               value={description}
               onChange={setDescription}
+              status={errors.description ? 'error' : 'default'}
+              errorMessage={errors.description}
             />
           </View>
         </ScrollView>

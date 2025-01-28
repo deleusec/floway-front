@@ -3,11 +3,12 @@ import { StyleSheet, TextInput, View, Text } from 'react-native';
 import { Colors } from '@/constants/Colors';
 
 interface DistanceInputProps {
-  placeholder?: string; // Placeholder par défaut
-  status: 'default' | 'error' | 'disabled'; // États possibles
-  unit?: string; // Unité à afficher (par défaut "km");
-  value?: number; // Valeur du champ
-  onChange?: (newValue: number) => void; // Callback de changement de valeur
+  placeholder?: string;
+  status: 'default' | 'error' | 'disabled';
+  unit?: string;
+  value?: number;
+  onChange?: (newValue: number) => void;
+  errorMessage?: string;
 }
 
 const BORDER_COLORS = {
@@ -22,6 +23,7 @@ export default function DistanceInput({
   unit = 'km',
   value = 0,
   onChange,
+  errorMessage = 'Valeur invalide',
 }: DistanceInputProps) {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>(value.toFixed(2));
@@ -82,7 +84,7 @@ export default function DistanceInput({
         <Text style={[styles.unit, isDisabled && styles.inputDisabled]}>{unit}</Text>
       </View>
       {status === 'error' && (
-        <Text style={styles.errorMessage}>Veuillez corriger cette valeur.</Text>
+        <Text style={styles.errorMessage}>{errorMessage}</Text>
       )}
     </View>
   );

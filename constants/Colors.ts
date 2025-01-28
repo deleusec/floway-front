@@ -20,5 +20,6 @@ export const Colors = {
     white: '#fff',
     lightGrey: '#EAEAEA',
     mediumGrey: '#A5A5A5',
+    error: '#D13F11',
   },
 };

@@ -64,7 +64,7 @@ export default function TimeInputField({
       <View style={styles.inputContainer}>
         <TextInput
           placeholder={placeholder}
-          placeholderTextColor={Colors.light.mediumGrey}
+          placeholderTextColor={Colors.dark.mediumGrey}
           keyboardType="numeric"
           value={value}
           onFocus={handleFocus}
@@ -82,10 +82,10 @@ export default function TimeInputField({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.light.secondaryDark,
+    backgroundColor: Colors.dark.secondaryDark,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: Colors.light.secondaryDark,
+    borderColor: Colors.dark.secondaryDark,
     padding: 8,
     flex: 1,
   },
@@ -97,28 +97,28 @@ const styles = StyleSheet.create({
   },
   deactivate: {
     opacity: 0.5,
-    backgroundColor: Colors.light.secondaryDark,
+    backgroundColor: Colors.dark.secondaryDark,
   },
   error: {
-    borderColor: Colors.light.error,
+    borderColor: Colors.dark.error,
     borderWidth: 1,
   },
   focused: {
-    borderColor: Colors.light.primary,
+    borderColor: Colors.dark.primary,
   },
   input: {
     fontSize: 16,
-    color: Colors.light.white,
+    color: Colors.dark.white,
     padding: 0,
     textAlign: 'right',
     minWidth: 30,
   },
   disabledInput: {
-    color: Colors.light.mediumGrey,
+    color: Colors.dark.mediumGrey,
   },
   unit: {
     fontSize: 14,
-    color: Colors.light.mediumGrey,
+    color: Colors.dark.mediumGrey,
     marginLeft: 4,
     opacity: 0.8,
   },
