@@ -334,6 +334,7 @@ const styles = StyleSheet.create({
   },
   inputGroup: {
     gap: 8,
+    width: '100%',
   },
   label: {
     fontSize: 16,
@@ -341,6 +342,7 @@ const styles = StyleSheet.create({
   },
   selectContainer: {
     gap: 20,
+    width: '100%',
   },
   startButtonContainer: {
     justifyContent: 'center',

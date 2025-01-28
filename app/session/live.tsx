@@ -86,6 +86,7 @@ export default function LiveSession() {
     const interval = setInterval(() => {
       sessionData.run?.activation_param.forEach((param: any) => {
         const shouldTrigger =
+          (!param.time && !param.distance) ||
           (param.time && param.time <= totalSeconds) ||
           (param.distance && param.distance <= distance);
 
