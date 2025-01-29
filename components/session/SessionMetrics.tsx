@@ -17,31 +17,33 @@ export default function SessionMetrics({
 }: SessionMetricsProps) {
   return (
     <View style={styles.container}>
-
       {/* Metrics */}
       <View style={styles.metricsContainer}>
         <View style={styles.metricItem}>
           <View>
-            <Text style={styles.metricLabel}>Distance</Text>
             <Text style={styles.metricValue}>
               {distance}
-              <Text style={styles.metricUnit}>km</Text>
+              <Text style={styles.metricUnit}> km</Text>
             </Text>
+            <Text style={styles.metricLabel}>Distance</Text>
           </View>
         </View>
 
         <View style={styles.metricItem}>
+          <Text style={styles.metricValue}>
+            {pace}
+            <Text style={styles.metricUnit}> min/km</Text>
+          </Text>
           <Text style={styles.metricLabel}>Allure</Text>
-          <Text style={styles.metricValue}>{pace}</Text>
         </View>
 
         <View style={styles.metricItem}>
           <View>
-            <Text style={styles.metricLabel}>Calories</Text>
             <Text style={styles.metricValue}>
               {calories}
-              <Text style={styles.metricUnit}>kcal</Text>
+              <Text style={styles.metricUnit}> kcal</Text>
             </Text>
+            <Text style={styles.metricLabel}>Calories</Text>
           </View>
         </View>
       </View>
@@ -52,6 +54,7 @@ export default function SessionMetrics({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
+    marginBottom: 16,
   },
   timeUnit: {
     alignItems: 'center',
@@ -77,11 +80,11 @@ const styles = StyleSheet.create({
   metricsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 8,
   },
   metricItem: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   metricValue: {
     color: Colors.light.white,
@@ -89,7 +92,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   metricUnit: {
-    fontSize: Math.min(16 * METRICS_SCALE, 18),
+    fontSize: Math.min(14 * METRICS_SCALE, 18),
     marginLeft: 2,
   },
   metricLabel: {

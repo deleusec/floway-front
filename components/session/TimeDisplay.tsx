@@ -71,6 +71,6 @@ const styles = StyleSheet.create({
   timeLabel: {
     fontSize: 16,
     color: Colors.light.white,
-    opacity: 0.7,
+    fontWeight: '300',
   },
 });
