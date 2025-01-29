@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { StyleSheet, TextInput, View, Text } from 'react-native';
+import { StyleSheet, TextInput, View, Text, TouchableWithoutFeedback } from 'react-native';
 import { Colors } from '@/constants/Colors';
 
 interface TimeInputsProps {
@@ -15,16 +15,13 @@ export default function TimeInputs({
   status = 'active',
   errorMessage,
 }: TimeInputsProps) {
-  const [hours, setHours] = useState(() =>
-    Math.floor(totalSeconds / 3600).toString(),
-  );
-  const [minutes, setMinutes] = useState(() =>
-    Math.floor((totalSeconds % 3600) / 60).toString(),
-  );
+  const [hours, setHours] = useState(() => Math.floor(totalSeconds / 3600).toString());
+  const [minutes, setMinutes] = useState(() => Math.floor((totalSeconds % 3600) / 60).toString());
   const [seconds, setSeconds] = useState(() => (totalSeconds % 60).toString());
 
   const [focusedField, setFocusedField] = useState<'hours' | 'minutes' | 'seconds' | null>(null);
 
+  const hourRef = useRef<TextInput>(null);
   const minuteRef = useRef<TextInput>(null);
   const secondRef = useRef<TextInput>(null);
 
@@ -36,15 +33,22 @@ export default function TimeInputs({
     onChange(total);
   };
 
-
-  const handleFocus = (field: 'hours' | 'minutes' | 'seconds', setter: (v: string) => void, value: string) => {
+  const handleFocus = (
+    field: 'hours' | 'minutes' | 'seconds',
+    setter: (v: string) => void,
+    value: string,
+  ) => {
     setFocusedField(field);
     if (value === '0') {
       setter('');
     }
   };
 
-  const handleBlur = (field: 'hours' | 'minutes' | 'seconds', setter: (v: string) => void, value: string) => {
+  const handleBlur = (
+    field: 'hours' | 'minutes' | 'seconds',
+    setter: (v: string) => void,
+    value: string,
+  ) => {
     setFocusedField(null);
     if (value === '') {
       setter('0');
@@ -55,7 +59,6 @@ export default function TimeInputs({
       field === 'seconds' ? value : seconds,
     );
   };
-
 
   const handleChange = (
     value: string,
@@ -82,7 +85,6 @@ export default function TimeInputs({
     );
   };
 
-
   const containerStyles = (field: 'hours' | 'minutes' | 'seconds') => [
     styles.inputsContainer,
     focusedField === field && styles.focused,
@@ -97,60 +99,67 @@ export default function TimeInputs({
     <View style={styles.container}>
       <View style={styles.wrapper}>
         {/* Input des heures */}
-        <View style={containerStyles('hours')}>
-          <View style={styles.inputWrapper}>
-            <TextInput
-              placeholder="0"
-              placeholderTextColor={Colors.light.mediumGrey}
-              keyboardType="numeric"
-              maxLength={2}
-              value={hours}
-              onFocus={() => handleFocus('hours', setHours, hours)}
-              onBlur={() => handleBlur('hours', setHours, hours)}
-              onChangeText={(value) => handleChange(value, setHours, 24, 'hours', minuteRef)}
-              style={textStyles}
-            />
-            <Text style={unitStyles}>heures</Text>
+        <TouchableWithoutFeedback onPress={() => hourRef.current?.focus()}>
+          <View style={containerStyles('hours')}>
+            <View style={styles.inputWrapper}>
+              <TextInput
+                ref={hourRef}
+                placeholder="0"
+                placeholderTextColor={Colors.light.mediumGrey}
+                keyboardType="numeric"
+                maxLength={2}
+                value={hours}
+                onFocus={() => handleFocus('hours', setHours, hours)}
+                onBlur={() => handleBlur('hours', setHours, hours)}
+                onChangeText={(value) => handleChange(value, setHours, 24, 'hours', minuteRef)}
+                style={textStyles}
+              />
+              <Text style={unitStyles}>heures</Text>
+            </View>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
 
         {/* Input des minutes */}
-        <View style={containerStyles('minutes')}>
-          <View style={styles.inputWrapper}>
-            <TextInput
-              ref={minuteRef}
-              placeholder="0"
-              placeholderTextColor={Colors.light.mediumGrey}
-              keyboardType="numeric"
-              maxLength={2}
-              value={minutes}
-              onFocus={() => handleFocus('minutes', setMinutes, minutes)}
-              onBlur={() => handleBlur('minutes', setMinutes, minutes)}
-              onChangeText={(value) => handleChange(value, setMinutes, 60, 'minutes', secondRef)}
-              style={textStyles}
-            />
-            <Text style={unitStyles}>min</Text>
+        <TouchableWithoutFeedback onPress={() => minuteRef.current?.focus()}>
+          <View style={containerStyles('minutes')}>
+            <View style={styles.inputWrapper}>
+              <TextInput
+                ref={minuteRef}
+                placeholder="0"
+                placeholderTextColor={Colors.light.mediumGrey}
+                keyboardType="numeric"
+                maxLength={2}
+                value={minutes}
+                onFocus={() => handleFocus('minutes', setMinutes, minutes)}
+                onBlur={() => handleBlur('minutes', setMinutes, minutes)}
+                onChangeText={(value) => handleChange(value, setMinutes, 60, 'minutes', secondRef)}
+                style={textStyles}
+              />
+              <Text style={unitStyles}>min</Text>
+            </View>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
 
         {/* Input des secondes */}
-        <View style={containerStyles('seconds')}>
-          <View style={styles.inputWrapper}>
-            <TextInput
-              ref={secondRef}
-              placeholder="0"
-              placeholderTextColor={Colors.light.mediumGrey}
-              keyboardType="numeric"
-              maxLength={2}
-              value={seconds}
-              onFocus={() => handleFocus('seconds', setSeconds, seconds)}
-              onBlur={() => handleBlur('seconds', setSeconds, seconds)}
-              onChangeText={(value) => handleChange(value, setSeconds, 60, 'seconds')}
-              style={textStyles}
-            />
-            <Text style={unitStyles}>sec</Text>
+        <TouchableWithoutFeedback onPress={() => secondRef.current?.focus()}>
+          <View style={containerStyles('seconds')}>
+            <View style={styles.inputWrapper}>
+              <TextInput
+                ref={secondRef}
+                placeholder="0"
+                placeholderTextColor={Colors.light.mediumGrey}
+                keyboardType="numeric"
+                maxLength={2}
+                value={seconds}
+                onFocus={() => handleFocus('seconds', setSeconds, seconds)}
+                onBlur={() => handleBlur('seconds', setSeconds, seconds)}
+                onChangeText={(value) => handleChange(value, setSeconds, 60, 'seconds')}
+                style={textStyles}
+              />
+              <Text style={unitStyles}>sec</Text>
+            </View>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       </View>
 
       {/* Affichage du message d'erreur */}
