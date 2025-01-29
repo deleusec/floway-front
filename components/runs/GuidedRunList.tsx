@@ -6,6 +6,7 @@ import { PictureCard } from '@/components/cards/ThemedPictureCard';
 import { useAuth } from '@/context/ctx';
 import { secondsToCompactReadableTime } from '@/utils/timeUtils';
 import ShadowTopSvg from '@/assets/icons/shadow-top.svg';
+import ShadowBottomSvg from '@/assets/icons/shadow-bottom.svg';
 
 interface Run {
   id: number;
@@ -22,11 +23,15 @@ interface Run {
 interface GuidedRunListProps {
   onRunSelect: (run: Run) => void;
   enableSelection?: boolean;
+  shadowBottom?: boolean;
+  shadowTop?: boolean;
 }
 
 export const GuidedRunList: React.FC<GuidedRunListProps> = ({
   onRunSelect,
   enableSelection = false,
+  shadowBottom = true,
+  shadowTop = true,
 }) => {
   const [runs, setRuns] = useState<Run[]>([]);
   const [selectedRun, setSelectedRun] = useState<Run | null>(null);
@@ -90,8 +95,8 @@ export const GuidedRunList: React.FC<GuidedRunListProps> = ({
   }
 
   return (
-    <View style={ styles.container }>
-      <ShadowTopSvg style={styles.topGradient} />
+    <View style={styles.container}>
+      {shadowTop && <ShadowTopSvg style={styles.topGradient} />}
       <ScrollView
         style={styles.scrollContent}
         contentContainerStyle={{ alignItems: 'center' }}
@@ -110,6 +115,7 @@ export const GuidedRunList: React.FC<GuidedRunListProps> = ({
           ))}
         </View>
       </ScrollView>
+      {shadowBottom && <ShadowBottomSvg style={styles.bottomGradient} />}
     </View>
   );
 };
@@ -130,6 +136,16 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 1,
     width: '100%',
+    pointerEvents: 'none',
+  },
+  bottomGradient: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
+    width: '100%',
+    pointerEvents: 'none',
   },
   content: {
     flex: 1,

@@ -134,7 +134,7 @@ export default function AllRunsScreen() {
 
         {activeTab === 'audio' ? (
           <View style={styles.listContainer}>
-            <GuidedRunList onRunSelect={handleRunSelect} />
+            <GuidedRunList onRunSelect={handleRunSelect} shadowBottom={false} />
           </View>
         ) : (
           <View style={styles.emptyProgramContainer}>

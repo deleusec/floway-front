@@ -13,7 +13,6 @@ import { PictureCard } from '@/components/cards/ThemedPictureCard';
 import { secondsToCompactReadableTime } from '@/utils/timeUtils';
 import CustomModal from '@/components/modal/CustomModal';
 import { calculateDistance, calculatePace, calculateCalories } from '@/utils/metricsUtils';
-import { useKeepAwake } from 'expo-keep-awake';
 
 export default function LiveSession() {
   const [isPlaying, setIsPlaying] = useState(true);
@@ -28,7 +27,6 @@ export default function LiveSession() {
   const [isStopCountingDown, setIsStopCountingDown] = useState(false);
   const [playedAudios, setPlayedAudios] = useState<Set<string>>(new Set());
 
-  useKeepAwake();
   const router = useRouter();
   const { sessionData, startSession, setSessionData } = useSessionContext();
 
