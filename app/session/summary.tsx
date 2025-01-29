@@ -80,7 +80,7 @@ export default function SessionSummary() {
       <View style={styles.buttonContainer}>
         <ThemedButton
           title="Terminer"
-          buttonSize="large"
+          buttonSize="medium"
           buttonType="confirm"
           buttonState="default"
           onPress={() => router.push('/')}
@@ -132,6 +132,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flex: 1,
     justifyContent: 'flex-end',
+    alignItems: 'center',
     padding: 24,
   },
 });
