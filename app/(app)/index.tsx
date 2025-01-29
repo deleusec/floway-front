@@ -11,7 +11,7 @@ import { secondsToCompactReadableTime } from '@/utils/timeUtils';
 
 export default function HomeScreen() {
   const { user, authToken } = useAuth();
-  const { userSessions, fetchUserSessions } = useSessionContext();
+  const { userSessions, fetchUserSessions, weeklyStats } = useSessionContext();
 
   useEffect(() => {
     if (user?.id && authToken) {
@@ -46,16 +46,16 @@ export default function HomeScreen() {
           <View style={styles.statsRow}>
             <View style={styles.statBlock}>
               <Text style={styles.statLabel}>Tu as parcouru</Text>
-              <Text style={styles.statValue}>18 km</Text>
+              <Text style={styles.statValue}>{weeklyStats.totalDistance.toFixed(1)} km</Text>
             </View>
             <View style={styles.statBlock}>
               <Text style={styles.statLabel}>Tu as brûlé</Text>
-              <Text style={styles.statValue}>2478 kcal</Text>
+              <Text style={styles.statValue}>{weeklyStats.totalCalories} kcal</Text>
             </View>
           </View>
           <View style={styles.statBlock}>
             <Text style={styles.statLabel}>Tu as démarré</Text>
-            <Text style={styles.statValue}>8 sessions</Text>
+            <Text style={styles.statValue}>{weeklyStats.sessionCount} sessions</Text>
           </View>
         </View>
 

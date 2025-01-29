@@ -53,6 +53,11 @@ export interface RunData {
   user: User;
 }
 
+export interface WeeklyStats {
+  totalDistance: number;
+  totalCalories: number;
+  sessionCount: number;
+}
 
 export interface SessionContextType {
   sessionData: SessionData | null;
@@ -70,6 +75,7 @@ export interface SessionContextType {
   updateLocation: (location: LocationObject) => void;
   clearSession: () => void;
   fetchUserSessions: (userId: number, token: string) => Promise<void>;
+  weeklyStats: WeeklyStats;
 }
 
 export interface SessionPayload {

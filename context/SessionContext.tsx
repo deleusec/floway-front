@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
+import React, {createContext, useContext, useState, useCallback, useRef, useMemo} from 'react';
 import * as Location from 'expo-location';
 import {
   SessionData,
@@ -9,6 +9,7 @@ import {
   RunData
 } from '@/constants/SessionData';
 import {useAuth} from "@/context/ctx";
+import {formatDate, getLastWeekDate} from "@/utils/timeUtils";
 
 // Context creation
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
@@ -20,9 +21,24 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [userSessions, setUserSessions] = useState<Session[]>([]);
   const {user, authToken} = useAuth();
 
+  const weeklyStats = useMemo(() => ({
+    totalDistance: userSessions.reduce((sum, session) => sum + (session.distance || 0), 0),
+    totalCalories: userSessions.reduce((sum, session) => sum + (session.calories || 0), 0),
+    sessionCount: userSessions.length
+  }), [userSessions]);
+
   const fetchUserSessions = useCallback(async (userId: number, token: string) => {
     try {
-      const response = await fetch(`https://node.floway.edgar-lecomte.fr/session/user/${userId}`, {
+      const fromDate = formatDate(getLastWeekDate());
+      const toDate = formatDate(new Date());
+
+      const url = new URL(`https://node.floway.edgar-lecomte.fr/session/user/${userId}`);
+      url.searchParams.append('from', fromDate);
+      url.searchParams.append('to', toDate);
+
+      console.log(url)
+
+      const response = await fetch(url.toString(), {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -196,6 +212,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         clearSession,
         userSessions,
         fetchUserSessions,
+        weeklyStats
       }}>
       {children}
     </SessionContext.Provider>
