@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet } from 'react-native';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import { LocationData } from '@/constants/SessionData';
+import { Colors } from '@/constants/Colors';
+import StartPointMapSvg from '@/assets/icons/start_point_map.svg';
+import EndPointMapSvg from '@/assets/icons/end_point_map.svg';
 
 interface RouteMapProps {
   locations: LocationData[];
@@ -83,12 +86,21 @@ export default function RouteMap({ locations }: RouteMapProps) {
             latitude: loc.latitude,
             longitude: loc.longitude,
           }))}
-          strokeColor="#00FF00"
+          strokeColor={Colors.dark.primary}
           strokeWidth={4}
         />
-        <Marker coordinate={locations[0]} title="Départ" pinColor="#00FF00" />
+
+        {/* Marqueur de départ avec SVG */}
+        <Marker coordinate={locations[0]} title="Départ">
+          <StartPointMapSvg width={24} height={24} />
+        </Marker>
+
+        {/* Marqueur d'arrivée avec SVG */}
+
         {animatedLocations.length === locations.length && (
-          <Marker coordinate={locations[locations.length - 1]} title="Arrivée" pinColor="#FF0000" />
+          <Marker coordinate={locations[locations.length - 1]} title="Arrivée">
+            <EndPointMapSvg width={24} height={24} />
+          </Marker>
         )}
       </MapView>
     </View>
