@@ -28,7 +28,7 @@ export default function LiveSession() {
   const [playedAudios, setPlayedAudios] = useState<Set<string>>(new Set());
 
   const router = useRouter();
-  const { sessionData, startSession, setSessionData } = useSessionContext();
+  const { sessionData, startSession, setSessionData, stopLocationTracking } = useSessionContext();
 
   useEffect(() => {
     if (sessionData) {
@@ -41,7 +41,6 @@ export default function LiveSession() {
 
     const interval = setInterval(() => {
       if (sessionData?.locations) {
-        console.log(sessionData.locations);
         const currentDistance = calculateDistance(sessionData.locations);
         const currentPace = calculatePace(currentDistance, totalSeconds);
         const currentCalories = calculateCalories(currentDistance);
@@ -162,6 +161,7 @@ export default function LiveSession() {
         time: totalSeconds,
       });
     }
+    stopLocationTracking();
     router.replace('/session/summary');
   };
 

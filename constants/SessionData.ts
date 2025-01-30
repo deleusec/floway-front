@@ -63,14 +63,9 @@ export interface SessionContextType {
   sessionData: SessionData | null;
   userSessions: Session[];
   setSessionData: (data: SessionData | null) => void;
-  initializeSession: (
-    type: SessionType,
-    objective?: number,
-    run?: RunData,
-  ) => void;
+  initializeSession: (type: SessionType, objective?: number, run?: RunData) => void;
   startSession: () => Promise<void>;
-  pauseSession: () => void;
-  resumeSession: () => void;
+  stopLocationTracking: () => void;
   saveSession: () => Promise<void>;
   updateLocation: (location: LocationObject) => void;
   clearSession: () => void;

@@ -113,34 +113,15 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, []);
 
-  const pauseSession = useCallback(() => {
-    setSessionData((prev) => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        status: 'paused',
-      };
-    });
-
+  const stopLocationTracking = useCallback(() => {
     if (locationSubscription.current) {
       locationSubscription.current.remove();
     }
   }, []);
 
-  const resumeSession = useCallback(() => {
-    setSessionData((prev) => {
-      if (!prev) return null;
-      return {
-        ...prev,
-        status: 'running',
-      };
-    });
-  }, []);
-
   const saveSession = useCallback(async () => {
     if (!sessionData || !user || !authToken) return;
       console.log('sessionData', sessionData);
-    // TODO: Intégrer vrai data
 
     const payload = {
       session_type: sessionData.type,
@@ -205,10 +186,9 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setSessionData,
         initializeSession,
         startSession,
-        pauseSession,
-        resumeSession,
         saveSession,
         updateLocation,
+        stopLocationTracking,
         clearSession,
         userSessions,
         fetchUserSessions,

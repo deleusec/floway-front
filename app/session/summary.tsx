@@ -3,15 +3,14 @@ import { SafeAreaView, View, StyleSheet, Dimensions } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedButton } from '@/components/button/ThemedButton';
-import MapView, { Polyline } from 'react-native-maps';
 import { useRouter } from 'expo-router';
 import { useSessionContext } from '@/context/SessionContext';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import TimeDisplay from '@/components/session/TimeDisplay';
 import EditPencilIcon from '@/assets/icons/edit-pencil.svg';
+import RouteMap from '@/components/map/map';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function SessionSummary() {
   const router = useRouter();
@@ -33,37 +32,19 @@ export default function SessionSummary() {
         </View>
         <EditPencilIcon width={24} height={24} />
       </View>
-
-      <View style={styles.mapContainer}>
-        <MapView
-          style={styles.map}
-          customMapStyle={darkMapStyle}
-          showsUserLocation={false}
-          showsCompass={false}
-          initialRegion={{
-            latitude: 48.8566,
-            longitude: 2.3522,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}>
-          {sessionData?.locations && (
-            <Polyline
-              coordinates={sessionData.locations}
-              strokeColor={Colors.light.primary}
-              strokeWidth={3}
-            />
+      Copy
+      <View style={styles.mapContainerWrapper}>
+        <View style={styles.mapContainer}>
+          {sessionData?.locations && sessionData.locations.length > 0 && (
+            <RouteMap locations={sessionData.locations} />
           )}
-        </MapView>
+        </View>
       </View>
-
-      <TimeDisplay time={sessionData?.time || 0}/>
-
+      <TimeDisplay time={sessionData?.time || 0} />
       <View style={styles.metricsContainer}>
         <View style={styles.metricItem}>
           <ThemedText type="default">Distance</ThemedText>
-          <ThemedText type="subtitle">
-            {sessionData?.metrics?.distance || 0.0}km
-          </ThemedText>
+          <ThemedText type="subtitle">{sessionData?.metrics?.distance || 0.0}km</ThemedText>
         </View>
         <View style={styles.metricItem}>
           <ThemedText type="default">Allure</ThemedText>
@@ -71,12 +52,9 @@ export default function SessionSummary() {
         </View>
         <View style={styles.metricItem}>
           <ThemedText type="default">Calories</ThemedText>
-          <ThemedText type="subtitle">
-            {sessionData?.metrics?.calories || 0}kcal
-          </ThemedText>
+          <ThemedText type="subtitle">{sessionData?.metrics?.calories || 0}kcal</ThemedText>
         </View>
       </View>
-
       <View style={styles.buttonContainer}>
         <ThemedButton
           title="Terminer"
@@ -114,10 +92,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   mapContainer: {
-    height: SCREEN_WIDTH * 0.6,
+    height: 300,
+    width: '100%',
+    borderRadius: 16,
+    overflow: 'hidden',
   },
-  map: {
-    flex: 1,
+  mapContainerWrapper: {
+    padding: 24,
     width: '100%',
   },
   metricsContainer: {
@@ -136,28 +117,3 @@ const styles = StyleSheet.create({
     padding: 24,
   },
 });
-
-const darkMapStyle = [
-  {
-    elementType: 'geometry',
-    stylers: [{ color: '#242f3e' }],
-  },
-  {
-    elementType: 'labels.text.fill',
-    stylers: [{ color: '#746855' }],
-  },
-  {
-    elementType: 'labels.text.stroke',
-    stylers: [{ color: '#242f3e' }],
-  },
-  {
-    featureType: 'road',
-    elementType: 'geometry',
-    stylers: [{ color: '#38414e' }],
-  },
-  {
-    featureType: 'road',
-    elementType: 'geometry.stroke',
-    stylers: [{ color: '#212a37' }],
-  },
-];
