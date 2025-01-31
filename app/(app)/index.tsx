@@ -1,16 +1,18 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { PictureCard } from '@/components/cards/ThemedPictureCard';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/context/ctx';
-import { Link } from 'expo-router';
-import SettingsIcon from '@/assets/icons/settings.svg';
+import Logout from '@/assets/icons/logout.svg';
 import {useSessionContext} from "@/context/SessionContext";
 import { secondsToCompactReadableTime } from '@/utils/timeUtils';
+import CustomModal from '@/components/modal/CustomModal';
 
 export default function HomeScreen() {
   const { user, authToken } = useAuth();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const { signOut } = useAuth();
   const { userSessions, fetchUserSessions, weeklyStats } = useSessionContext();
 
   useEffect(() => {
@@ -19,24 +21,33 @@ export default function HomeScreen() {
     }
   }, [user?.id, authToken]);
 
+  const handleLogoutPress = () => {
+    setShowLogoutModal(true);
+  };
+
+  const handleLogoutConfirm = () => {
+    setShowLogoutModal(false);
+    signOut();
+  };
+
+  const handleLogoutCancel = () => {
+    setShowLogoutModal(false);
+  };
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
       <View style={styles.container}>
         {/* Section utilisateur */}
         <View style={styles.userSection}>
           <View style={styles.userInfo}>
-            <Link href="/start" style={styles.userImage}>
-              <Image source={require('@/assets/images/start.jpg')} style={styles.userImage} />
-            </Link>
+            <Image source={require('@/assets/images/start.jpg')} style={styles.userImage} />
             <View>
               <Text style={styles.userGreeting}>{`Bonjour ${user?.firstName || 'Coureur'}`}</Text>
               <Text style={styles.userReadyText}>Prêt à courir ?</Text>
             </View>
           </View>
           <View style={styles.settingsIcon}>
-            <Link href="/explore">
-              <SettingsIcon width={24} height={24} fill={Colors.light.primary} />
-            </Link>
+            <Logout width={24} height={24} onPress={handleLogoutPress} />
           </View>
         </View>
 
@@ -94,6 +105,16 @@ export default function HomeScreen() {
           </View>
         </View>
       </View>
+      <CustomModal
+        visible={showLogoutModal}
+        onClose={handleLogoutCancel}
+        header={<Text style={styles.modalHeader}>Déconnexion</Text>}
+        cancelButton={true}
+        confirmButton={true}
+        cancelAction={handleLogoutCancel}
+        confirmAction={handleLogoutConfirm}>
+        <Text style={styles.modalBody}>Êtes-vous sûr de vouloir vous déconnecter ?</Text>
+      </CustomModal>
     </SafeAreaView>
   );
 }
@@ -213,6 +234,17 @@ const styles = StyleSheet.create({
   placeholderText: {
     color: Colors.light.mediumGrey,
     fontFamily: 'Poppins-Regular',
+    textAlign: 'center',
+  },
+  modalHeader: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: Colors.light.white,
+    textAlign: 'center',
+  },
+  modalBody: {
+    fontSize: 14,
+    color: Colors.light.white,
     textAlign: 'center',
   },
 });
