@@ -32,7 +32,6 @@ export default function SessionSummary() {
         </View>
         <EditPencilIcon width={24} height={24} />
       </View>
-      Copy
       <View style={styles.mapContainerWrapper}>
         <View style={styles.mapContainer}>
           {sessionData?.locations && sessionData.locations.length > 0 && (
