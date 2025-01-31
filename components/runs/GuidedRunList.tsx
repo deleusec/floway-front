@@ -76,6 +76,28 @@ export const GuidedRunList: React.FC<GuidedRunListProps> = ({
     }
   };
 
+  const handleRunDelete = async (run: Run) => {
+    try {
+      const response = await fetch(`https://api.floway.edgar-lecomte.fr/api/run/${run.id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        setRuns(runs.filter((r) => r.id !== run.id));
+      } else {
+        console.error('Failed to delete run');
+      }
+
+      return response;
+    } catch (error) {
+      console.error('Error deleting run:', error);
+    }
+  };
+
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -111,6 +133,7 @@ export const GuidedRunList: React.FC<GuidedRunListProps> = ({
               metrics={[secondsToCompactReadableTime(run.time_objective || 0)]}
               subtitle={run.description}
               onPress={() => handleRunSelect(run)}
+              onDelete={() => handleRunDelete(run)}
             />
           ))}
         </View>

@@ -90,16 +90,17 @@ export default function RouteMap({ locations }: RouteMapProps) {
           strokeWidth={4}
         />
 
-        {/* Marqueur de départ avec SVG */}
         <Marker coordinate={locations[0]} title="Départ">
-          <StartPointMapSvg width={24} height={24} />
+          <View style={styles.startPointMarker}>
+            <StartPointMapSvg width={24} height={24} />
+          </View>
         </Marker>
-
-        {/* Marqueur d'arrivée avec SVG */}
 
         {animatedLocations.length === locations.length && (
           <Marker coordinate={locations[locations.length - 1]} title="Arrivée">
-            <EndPointMapSvg width={24} height={24} />
+            <View style={styles.endPointMarker}>
+              <EndPointMapSvg width={24} height={24} />
+            </View>
           </Marker>
         )}
       </MapView>
@@ -113,6 +114,14 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: 16,
     overflow: 'hidden',
+  },
+  startPointMarker: {
+    padding: 4,
+    borderRadius: 12,
+  },
+  endPointMarker: {
+    padding: 4,
+    borderRadius: 12,
   },
 });
 

@@ -1,23 +1,27 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Image,
   TouchableOpacity,
+  Animated,
   ViewStyle,
   ImageSourcePropType,
 } from 'react-native';
+import { GestureHandlerRootView, PanGestureHandler, State } from 'react-native-gesture-handler';
 import { Colors } from '@/constants/Colors';
+import TrashSvg from '@/assets/icons/trash.svg';
 
 interface PictureCardProps {
-  title: string; // Titre principal
-  subtitle?: string; // Sous-titre (optionnel)
-  metrics?: string[]; // Liste de métriques (ex : temps, distance, calories)
-  image?: ImageSourcePropType; // Image à afficher
-  onPress?: () => void; // Action au clic
-  style?: ViewStyle; // Style personnalisé
-  isSelected?: boolean; // Indique si la carte est sélectionnée
+  title: string;
+  subtitle?: string;
+  metrics?: string[];
+  image?: ImageSourcePropType;
+  onPress?: () => void;
+  style?: ViewStyle;
+  isSelected?: boolean;
+  onDelete?: () => void;
 }
 
 export const PictureCard: React.FC<PictureCardProps> = ({
@@ -28,55 +32,207 @@ export const PictureCard: React.FC<PictureCardProps> = ({
   onPress,
   style,
   isSelected = false,
+  onDelete,
 }) => {
+  const translateX = useRef(new Animated.Value(0)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+
+  const swipeThreshold = -80;
+  const maxSwipe = -90;
+  const minSwipe = 0;
+
+  const handleGestureEvent = Animated.event([{ nativeEvent: { translationX: translateX } }], {
+    useNativeDriver: false,
+  });
+
+  const handleStateChange = ({ nativeEvent }: any) => {
+    if (!onDelete) return;
+
+    if (nativeEvent.state === State.END) {
+      const velocity = nativeEvent.velocityX;
+      const translation = nativeEvent.translationX;
+
+      if (translation < swipeThreshold || velocity < -500) {
+        // Swipe validé avec effet de rebond doux
+        Animated.parallel([
+          Animated.spring(translateX, {
+            toValue: maxSwipe,
+            speed: 10,
+            useNativeDriver: false,
+          }),
+          Animated.timing(opacity, {
+            toValue: 1,
+            duration: 150,
+            useNativeDriver: false,
+          }),
+        ]).start();
+      } else {
+        // Swipe insuffisant → retour à 0
+        Animated.parallel([
+          Animated.spring(translateX, {
+            toValue: minSwipe,
+            speed: 12,
+            useNativeDriver: false,
+          }),
+          Animated.timing(opacity, {
+            toValue: 0,
+            duration: 100,
+            useNativeDriver: false,
+          }),
+        ]).start();
+      }
+    }
+  };
+
   return (
-    <TouchableOpacity
-      style={[
-        styles.card,
-        isSelected && styles.selectedCard, // Appliquer le style sélectionné
-        style,
-      ]}
-      onPress={onPress}
-      disabled={!onPress} // Désactive le clic si aucune action n'est fournie
-    >
-      {/* Image à gauche */}
-      {image ? (
-        <Image source={image} style={styles.image} />
-      ) : (
-        <Image src="https://picsum.photos/200/300" style={styles.image} />
+    <GestureHandlerRootView style={styles.wrapper}>
+      {/* Bouton poubelle en arrière-plan */}
+      {onDelete && (
+        <Animated.View style={[styles.deleteContainer, { opacity }]}>
+          <TouchableOpacity onPress={onDelete} style={styles.deleteButton}>
+            <TrashSvg width={24} height={24} />
+          </TouchableOpacity>
+        </Animated.View>
       )}
 
-      {/* Contenu principal */}
-      <View style={styles.content}>
-        <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">{title}</Text>
-        {subtitle && (
-          <Text style={styles.subtitle} numberOfLines={1} ellipsizeMode="tail">
-            {subtitle}
-          </Text>
-        )}
-        {metrics && (
-          <View
+      {/* Carte interactive avec swipe */}
+      {onDelete ? (
+        <PanGestureHandler
+          onGestureEvent={handleGestureEvent}
+          onHandlerStateChange={handleStateChange}>
+          <Animated.View
             style={[
-              styles.metricsContainer,
-              subtitle
-                ? styles.metricsContainerWithSubtitle
-                : styles.metricsContainerWithoutSubtitle,
+              styles.cardContainer,
+              {
+                transform: [
+                  {
+                    translateX: translateX.interpolate({
+                      inputRange: [maxSwipe, 0],
+                      outputRange: [maxSwipe, 0],
+                      extrapolate: 'clamp', // Empêche d'aller plus loin que maxSwipe
+                    }),
+                  },
+                ],
+              },
             ]}>
-            {metrics.map((metric, index) => (
-              <Text
-                key={index}
-                style={[subtitle ? styles.metricWithSubtitle : styles.metricWithoutSubtitle]}>
-                {metric}
+            <TouchableOpacity
+              style={[styles.card, isSelected && styles.selectedCard, style]}
+              onPress={onPress}
+              disabled={!onPress}>
+              {/* Image à gauche */}
+              {image ? (
+                <Image source={image} style={styles.image} />
+              ) : (
+                <Image src="https://picsum.photos/200/300" style={styles.image} />
+              )}
+
+              {/* Contenu principal */}
+              <View style={styles.content}>
+                <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
+                  {title}
+                </Text>
+                {subtitle && (
+                  <Text style={styles.subtitle} numberOfLines={1} ellipsizeMode="tail">
+                    {subtitle}
+                  </Text>
+                )}
+                {metrics && (
+                  <View
+                    style={[
+                      styles.metricsContainer,
+                      subtitle
+                        ? styles.metricsContainerWithSubtitle
+                        : styles.metricsContainerWithoutSubtitle,
+                    ]}>
+                    {metrics.map((metric, index) => (
+                      <Text
+                        key={index}
+                        style={[
+                          subtitle ? styles.metricWithSubtitle : styles.metricWithoutSubtitle,
+                        ]}>
+                        {metric}
+                      </Text>
+                    ))}
+                  </View>
+                )}
+              </View>
+            </TouchableOpacity>
+          </Animated.View>
+        </PanGestureHandler>
+      ) : (
+        <TouchableOpacity
+          style={[
+            styles.card,
+            isSelected && styles.selectedCard, // Appliquer le style sélectionné
+            style,
+          ]}
+          onPress={onPress}
+          disabled={!onPress} // Désactive le clic si aucune action n'est fournie
+        >
+          {/* Image à gauche */}
+          {image ? (
+            <Image source={image} style={styles.image} />
+          ) : (
+            <Image src="https://picsum.photos/200/300" style={styles.image} />
+          )}
+          {/* Contenu principal */}
+          <View style={styles.content}>
+            <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
+              {title}
+            </Text>
+            {subtitle && (
+              <Text style={styles.subtitle} numberOfLines={1} ellipsizeMode="tail">
+                {subtitle}
               </Text>
-            ))}
+            )}
+            {metrics && (
+              <View
+                style={[
+                  styles.metricsContainer,
+                  subtitle
+                    ? styles.metricsContainerWithSubtitle
+                    : styles.metricsContainerWithoutSubtitle,
+                ]}>
+                {metrics.map((metric, index) => (
+                  <Text
+                    key={index}
+                    style={[subtitle ? styles.metricWithSubtitle : styles.metricWithoutSubtitle]}>
+                    {metric}
+                  </Text>
+                ))}
+              </View>
+            )}
           </View>
-        )}
-      </View>
-    </TouchableOpacity>
+        </TouchableOpacity>
+      )}
+    </GestureHandlerRootView>
   );
 };
 
 const styles = StyleSheet.create({
+  wrapper: {
+    width: '100%',
+    position: 'relative',
+  },
+  deleteContainer: {
+    position: 'absolute',
+    backgroundColor: Colors.dark.error + '30',
+    borderRadius: 16,
+    right: 16,
+    top: '50%',
+    height: 64,
+    width: 64,
+    alignItems: 'center',
+    justifyContent: 'center',
+    transform: [{ translateY: '-50%' }],
+    zIndex: 0,
+  },
+  deleteButton: {
+    padding: 12,
+  },
+  cardContainer: {
+    width: '100%',
+  },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -90,11 +246,11 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: 2, // Pour Android
+    elevation: 2,
   },
   selectedCard: {
     borderWidth: 1,
-    borderColor: Colors.light.primary, // Bordure verte pour l'état sélectionné
+    borderColor: Colors.light.primary,
   },
   image: {
     width: 64,
@@ -123,7 +279,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   metricsContainerWithSubtitle: {
-    justifyContent: 'flex-start', // Alignement à gauche si un subtitle est présent
+    justifyContent: 'flex-start',
     gap: 12,
   },
   metricsContainerWithoutSubtitle: {
