@@ -119,7 +119,6 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const saveSession = useCallback(async () => {
     if (!sessionData || !user || !authToken) return;
-      console.log('sessionData', sessionData);
 
     const payload = {
       session_type: sessionData.type,
