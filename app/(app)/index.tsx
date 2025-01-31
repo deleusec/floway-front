@@ -57,7 +57,11 @@ export default function HomeScreen() {
           <View style={styles.statsRow}>
             <View style={styles.statBlock}>
               <Text style={styles.statLabel}>Tu as parcouru</Text>
-              <Text style={styles.statValue}>{weeklyStats.totalDistance.toFixed(1)} km</Text>
+              <Text style={styles.statValue}>
+                {Number.isInteger(weeklyStats.totalDistance)
+                  ? weeklyStats.totalDistance
+                  : weeklyStats.totalDistance.toFixed(1)} km
+              </Text>
             </View>
             <View style={styles.statBlock}>
               <Text style={styles.statLabel}>Tu as brûlé</Text>
@@ -66,7 +70,9 @@ export default function HomeScreen() {
           </View>
           <View style={styles.statBlock}>
             <Text style={styles.statLabel}>Tu as démarré</Text>
-            <Text style={styles.statValue}>{weeklyStats.sessionCount} sessions</Text>
+            <Text style={styles.statValue}>
+              {weeklyStats.sessionCount} {weeklyStats.sessionCount > 1 ? 'sessions' : 'session'}
+            </Text>
           </View>
         </View>
 
