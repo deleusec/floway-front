@@ -25,6 +25,7 @@ interface GuidedRunListProps {
   enableSelection?: boolean;
   shadowBottom?: boolean;
   shadowTop?: boolean;
+  emptyText?: string;
 }
 
 export const GuidedRunList: React.FC<GuidedRunListProps> = ({
@@ -32,6 +33,7 @@ export const GuidedRunList: React.FC<GuidedRunListProps> = ({
   enableSelection = false,
   shadowBottom = true,
   shadowTop = true,
+  emptyText,
 }) => {
   const [runs, setRuns] = useState<Run[]>([]);
   const [selectedRun, setSelectedRun] = useState<Run | null>(null);
@@ -110,7 +112,7 @@ export const GuidedRunList: React.FC<GuidedRunListProps> = ({
     return (
       <View style={styles.emptyContainer}>
         <ThemedText type="legend" style={styles.emptyText}>
-          Vous ne possédez aucune audio. Créez en une nouvelle en cliquant sur le bouton ci-dessous.
+          {emptyText || "Vous n'avez pas encore de course guidée. Commencez par en ajouter une !"}
         </ThemedText>
       </View>
     );

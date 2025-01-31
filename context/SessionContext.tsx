@@ -36,8 +36,6 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       url.searchParams.append('from', fromDate);
       url.searchParams.append('to', toDate);
 
-      console.log(url)
-
       const response = await fetch(url.toString(), {
         headers: {
           Authorization: `Bearer ${token}`,

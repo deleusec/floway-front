@@ -139,8 +139,7 @@ export default function AllRunsScreen() {
         ) : (
           <View style={styles.emptyProgramContainer}>
             <ThemedText type="legend" style={styles.emptyProgramText}>
-              Vous ne possédez aucun programme. Créez en un nouveau en cliquant sur le bouton
-              ci-dessous.
+              Vous n'avez pas encore de programme. Commencez par en ajouter un !
             </ThemedText>
           </View>
         )}
