@@ -57,8 +57,12 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       objective?: number,
       run?: RunData,
     ) => {
+      const date = new Date();
+
       const newSession: SessionData = {
         type,
+        id: '',
+        title: `Session du ${date.toLocaleDateString()}`,
         time: 0,
         metrics: {
           distance: 0.0,
@@ -123,7 +127,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const payload = {
       session_type: sessionData.type,
       user_id: user.id,
-      title: "Morning Run",
+      title: sessionData.title,
       distance: sessionData?.metrics?.distance || 0,
       calories: sessionData?.metrics?.calories || 0,
       allure: sessionData?.metrics?.pace || 0,
@@ -148,11 +152,47 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
       const responseData = await response.json();
       if (!response.ok) throw new Error(`Failed to save session: ${responseData?.message}`);
+
+      setSessionData(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          id: responseData.data.insertedId
+        };
+      });
     } catch (error) {
       console.error('Error details:', error);
       throw error;
     }
   }, [sessionData, user, authToken]);
+
+  const updateSessionTitle = useCallback(async (newTitle: string) => {
+    if (!sessionData?.id || !authToken) return;
+
+    try {
+      const response = await fetch(`https://node.floway.edgar-lecomte.fr/session/${sessionData.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        body: JSON.stringify({ title: newTitle })
+      });
+
+      if (!response.ok) throw new Error('Failed to update session title');
+
+      setSessionData(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          title: newTitle
+        };
+      });
+    } catch (error) {
+      console.error('Error updating session title:', error);
+      throw error;
+    }
+  }, [sessionData?.id, authToken]);
 
   const updateLocation = useCallback((location: Location.LocationObject) => {
     setSessionData((prev) => {
@@ -189,7 +229,8 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         clearSession,
         userSessions,
         fetchUserSessions,
-        weeklyStats
+        weeklyStats,
+        updateSessionTitle
       }}>
       {children}
     </SessionContext.Provider>

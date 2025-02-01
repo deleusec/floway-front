@@ -1,5 +1,5 @@
-import React, {useEffect} from 'react';
-import { SafeAreaView, View, StyleSheet, Dimensions } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {SafeAreaView, View, StyleSheet, TextInput, TouchableOpacity} from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedButton } from '@/components/button/ThemedButton';
@@ -14,23 +14,53 @@ import RouteMap from '@/components/map/map';
 
 export default function SessionSummary() {
   const router = useRouter();
-  const { sessionData, saveSession } = useSessionContext();
+  const { sessionData, saveSession, updateSessionTitle } = useSessionContext();
   const formattedDate = format(new Date(), "dd/MM/yyyy 'à' HH:mm", { locale: fr });
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [newTitle, setNewTitle] = useState(sessionData?.title || '');
 
   useEffect(() => {
     saveSession();
   }, []);
 
+  const handleTitleEdit = () => {
+    setIsEditingTitle(true);
+  };
+
+  const handleFinish = async () => {
+    if (isEditingTitle && newTitle.trim() !== '' && newTitle !== sessionData?.title) {
+      try {
+        await updateSessionTitle(newTitle.trim());
+      } catch (error) {
+        console.error('Failed to update title:', error);
+      }
+    }
+    router.push('/');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <View>
-          <ThemedText type="subtitle">Session du samedi soir</ThemedText>
-          <ThemedText type="default" style={styles.dateText}>
-            {formattedDate}
-          </ThemedText>
+        <View style={styles.titleContainer}>
+          {isEditingTitle ? (
+            <TextInput
+              value={newTitle}
+              onChangeText={setNewTitle}
+              style={styles.titleInput}
+              autoFocus
+            />
+          ) : (
+            <>
+              <ThemedText type="subtitle">{sessionData?.title}</ThemedText>
+              <ThemedText type="default" style={styles.dateText}>
+                {formattedDate}
+              </ThemedText>
+            </>
+          )}
         </View>
-        <EditPencilIcon width={24} height={24} />
+        <TouchableOpacity onPress={handleTitleEdit}>
+          <EditPencilIcon width={24} height={24} />
+        </TouchableOpacity>
       </View>
       <View style={styles.mapContainerWrapper}>
         <View style={styles.mapContainer}>
@@ -60,7 +90,7 @@ export default function SessionSummary() {
           buttonSize="medium"
           buttonType="confirm"
           buttonState="default"
-          onPress={() => router.push('/')}
+          onPress={handleFinish}
         />
       </View>
     </SafeAreaView>
@@ -114,5 +144,16 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     alignItems: 'center',
     padding: 24,
+  },
+  titleContainer: {
+    flex: 1,
+    marginRight: 16,
+  },
+  titleInput: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: Colors.dark.white,
+    padding: 0,
+    margin: 0,
   },
 });
