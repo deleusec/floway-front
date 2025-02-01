@@ -10,6 +10,8 @@ export interface LocationData {
 export type SessionType = 'free' | 'time' | 'distance' | 'run';
 
 export interface SessionData {
+  id: string;
+  title: string;
   type: SessionType;
   time: number;
   metrics: {
@@ -71,6 +73,7 @@ export interface SessionContextType {
   clearSession: () => void;
   fetchUserSessions: (userId: number, token: string) => Promise<void>;
   weeklyStats: WeeklyStats;
+  updateSessionTitle: (newTitle: string) => Promise<void>;
 }
 
 export interface SessionPayload {
