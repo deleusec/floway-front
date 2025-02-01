@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {SafeAreaView, View, StyleSheet, TextInput, TouchableOpacity} from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { SafeAreaView, View, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedButton } from '@/components/button/ThemedButton';
@@ -11,25 +11,43 @@ import TimeDisplay from '@/components/session/TimeDisplay';
 import EditPencilIcon from '@/assets/icons/edit-pencil.svg';
 import RouteMap from '@/components/map/map';
 
-
 export default function SessionSummary() {
   const router = useRouter();
   const { sessionData, updateSessionTitle } = useSessionContext();
   const formattedDate = format(new Date(), "dd/MM/yyyy 'à' HH:mm", { locale: fr });
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [newTitle, setNewTitle] = useState(sessionData?.title || '');
+  const [isSaving, setIsSaving] = useState(false);
+  const inputRef = useRef<TextInput>(null);
 
-  const handleTitleEdit = () => {
+  const startEditing = () => {
     setIsEditingTitle(true);
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, 1000);
   };
 
-  const handleFinish = async () => {
-    if (isEditingTitle && newTitle.trim() !== '' && newTitle !== sessionData?.title) {
+  const handleSaveTitle = async () => {
+    if (newTitle.trim() !== '' && newTitle !== sessionData?.title) {
+      setIsSaving(true);
       try {
         await updateSessionTitle(newTitle.trim());
       } catch (error) {
         console.error('Failed to update title:', error);
+      } finally {
+        setIsSaving(false);
+        setIsEditingTitle(false);
       }
+    } else {
+      setIsEditingTitle(false);
+    }
+  };
+
+  const handleFinish = async () => {
+    if (isEditingTitle) {
+      await handleSaveTitle();
     }
     router.push('/');
   };
@@ -43,20 +61,27 @@ export default function SessionSummary() {
               value={newTitle}
               onChangeText={setNewTitle}
               style={styles.titleInput}
-              autoFocus
+              ref={inputRef}
+              onBlur={handleSaveTitle}
+              returnKeyType="done"
+              onSubmitEditing={handleSaveTitle}
             />
           ) : (
-            <>
-              <ThemedText type="subtitle">{sessionData?.title}</ThemedText>
-              <ThemedText type="default" style={styles.dateText}>
-                {formattedDate}
+            <TouchableOpacity onPress={startEditing}>
+              <ThemedText type="subtitle" numberOfLines={1} ellipsizeMode="tail">
+                {sessionData?.title || 'Sans titre'}
               </ThemedText>
-            </>
+            </TouchableOpacity>
           )}
+          <ThemedText type="default" style={styles.dateText}>
+            {formattedDate}
+          </ThemedText>
         </View>
-        <TouchableOpacity onPress={handleTitleEdit}>
-          <EditPencilIcon width={24} height={24} />
-        </TouchableOpacity>
+        {!isEditingTitle && (
+          <TouchableOpacity onPress={startEditing}>
+            <EditPencilIcon width={24} height={24} />
+          </TouchableOpacity>
+        )}
       </View>
       <View style={styles.mapContainerWrapper}>
         <View style={styles.mapContainer}>
@@ -85,7 +110,7 @@ export default function SessionSummary() {
           title="Terminer"
           buttonSize="medium"
           buttonType="confirm"
-          buttonState="default"
+          buttonState={isSaving ? 'loading' : 'default'}
           onPress={handleFinish}
         />
       </View>

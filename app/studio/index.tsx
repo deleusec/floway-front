@@ -142,20 +142,20 @@ export default function CreateRun() {
               errorMessage={errors.description}
             />
           </View>
-        </ScrollView>
 
-        {/* Bouton "Suivant" */}
-        <View style={styles.footerContainer}>
-          <View style={styles.buttonWrapper}>
-            <ThemedButton
-              title="Suivant"
-              buttonSize="medium"
-              buttonType="confirm"
-              buttonState="default"
-              onPress={() => handleNext()}
-            />
+          {/* Bouton "Suivant" */}
+          <View style={styles.footerContainer}>
+            <View style={styles.buttonWrapper}>
+              <ThemedButton
+                title="Suivant"
+                buttonSize="medium"
+                buttonType="confirm"
+                buttonState="default"
+                onPress={() => handleNext()}
+              />
+            </View>
           </View>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -193,11 +193,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   footerContainer: {
-    position: 'absolute',
-    bottom: 16,
-    left: 24,
-    right: 24,
-    zIndex: 10,
+    flex: 1,
+    justifyContent: 'flex-end',
+    marginTop: 16,
   },
   buttonWrapper: {
     justifyContent: 'center',

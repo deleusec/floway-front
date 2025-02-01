@@ -86,3 +86,9 @@ export const getLastWeekDate = (): Date => {
   date.setDate(date.getDate() - 7);
   return date;
 }
+
+export const formatDuration = (seconds: number) => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+};

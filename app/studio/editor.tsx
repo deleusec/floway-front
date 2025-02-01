@@ -20,6 +20,7 @@ import { importAudioFile, uploadAudioFile } from '@/utils/audioUtils';
 import { router } from 'expo-router';
 import Tooltip from '@/components/Tooltip';
 import TimelineStudio from '@/components/studio/TimelineStudio';
+import { formatDuration } from '@/utils/timeUtils';
 
 interface AudioProps {
   id: number;
@@ -121,7 +122,14 @@ export default function Editor() {
       const waveInterval = setInterval(async () => {
         const status = await recording.getStatusAsync();
         if (status.isRecording && status.metering) {
-          setWaveLevels((prevLevels) => [...prevLevels, Math.max(0, (status.metering ?? 0) + 100)]);
+          setWaveLevels((prevLevels) => {
+            const newLevels = [...prevLevels, Math.max(0, (status.metering ?? 0) + 100)];
+
+            if (waveformScrollRef.current) {
+              waveformScrollRef.current.scrollToEnd({ animated: true });
+            }
+            return newLevels;
+          });
         }
       }, 100);
 
@@ -519,9 +527,7 @@ export default function Editor() {
               <Text style={styles.recIndicator}>
                 <View style={styles.recDot} /> REC
               </Text>
-              <Text style={styles.timer}>
-                {`00:${recordingDuration < 10 ? '0' : ''}${recordingDuration}`}
-              </Text>
+              <Text style={styles.timer}>{formatDuration(recordingDuration)}</Text>
             </View>
 
             {/* Placeholder pour les ondes sonores */}

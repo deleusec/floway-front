@@ -80,6 +80,8 @@ const TimelineStudio = ({
               const position =
                 ((audio.start_time || (audio.start_distance ?? 0) * 1000) / timelineLength) * 100;
               const isSelected = selectedAudio && selectedAudio.id === audio.id;
+              const duration = parseInt(audio.duration, 10);
+              const width = (duration / timelineLength) * 100;
 
               return (
                 <TouchableOpacity
@@ -88,13 +90,14 @@ const TimelineStudio = ({
                     styles.audioItem,
                     {
                       left: `${position}%`,
+                      width: `${width}%`,
                       opacity: isSelected ? 1 : 0.3,
                       shadowColor: isSelected ? 'green' : 'transparent',
                     },
                     isSelected && styles.selectedAudioItem,
                   ]}
                   onPress={(e) => {
-                    e.stopPropagation(); // Empêcher la désélection lors du clic sur un élément audio
+                    e.stopPropagation();
                     handleAudioSelect(audio.id);
                   }}>
                   <Text style={styles.audioTitle}>{audio.id}</Text>

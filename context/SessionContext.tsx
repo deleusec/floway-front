@@ -1,4 +1,6 @@
-import React, {createContext, useContext, useState, useCallback, useRef, useMemo} from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef, useMemo } from 'react';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import * as Location from 'expo-location';
 import {
   SessionData,
@@ -6,10 +8,10 @@ import {
   SessionContextType,
   LocationData,
   Session,
-  RunData
+  RunData,
 } from '@/constants/SessionData';
-import {useAuth} from "@/context/ctx";
-import {formatDate, getLastWeekDate} from "@/utils/timeUtils";
+import { useAuth } from '@/context/ctx';
+import { formatDate, getLastWeekDate } from '@/utils/timeUtils';
 
 // Context creation
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
@@ -19,13 +21,16 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [sessionData, setSessionData] = useState<SessionData | null>(null);
   const locationSubscription = useRef<Location.LocationSubscription | null>(null);
   const [userSessions, setUserSessions] = useState<Session[]>([]);
-  const {user, authToken} = useAuth();
+  const { user, authToken } = useAuth();
 
-  const weeklyStats = useMemo(() => ({
-    totalDistance: userSessions.reduce((sum, session) => sum + (session.distance || 0), 0),
-    totalCalories: userSessions.reduce((sum, session) => sum + (session.calories || 0), 0),
-    sessionCount: userSessions.length
-  }), [userSessions]);
+  const weeklyStats = useMemo(
+    () => ({
+      totalDistance: userSessions.reduce((sum, session) => sum + (session.distance || 0), 0),
+      totalCalories: userSessions.reduce((sum, session) => sum + (session.calories || 0), 0),
+      sessionCount: userSessions.length,
+    }),
+    [userSessions],
+  );
 
   const fetchUserSessions = useCallback(async (userId: number, token: string) => {
     try {
@@ -51,38 +56,32 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, []);
 
-  const initializeSession = useCallback(
-    (
-      type: SessionType,
-      objective?: number,
-      run?: RunData,
-    ) => {
-      const date = new Date();
+  const initializeSession = useCallback((type: SessionType, objective?: number, run?: RunData) => {
+    const date = new Date();
+    const formattedDate = format(date, "dd/MM/yyyy 'à' HH:mm", { locale: fr });
 
-      const newSession: SessionData = {
-        type,
-        id: '',
-        title: `Session du ${date.toLocaleDateString()}`,
-        time: 0,
-        metrics: {
-          distance: 0.0,
-          pace: 0.0,
-          calories: 0,
-        },
-        locations: [],
-        run: run || null,
-      };
+    const newSession: SessionData = {
+      type,
+      id: '',
+      title: `Session du ${formattedDate}`,
+      time: 0,
+      metrics: {
+        distance: 0.0,
+        pace: 0.0,
+        calories: 0,
+      },
+      locations: [],
+      run: run || null,
+    };
 
-      if (type === 'time') {
-        newSession.time_objective = objective;
-      } else if (type === 'distance') {
-        newSession.distance_objective = objective;
-      }
+    if (type === 'time') {
+      newSession.time_objective = objective;
+    } else if (type === 'distance') {
+      newSession.distance_objective = objective;
+    }
 
-      setSessionData(newSession);
-    },
-    [],
-  );
+    setSessionData(newSession);
+  }, []);
 
   const startSession = useCallback(async () => {
     try {
@@ -132,12 +131,10 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       calories: sessionData?.metrics?.calories || 0,
       allure: sessionData?.metrics?.pace || 0,
       time: sessionData?.time || 0,
-      tps: [
-        sessionData?.locations || {latitude: 0, longitude: 0, timestamp: 0},
-      ],
+      tps: [sessionData?.locations || { latitude: 0, longitude: 0, timestamp: 0 }],
       time_objective: sessionData?.time_objective || 0,
       distance_objective: sessionData?.distance_objective || 0,
-      run_id: 1
+      run_id: 1,
     };
 
     try {
@@ -145,19 +142,19 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
+          Authorization: `Bearer ${authToken}`,
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       const responseData = await response.json();
       if (!response.ok) throw new Error(`Failed to save session: ${responseData?.message}`);
 
-      setSessionData(prev => {
+      setSessionData((prev) => {
         if (!prev) return null;
         return {
           ...prev,
-          id: responseData.data.insertedId
+          id: responseData.data.insertedId,
         };
       });
     } catch (error) {
@@ -166,33 +163,39 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [sessionData, user, authToken]);
 
-  const updateSessionTitle = useCallback(async (newTitle: string) => {
-    if (!sessionData?.id || !authToken) return;
+  const updateSessionTitle = useCallback(
+    async (newTitle: string) => {
+      if (!sessionData?.id || !authToken) return;
 
-    try {
-      const response = await fetch(`https://node.floway.edgar-lecomte.fr/session/${sessionData.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authToken}`
-        },
-        body: JSON.stringify({ title: newTitle })
-      });
+      try {
+        const response = await fetch(
+          `https://node.floway.edgar-lecomte.fr/session/${sessionData.id}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({ title: newTitle }),
+          },
+        );
 
-      if (!response.ok) throw new Error('Failed to update session title');
+        if (!response.ok) throw new Error('Failed to update session title');
 
-      setSessionData(prev => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          title: newTitle
-        };
-      });
-    } catch (error) {
-      console.error('Error updating session title:', error);
-      throw error;
-    }
-  }, [sessionData?.id, authToken]);
+        setSessionData((prev) => {
+          if (!prev) return null;
+          return {
+            ...prev,
+            title: newTitle,
+          };
+        });
+      } catch (error) {
+        console.error('Error updating session title:', error);
+        throw error;
+      }
+    },
+    [sessionData?.id, authToken],
+  );
 
   const updateLocation = useCallback((location: Location.LocationObject) => {
     setSessionData((prev) => {
@@ -230,7 +233,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         userSessions,
         fetchUserSessions,
         weeklyStats,
-        updateSessionTitle
+        updateSessionTitle,
       }}>
       {children}
     </SessionContext.Provider>
