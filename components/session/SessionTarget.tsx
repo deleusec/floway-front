@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Medium',
     color: Colors.light.white,
     textAlign: 'center',
-    lineHeight: 38,
+    lineHeight: 44,
   },
   separator: {
     fontSize: 38,

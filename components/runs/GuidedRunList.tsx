@@ -126,18 +126,30 @@ export const GuidedRunList: React.FC<GuidedRunListProps> = ({
         contentContainerStyle={{ alignItems: 'center' }}
         showsVerticalScrollIndicator={false}>
         <View style={styles.content}>
-          {runs.map((run) => (
-            <PictureCard
-              isSelected={enableSelection && selectedRun?.id === run.id}
-              key={run.id}
-              title={run.title}
-              image={{ uri: run.image_url }}
-              metrics={[secondsToCompactReadableTime(run.time_objective || 0)]}
-              subtitle={run.description}
-              onPress={() => handleRunSelect(run)}
-              onDelete={() => handleRunDelete(run)}
-            />
-          ))}
+          {runs.map((run) => {
+            const metrics = [];
+
+            if (run.time_objective) {
+              metrics.push(secondsToCompactReadableTime(run.time_objective));
+            }
+
+            if (run.distance_objective) {
+              metrics.push(`${run.distance_objective} km`);
+            }
+
+            return (
+              <PictureCard
+                isSelected={enableSelection && selectedRun?.id === run.id}
+                key={run.id}
+                title={run.title}
+                image={{ uri: run.image_url }}
+                metrics={metrics.length > 0 ? metrics : ['Aucun objectif']}
+                subtitle={run.description}
+                onPress={() => handleRunSelect(run)}
+                onDelete={() => handleRunDelete(run)}
+              />
+            );
+          })}
         </View>
       </ScrollView>
       {shadowBottom && <ShadowBottomSvg style={styles.bottomGradient} />}
