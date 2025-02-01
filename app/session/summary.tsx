@@ -14,14 +14,10 @@ import RouteMap from '@/components/map/map';
 
 export default function SessionSummary() {
   const router = useRouter();
-  const { sessionData, saveSession, updateSessionTitle } = useSessionContext();
+  const { sessionData, updateSessionTitle } = useSessionContext();
   const formattedDate = format(new Date(), "dd/MM/yyyy 'à' HH:mm", { locale: fr });
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [newTitle, setNewTitle] = useState(sessionData?.title || '');
-
-  useEffect(() => {
-    saveSession();
-  }, []);
 
   const handleTitleEdit = () => {
     setIsEditingTitle(true);

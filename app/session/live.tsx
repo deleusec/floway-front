@@ -27,9 +27,11 @@ export default function LiveSession() {
   const [showModal, setShowModal] = useState(false);
   const [isStopCountingDown, setIsStopCountingDown] = useState(false);
   const [playedAudios, setPlayedAudios] = useState<Set<string>>(new Set());
+  const [sessionEnded, setSessionEnded] = useState(false);
 
   const router = useRouter();
-  const { sessionData, startSession, setSessionData, stopLocationTracking } = useSessionContext();
+  const { sessionData, saveSession, startSession, setSessionData, stopLocationTracking } =
+    useSessionContext();
 
   useEffect(() => {
     if (sessionData) {
@@ -163,8 +165,21 @@ export default function LiveSession() {
       });
     }
     stopLocationTracking();
-    router.replace('/session/summary');
+    setSessionEnded(true);
   };
+
+  useEffect(() => {
+    if (sessionEnded && sessionData?.metrics && sessionData?.time) {
+      saveSession()
+        .then(() => {
+          console.log('Session sauvegardée avec succès.');
+          router.push('/session/summary');
+        })
+        .catch((error) => {
+          console.error('Erreur lors de la sauvegarde de la session:', error);
+        });
+    }
+  }, [sessionEnded, sessionData]);
 
   const confirmExit = async () => {
     setShowModal(false);
