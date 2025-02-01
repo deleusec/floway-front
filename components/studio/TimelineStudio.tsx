@@ -145,6 +145,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     height: 40,
     marginTop: 10,
+    paddingHorizontal: 30,
   },
   audioItem: {
     position: 'absolute',

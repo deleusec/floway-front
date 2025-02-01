@@ -45,6 +45,7 @@ export default function Editor() {
   const [modalAudioTitle, setModalAudioTitle] = useState('');
   const [modalAudioStartTime, setModalAudioStartTime] = useState(0);
   const [modalAudioStartDistance, setModalAudioStartDistance] = useState(0);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Gestion des modales
   const [isAudioEditModalVisible, setIsAudioEditModalVisible] = useState(false);
@@ -222,6 +223,16 @@ export default function Editor() {
   };
 
   const confirmAudioEdit = () => {
+    if (goalType === 'Temps' && modalAudioStartTime > goalTime) {
+      setErrorMessage("Le temps de départ de l'audio ne peut pas dépasser l'objectif de temps.");
+      return;
+    }
+    if (goalType === 'Distance' && modalAudioStartDistance > goalDistance) {
+      setErrorMessage(
+        "La distance de départ de l'audio ne peut pas dépasser l'objectif de distance.",
+      );
+      return;
+    }
     setAudioList((prev) =>
       prev.map((audio) =>
         audio.id === selectedAudio?.id
@@ -235,6 +246,7 @@ export default function Editor() {
       ),
     );
     setIsAudioEditModalVisible(false);
+    setErrorMessage('');
   };
 
   const startRecordingProcess = async () => {
@@ -465,7 +477,10 @@ export default function Editor() {
           cancelButton
           confirmButton
           confirmAction={() => confirmAudioEdit()}
-          onClose={() => setIsAudioEditModalVisible(false)}>
+          onClose={() => {
+            setIsAudioEditModalVisible(false);
+            setErrorMessage('');
+          }}>
           <View style={styles.modalContent}>
             <ThemedText type="title" style={styles.modalText}>
               Modifier l’audio
@@ -485,14 +500,17 @@ export default function Editor() {
                   <TimeInputs
                     totalSeconds={modalAudioStartTime}
                     onChange={(seconds) => setModalAudioStartTime(seconds)}
+                    status={errorMessage && goalType === 'Temps' ? 'error' : 'default'}
+                    errorMessage={goalType === 'Temps' ? errorMessage : ''}
                   />
                 ) : (
                   <DistanceInput
                     placeholder="00"
                     unit="km"
-                    status="default"
+                    status={errorMessage && goalType === 'Distance' ? 'error' : 'default'}
                     value={modalAudioStartDistance}
                     onChange={setModalAudioStartDistance}
+                    errorMessage={goalType === 'Distance' ? errorMessage : ''}
                   />
                 )}
               </View>
