@@ -71,7 +71,7 @@ export default function Editor() {
   const { title, description, goalType, goalTime, goalDistance } = studioData;
 
   const openAudioEditModal = (audio: AudioProps) => {
-    if (!selectedAudio) {
+    if (!selectedAudio || selectedAudio.id !== audio.id) {
       setSelectedAudio(audio);
       setModalAudioTitle(audio.title);
       setModalAudioStartTime(audio.start_time ?? 0);
@@ -343,6 +343,26 @@ export default function Editor() {
     }
   };
 
+  const selecteNextAudio = () => {
+    if (!selectedAudio) return;
+    const currentIndex = audioList.findIndex((audio) => audio.id === selectedAudio.id);
+    const nextIndex = currentIndex + 1;
+
+    if (nextIndex < audioList.length) {
+      setSelectedAudio(audioList[nextIndex]);
+    }
+  };
+
+  const selectePreviousAudio = () => {
+    if (!selectedAudio) return;
+    const currentIndex = audioList.findIndex((audio) => audio.id === selectedAudio.id);
+    const previousIndex = currentIndex - 1;
+
+    if (previousIndex >= 0) {
+      setSelectedAudio(audioList[previousIndex]);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Pressable style={styles.container} onPress={() => setSelectedAudio(null)}>
@@ -389,13 +409,13 @@ export default function Editor() {
                 />
               </View>
               <View style={styles.actionBarElement}>
-                <Ionicons name="play-back" size={20} color="white" />
+                <Ionicons name="play-back" size={20} color="white" onPress={selectePreviousAudio} />
                 {playerState === 'playing' ? (
                   <Ionicons name="pause" size={24} color="white" onPress={handlePlayAudio} />
                 ) : (
                   <Ionicons name="play" size={24} color="white" onPress={handlePlayAudio} />
                 )}
-                <Ionicons name="play-forward" size={20} color="white" />
+                <Ionicons name="play-forward" size={20} color="white" onPress={selecteNextAudio} />
               </View>
               <View style={styles.actionBarElement}>
                 <Ionicons name="mic" size={20} color="white" onPress={startRecordingProcess} />

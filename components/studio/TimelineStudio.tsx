@@ -53,6 +53,7 @@ const TimelineStudio = ({
     }
   };
 
+
   return (
     <ScrollView horizontal style={styles.editorContainer} showsHorizontalScrollIndicator={false}>
       <Pressable style={styles.timelineContainer} onPress={handleDeselectAudio}>
