@@ -4,7 +4,7 @@ import { Colors } from '@/constants/Colors';
 import { useStudioContext } from '@/context/StudioContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView, ScrollView, StyleSheet, Text, View, Pressable } from 'react-native';
 import ThemedButton from '@/components/button/ThemedButton';
 import CustomModal from '@/components/modal/CustomModal';
 import TextInputField from '@/components/input/TextInputField';
@@ -18,7 +18,8 @@ import AudioListStudio from '@/components/studio/AudioListStudio';
 import useAudioPermissions from '@/hooks/useAudioPermissions';
 import { importAudioFile, uploadAudioFile } from '@/utils/audioUtils';
 import { router } from 'expo-router';
-import Tooltip from "@/components/Tooltip";
+import Tooltip from '@/components/Tooltip';
+import TimelineStudio from '@/components/studio/TimelineStudio';
 
 interface AudioProps {
   id: number;
@@ -70,10 +71,14 @@ export default function Editor() {
   const { title, description, goalType, goalTime, goalDistance } = studioData;
 
   const openAudioEditModal = (audio: AudioProps) => {
-    setSelectedAudio(audio);
-    setModalAudioTitle(audio.title);
-    setModalAudioStartTime(audio.start_time ?? 0);
-    setModalAudioStartDistance(audio.start_distance ?? 0);
+    if (!selectedAudio) {
+      setSelectedAudio(audio);
+      setModalAudioTitle(audio.title);
+      setModalAudioStartTime(audio.start_time ?? 0);
+      setModalAudioStartDistance(audio.start_distance ?? 0);
+    } else {
+      setSelectedAudio(null);
+    }
   };
 
   const handleImportAudioFile = async () => {
@@ -301,7 +306,7 @@ export default function Editor() {
   }, [currentAudioPlayer]);
   const handlePlayAudio = async () => {
     if (!selectedAudio || !selectedAudio.localPath) {
-      console.log("Aucun audio sélectionné ou chemin introuvable");
+      console.log('Aucun audio sélectionné ou chemin introuvable');
       return;
     }
 
@@ -340,191 +345,198 @@ export default function Editor() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.mainContent}>
-        <View style={styles.header}>
-          <View>
-            <BackButton />
+      <Pressable style={styles.container} onPress={() => setSelectedAudio(null)}>
+        <View style={styles.mainContent}>
+          <View style={styles.header}>
+            <View>
+              <BackButton />
+            </View>
+            <Tooltip
+              message="Une run guidée est une session audio motivante avec un objectif de temps ou de distance prédéfini."
+              title="Run guidée"
+              position="right"
+            />
           </View>
-          <Tooltip
-            message="Une run guidée est une session audio motivante avec un objectif de temps ou de distance prédéfini."
-            title="Run guidée"
-            position="right"
+
+          {/* Audio list */}
+          <ThemedText type="title" style={{ paddingHorizontal: 24 }}>
+            Mes audios
+          </ThemedText>
+          <AudioListSection
+            audioList={audioList}
+            selectedAudio={selectedAudio}
+            openAudioEditModal={openAudioEditModal}
+            goalType={goalType}
           />
         </View>
-
-        {/* Audio list */}
-        <ThemedText type="title" style={{ paddingHorizontal: 24 }}>
-          Mes audios
-        </ThemedText>
-        <AudioListSection
-          audioList={audioList}
-          selectedAudio={selectedAudio}
-          openAudioEditModal={openAudioEditModal}
-          goalType={goalType}
-        />
-      </View>
-      <View style={styles.timelineSection}>
-        <View style={styles.actionBarContainer}>
-          <View style={styles.actionBar}>
-            <View style={styles.actionBarElement}>
-              <Ionicons
-                name="trash"
-                size={20}
-                color="white"
-                style={[selectedAudio === null && { opacity: 0.4 }]}
-                onPress={() => setIsDeleteAudioModalVisible(true)}
-              />
-              <Ionicons
-                name="create"
-                size={20}
-                color="white"
-                style={[selectedAudio === null && { opacity: 0.4 }]}
-                onPress={() => setIsAudioEditModalVisible(true)}
-              />
-            </View>
-            <View style={styles.actionBarElement}>
-              <Ionicons name="play-back" size={20} color="white" />
-              {playerState === 'playing' ? (
+        <View style={styles.timelineSection}>
+          <View style={styles.actionBarContainer}>
+            <View style={styles.actionBar}>
+              <View style={styles.actionBarElement}>
                 <Ionicons
-                  name="pause"
-                  size={24}
+                  name="trash"
+                  size={20}
                   color="white"
-                  onPress={handlePlayAudio}
+                  style={[selectedAudio === null && { opacity: 0.4 }]}
+                  onPress={() => setIsDeleteAudioModalVisible(true)}
                 />
-              ) : (
                 <Ionicons
-                  name="play"
-                  size={24}
+                  name="create"
+                  size={20}
                   color="white"
-                  onPress={handlePlayAudio}
+                  style={[selectedAudio === null && { opacity: 0.4 }]}
+                  onPress={() => setIsAudioEditModalVisible(true)}
                 />
-              )}
-              <Ionicons name="play-forward" size={20} color="white" />
+              </View>
+              <View style={styles.actionBarElement}>
+                <Ionicons name="play-back" size={20} color="white" />
+                {playerState === 'playing' ? (
+                  <Ionicons name="pause" size={24} color="white" onPress={handlePlayAudio} />
+                ) : (
+                  <Ionicons name="play" size={24} color="white" onPress={handlePlayAudio} />
+                )}
+                <Ionicons name="play-forward" size={20} color="white" />
+              </View>
+              <View style={styles.actionBarElement}>
+                <Ionicons name="mic" size={20} color="white" onPress={startRecordingProcess} />
+                <Ionicons
+                  name="file-tray"
+                  size={20}
+                  color="white"
+                  onPress={handleImportAudioFile}
+                />
+              </View>
             </View>
-            <View style={styles.actionBarElement}>
-              <Ionicons name="mic" size={20} color="white" onPress={startRecordingProcess} />
-              <Ionicons name="file-tray" size={20} color="white" onPress={handleImportAudioFile} />
-            </View>
           </View>
-        </View>
 
-        <View style={styles.footer}>
-          <View style={styles.footerButtonWrapper}>
-            <ThemedButton
-              title="Sauvegarder"
-              buttonSize="medium"
-              buttonType="confirm"
-              buttonState="default"
-              onPress={() => handleSubmit()}
-            />
-          </View>
-        </View>
-      </View>
+          {/* Timeline */}
+          <TimelineStudio
+            goalTime={goalTime}
+            goalDistance={goalDistance}
+            audioList={audioList}
+            goalType={goalType}
+            selectedAudio={selectedAudio}
+            onSelectAudio={setSelectedAudio}
+          />
 
-      <CustomModal
-        visible={isAudioEditModalVisible}
-        cancelButton
-        confirmButton
-        confirmAction={() => confirmAudioEdit()}
-        onClose={() => setIsAudioEditModalVisible(false)}>
-        <View style={styles.modalContent}>
-          <ThemedText type="title" style={styles.modalText}>
-            Modifier l’audio
-          </ThemedText>
-          <View style={styles.modalInputGroup}>
-            <ThemedText type="default">Titre</ThemedText>
-            <TextInputField
-              placeholder="Titre de l’audio"
-              value={modalAudioTitle}
-              onChange={setModalAudioTitle}
-            />
-          </View>
-          <View style={styles.modalInputGroup}>
-            <ThemedText type="default">Lancement de l'audio à</ThemedText>
-            <View style={styles.timeInputFields}>
-              {goalType === 'Temps' ? (
-                <TimeInputs
-                  totalSeconds={modalAudioStartTime}
-                  onChange={(seconds) => setModalAudioStartTime(seconds)}
-                />
-              ) : (
-                <DistanceInput
-                  placeholder="00"
-                  unit="km"
-                  status="default"
-                  value={modalAudioStartDistance}
-                  onChange={setModalAudioStartDistance}
-                />
-              )}
+          <View style={styles.footer}>
+            <View style={styles.footerButtonWrapper}>
+              <ThemedButton
+                title="Sauvegarder"
+                buttonSize="medium"
+                buttonType="confirm"
+                buttonState="default"
+                onPress={() => handleSubmit()}
+              />
             </View>
           </View>
         </View>
-      </CustomModal>
 
-      <CustomModal
-        visible={isDeleteAudioModalVisible}
-        cancelButton
-        confirmButton
-        confirmAction={() => handleDeleteAudio()}
-        onClose={() => setIsDeleteAudioModalVisible(false)}>
-        <View style={styles.modalContent}>
-          <ThemedText type="default" style={styles.modalText}>
-            Etes-vous sûr de vouloir supprimer cet audio ?
-          </ThemedText>
-        </View>
-      </CustomModal>
-
-      {/* Modale d'enregistrement */}
-      <CustomModal
-        visible={isRecordingModalVisible}
-        cancelButton
-        confirmButton
-        confirmAction={handleConfirm}
-        onClose={() => {
-          handleCancel();
-        }}>
-        <View style={styles.recordingContainer}>
-          <View style={styles.recordingHeader}>
-            <Text style={styles.recIndicator}>
-              <View style={styles.recDot} /> REC
-            </Text>
-            <Text style={styles.timer}>
-              {`00:${recordingDuration < 10 ? '0' : ''}${recordingDuration}`}
-            </Text>
-          </View>
-
-          {/* Placeholder pour les ondes sonores */}
-          <View style={styles.waveform}>
-            <ScrollView
-              ref={waveformScrollRef} // Lier la référence
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              style={{ width: '100%', height: '100%' }}>
-              <Animated.View
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  gap: 2,
-                  justifyContent: 'flex-start',
-                  alignItems: 'center',
-                }}>
-                {waveLevels.map((level, index) => (
-                  <Animated.View
-                    key={index}
-                    style={{
-                      height: Math.max(level, 10),
-                      width: 1,
-                      backgroundColor: 'white',
-                      borderRadius: 2,
-                      marginHorizontal: 1,
-                    }}
+        <CustomModal
+          visible={isAudioEditModalVisible}
+          cancelButton
+          confirmButton
+          confirmAction={() => confirmAudioEdit()}
+          onClose={() => setIsAudioEditModalVisible(false)}>
+          <View style={styles.modalContent}>
+            <ThemedText type="title" style={styles.modalText}>
+              Modifier l’audio
+            </ThemedText>
+            <View style={styles.modalInputGroup}>
+              <ThemedText type="default">Titre</ThemedText>
+              <TextInputField
+                placeholder="Titre de l’audio"
+                value={modalAudioTitle}
+                onChange={setModalAudioTitle}
+              />
+            </View>
+            <View style={styles.modalInputGroup}>
+              <ThemedText type="default">Lancement de l'audio à</ThemedText>
+              <View style={styles.timeInputFields}>
+                {goalType === 'Temps' ? (
+                  <TimeInputs
+                    totalSeconds={modalAudioStartTime}
+                    onChange={(seconds) => setModalAudioStartTime(seconds)}
                   />
-                ))}
-              </Animated.View>
-            </ScrollView>
+                ) : (
+                  <DistanceInput
+                    placeholder="00"
+                    unit="km"
+                    status="default"
+                    value={modalAudioStartDistance}
+                    onChange={setModalAudioStartDistance}
+                  />
+                )}
+              </View>
+            </View>
           </View>
-        </View>
-      </CustomModal>
+        </CustomModal>
+
+        <CustomModal
+          visible={isDeleteAudioModalVisible}
+          cancelButton
+          confirmButton
+          confirmAction={() => handleDeleteAudio()}
+          onClose={() => setIsDeleteAudioModalVisible(false)}>
+          <View style={styles.modalContent}>
+            <ThemedText type="default" style={styles.modalText}>
+              Etes-vous sûr de vouloir supprimer cet audio ?
+            </ThemedText>
+          </View>
+        </CustomModal>
+
+        {/* Modale d'enregistrement */}
+        <CustomModal
+          visible={isRecordingModalVisible}
+          cancelButton
+          confirmButton
+          confirmAction={handleConfirm}
+          onClose={() => {
+            handleCancel();
+          }}>
+          <View style={styles.recordingContainer}>
+            <View style={styles.recordingHeader}>
+              <Text style={styles.recIndicator}>
+                <View style={styles.recDot} /> REC
+              </Text>
+              <Text style={styles.timer}>
+                {`00:${recordingDuration < 10 ? '0' : ''}${recordingDuration}`}
+              </Text>
+            </View>
+
+            {/* Placeholder pour les ondes sonores */}
+            <View style={styles.waveform}>
+              <ScrollView
+                ref={waveformScrollRef} // Lier la référence
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={{ width: '100%', height: '100%' }}>
+                <Animated.View
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: 2,
+                    justifyContent: 'flex-start',
+                    alignItems: 'center',
+                  }}>
+                  {waveLevels.map((level, index) => (
+                    <Animated.View
+                      key={index}
+                      style={{
+                        height: Math.max(level, 10),
+                        width: 1,
+                        backgroundColor: 'white',
+                        borderRadius: 2,
+                        marginHorizontal: 1,
+                      }}
+                    />
+                  ))}
+                </Animated.View>
+              </ScrollView>
+            </View>
+          </View>
+        </CustomModal>
+      </Pressable>
     </SafeAreaView>
   );
 }
@@ -611,6 +623,13 @@ const styles = StyleSheet.create({
     flex: 3,
     justifyContent: 'flex-start',
     backgroundColor: Colors.dark.primaryDark,
+  },
+  timelineContainer: {
+    flexGrow: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    marginBottom: 80,
+    backgroundColor: Colors.dark.primary,
   },
   actionBarContainer: {
     paddingHorizontal: 24,

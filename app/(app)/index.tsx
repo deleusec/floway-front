@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
   // Stats section styles
   statsSection: {
     backgroundColor: Colors.dark.secondaryDark,
-    borderRadius: 12,
+    borderRadius: 16,
     padding: 14,
     marginBottom: 24,
   },
