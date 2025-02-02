@@ -211,27 +211,26 @@ export default function LiveSession() {
       onStopPress={onStopPress}
       onStopCountdownChange={setIsStopCountingDown}
       location={sessionData?.locations?.[sessionData.locations.length - 1]}>
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.container}>
-          {/* Timer */}
-          <TimeDisplay time={totalSeconds} />
+       <View style={styles.container}>
+      {/* Timer */}
+      <TimeDisplay time={totalSeconds} />
 
-          {/* Metrics */}
-          <SessionMetrics distance={distance} pace={pace} calories={calories} />
+      {/* Metrics */}
+      <SessionMetrics distance={distance} pace={pace} calories={calories} />
 
-          {/* Session Target */}
-          {(sessionData?.type === 'time' || sessionData?.type === 'distance') && (
-            <View style={styles.targetSection}>
-              <ThemedText style={styles.targetLabel}>Objectif de la session</ThemedText>
-              <View style={styles.targetBox}>
-                <SessionTarget
-                  type={sessionData.type}
-                  timeObjective={sessionData.time_objective}
-                  distanceObjective={sessionData.distance_objective}
-                />
-              </View>
-            </View>
-          )}
+      {/* Session Target */}
+      {(sessionData?.type === 'time' || sessionData?.type === 'distance') && (
+        <View style={styles.targetSection}>
+          <ThemedText style={styles.targetLabel}>Objectif de la session</ThemedText>
+          <View style={styles.targetBox}>
+            <SessionTarget
+              type={sessionData.type}
+              timeObjective={sessionData.time_objective}
+              distanceObjective={sessionData.distance_objective}
+            />
+          </View>
+        </View>
+      )}
 
           {/* Guided Run */}
           {sessionData?.run && (
@@ -267,19 +266,14 @@ export default function LiveSession() {
             </ThemedText>
           </CustomModal>
         </View>
-      </SafeAreaView>
     </SessionContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Colors.dark.primaryDark,
-  },
   container: {
     flex: 1,
-    padding: 24,
+    backgroundColor: Colors.dark.primaryDark, // Ajout du background ici
   },
   targetSection: {
     marginVertical: 16,

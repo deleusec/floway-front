@@ -1,12 +1,10 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { View, Animated, PanResponder, StyleSheet, Dimensions } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { View, Animated, PanResponder, StyleSheet, Dimensions, SafeAreaView } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import { Colors } from '@/constants/Colors';
 import SessionControls from './SessionControls';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 const { height } = Dimensions.get('window');
-const COLLAPSED_HEIGHT = height; // Mode normal (aucune carte visible)
-const EXPANDED_HEIGHT = height * 0.6; // Mode pause (écran divisé en 2 avec carte visible en haut)
 
 interface SessionContainerProps {
   children: React.ReactNode;
@@ -16,21 +14,19 @@ interface SessionContainerProps {
   location?: { latitude: number; longitude: number };
   onStopCountdownChange: (isPlaying: boolean) => void;
 }
-
 const SessionContainer = ({
   children,
   isPlaying,
   setIsPlaying,
   onStopPress,
-  onStopCountdownChange,
   location,
+  onStopCountdownChange,
 }: SessionContainerProps) => {
-  const translateY = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Dès qu'on met en pause, la carte apparaît en haut
-    Animated.spring(translateY, {
-      toValue: isPlaying ? 0 : -EXPANDED_HEIGHT + COLLAPSED_HEIGHT,
+    Animated.spring(slideAnim, {
+      toValue: isPlaying ? -height * 0.4 : 0,
       useNativeDriver: true,
     }).start();
   }, [isPlaying]);
@@ -40,38 +36,49 @@ const SessionContainer = ({
     onMoveShouldSetPanResponder: () => true,
     onPanResponderMove: (_, gestureState) => {
       if (gestureState.dy > 50 && isPlaying) {
-        setIsPlaying(false); // Swipe vers le bas → Pause
+        setIsPlaying(false);
       } else if (gestureState.dy < -50 && !isPlaying) {
-        setIsPlaying(true); // Swipe vers le haut → Reprise
+        setIsPlaying(true);
       }
     },
   });
+
   return (
     <View style={styles.container}>
-      {/* Carte affichée en haut quand on met en pause */}
-      <Animated.View style={[styles.mapContainer, { transform: [{ translateY }] }]}>
-        <MapView
-          style={styles.map}
-          initialRegion={{
-            latitude: location?.latitude || 48.8566,
-            longitude: location?.longitude || 2.3522,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          }}>
-          {location && <Marker coordinate={location} />}
-        </MapView>
-      </Animated.View>
-
-      {/* Contenu principal */}
       <Animated.View
-        style={[styles.sessionContent, { transform: [{ translateY }] }]}
-        {...panResponder.panHandlers}>
-        {children}
+        style={[
+          styles.mainContent,
+          {
+            transform: [{ translateY: slideAnim }],
+          },
+        ]}>
+        {/* Section carte */}
+        <View style={styles.mapSection}>
+          {location && (
+            <MapView
+              style={styles.map}
+              initialRegion={{
+                latitude: location.latitude,
+                longitude: location.longitude,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
+              }}>
+              <Marker coordinate={location} />
+            </MapView>
+          )}
+        </View>
+
+        {/* Section métrique */}
+        <View {...panResponder.panHandlers} style={styles.metricsSection}>
+          <SafeAreaView style={styles.safeArea}>
+            <View style={[styles.metricsContent, isPlaying && styles.metricsContentPadding]}>
+              {children}
+            </View>
+          </SafeAreaView>
+        </View>
       </Animated.View>
 
-      {/* Boutons toujours visibles */}
       <View style={styles.controlsContainer}>
-        {/* Controls */}
         <SessionControls
           isRunning={isPlaying}
           onPausePress={() => setIsPlaying(!isPlaying)}
@@ -86,23 +93,30 @@ const SessionContainer = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.dark.primaryDark,
   },
-  mapContainer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: EXPANDED_HEIGHT,
+  mainContent: {
+    height: height * 1.5,
+    backgroundColor: Colors.dark.primaryDark,
+  },
+  mapSection: {
+    height: height * 0.4,
+    backgroundColor: Colors.dark.secondaryDark,
   },
   map: {
-    flex: 1,
+    width: '100%',
+    height: '100%',
   },
-  sessionContent: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: COLLAPSED_HEIGHT,
+  metricsSection: {
+    flex: 1,
+    backgroundColor: Colors.dark.primaryDark,
+  },
+  safeArea: {
+    flex: 1,
+    backgroundColor: Colors.dark.primaryDark,
+  },
+  metricsContent: {
+    flex: 1,
     backgroundColor: Colors.dark.primaryDark,
   },
   controlsContainer: {
@@ -113,5 +127,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-
 export default SessionContainer;
