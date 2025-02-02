@@ -3,6 +3,7 @@ import { View, Animated, PanResponder, StyleSheet, Dimensions, SafeAreaView } fr
 import MapView, { Marker } from 'react-native-maps';
 import SessionControls from './SessionControls';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import StartPointMapSvg from '@/assets/icons/start_point_map.svg';
 
 const { height } = Dimensions.get('window');
 
@@ -14,6 +15,7 @@ interface SessionContainerProps {
   location?: { latitude: number; longitude: number };
   onStopCountdownChange: (isPlaying: boolean) => void;
 }
+
 const SessionContainer = ({
   children,
   isPlaying,
@@ -22,14 +24,31 @@ const SessionContainer = ({
   location,
   onStopCountdownChange,
 }: SessionContainerProps) => {
-  const slideAnim = useRef(new Animated.Value(0)).current;
+  const slideAnimation = useRef(new Animated.Value(0)).current;
+  const mapRef = useRef<MapView>(null);
 
   useEffect(() => {
-    Animated.spring(slideAnim, {
+    Animated.spring(slideAnimation, {
       toValue: isPlaying ? -height * 0.4 : 0,
       useNativeDriver: true,
     }).start();
   }, [isPlaying]);
+
+  useEffect(() => {
+    if (location && mapRef.current) {
+      setTimeout(() => {
+        mapRef.current?.animateToRegion(
+          {
+            latitude: location.latitude,
+            longitude: location.longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          },
+          1000
+        );
+      }, 500);
+    }
+  }, [location]);
 
   const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true,
@@ -45,40 +64,39 @@ const SessionContainer = ({
 
   return (
     <View style={styles.container}>
-      <Animated.View
-        style={[
-          styles.mainContent,
-          {
-            transform: [{ translateY: slideAnim }],
-          },
-        ]}>
-        {/* Section carte */}
-        <View style={styles.mapSection}>
-          {location && (
-            <MapView
-              style={styles.map}
-              initialRegion={{
-                latitude: location.latitude,
-                longitude: location.longitude,
-                latitudeDelta: 0.0922,
-                longitudeDelta: 0.0421,
-              }}>
-              <Marker coordinate={location} />
-            </MapView>
-          )}
-        </View>
+      <View style={styles.mapContainer}>
+        {location && (
+          <MapView
+            ref={mapRef}
+            style={styles.map}
+            customMapStyle={mapDarkStyle}
+            initialRegion={{
+              latitude: location.latitude,
+              longitude: location.longitude,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            }}
+          >
+            <Marker coordinate={location}>
+              <View style={styles.markerWrapper}>
+                <StartPointMapSvg width={32} height={32} />
+              </View>
+            </Marker>
+          </MapView>
+        )}
+      </View>
 
-        {/* Section métrique */}
-        <View {...panResponder.panHandlers} style={styles.metricsSection}>
+      <Animated.View
+        style={[styles.contentContainer, { transform: [{ translateY: slideAnimation }] }]}
+      >
+        <View {...panResponder.panHandlers} style={styles.gestureContainer}>
           <SafeAreaView style={styles.safeArea}>
-            <View style={[styles.metricsContent, isPlaying && styles.metricsContentPadding]}>
-              {children}
-            </View>
+            <View style={styles.metricsContent}>{children}</View>
           </SafeAreaView>
         </View>
       </Animated.View>
 
-      <View style={styles.controlsContainer}>
+      <View style={styles.controlsWrapper}>
         <SessionControls
           isRunning={isPlaying}
           onPausePress={() => setIsPlaying(!isPlaying)}
@@ -95,11 +113,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.dark.primaryDark,
   },
-  mainContent: {
-    height: height * 1.5,
-    backgroundColor: Colors.dark.primaryDark,
-  },
-  mapSection: {
+  mapContainer: {
     height: height * 0.4,
     backgroundColor: Colors.dark.secondaryDark,
   },
@@ -107,7 +121,11 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  metricsSection: {
+  contentContainer: {
+    height: height * 1.5,
+    backgroundColor: Colors.dark.primaryDark,
+  },
+  gestureContainer: {
     flex: 1,
     backgroundColor: Colors.dark.primaryDark,
   },
@@ -119,12 +137,28 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.dark.primaryDark,
   },
-  controlsContainer: {
+  controlsWrapper: {
     position: 'absolute',
     bottom: 48,
     left: 0,
     right: 0,
     alignItems: 'center',
   },
+  markerWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 30,
+    height: 30,
+  },
 });
+
+const mapDarkStyle = [
+  { elementType: 'geometry', stylers: [{ color: '#212121' }] },
+  { elementType: 'labels.text.stroke', stylers: [{ color: '#212121' }] },
+  { elementType: 'labels.text.fill', stylers: [{ color: '#757575' }] },
+  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#38414e' }] },
+  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#212a37' }] },
+  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0f172a' }] },
+];
+
 export default SessionContainer;
