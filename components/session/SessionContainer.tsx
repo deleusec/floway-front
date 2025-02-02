@@ -44,7 +44,7 @@ const SessionContainer = ({
             latitudeDelta: 0.01,
             longitudeDelta: 0.01,
           },
-          1000
+          1000,
         );
       }, 500);
     }
@@ -63,59 +63,61 @@ const SessionContainer = ({
   });
 
   return (
-    <View style={styles.container}>
-      <View style={styles.mapContainer}>
-        {location && (
-          <MapView
-            ref={mapRef}
-            style={styles.map}
-            customMapStyle={mapDarkStyle}
-            initialRegion={{
-              latitude: location.latitude,
-              longitude: location.longitude,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
-            }}
-          >
-            <Marker coordinate={location}>
-              <View style={styles.markerWrapper}>
-                <StartPointMapSvg width={32} height={32} />
-              </View>
-            </Marker>
-          </MapView>
-        )}
-      </View>
-
-      <Animated.View
-        style={[styles.contentContainer, { transform: [{ translateY: slideAnimation }] }]}
-      >
-        <View {...panResponder.panHandlers} style={styles.gestureContainer}>
-          <SafeAreaView style={styles.safeArea}>
-            <View style={styles.metricsContent}>{children}</View>
-          </SafeAreaView>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.mapContainer}>
+          {location && (
+            <MapView
+              ref={mapRef}
+              style={styles.map}
+              customMapStyle={mapDarkStyle}
+              initialRegion={{
+                latitude: location.latitude,
+                longitude: location.longitude,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
+              }}>
+              <Marker coordinate={location}>
+                <View style={styles.markerWrapper}>
+                  <StartPointMapSvg width={32} height={32} />
+                </View>
+              </Marker>
+            </MapView>
+          )}
         </View>
-      </Animated.View>
 
-      <View style={styles.controlsWrapper}>
-        <SessionControls
-          isRunning={isPlaying}
-          onPausePress={() => setIsPlaying(!isPlaying)}
-          onStopPress={onStopPress}
-          onStopCountdownChange={onStopCountdownChange}
-        />
+        <Animated.View
+          style={[styles.contentContainer, { transform: [{ translateY: slideAnimation }] }]}>
+          <View {...panResponder.panHandlers} style={styles.gestureContainer}>
+            <View style={styles.metricsContent}>{children}</View>
+          </View>
+        </Animated.View>
+
+        <View style={styles.controlsWrapper}>
+          <SessionControls
+            isRunning={isPlaying}
+            onPausePress={() => setIsPlaying(!isPlaying)}
+            onStopPress={onStopPress}
+            onStopCountdownChange={onStopCountdownChange}
+          />
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
+  },
+  mapWrapper: {
     backgroundColor: Colors.dark.primaryDark,
   },
   mapContainer: {
     height: height * 0.4,
-    backgroundColor: Colors.dark.secondaryDark,
   },
   map: {
     width: '100%',
@@ -124,18 +126,19 @@ const styles = StyleSheet.create({
   contentContainer: {
     height: height * 1.5,
     backgroundColor: Colors.dark.primaryDark,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    overflow: 'hidden',
+    marginTop: -20,
   },
   gestureContainer: {
     flex: 1,
-    backgroundColor: Colors.dark.primaryDark,
-  },
-  safeArea: {
-    flex: 1,
-    backgroundColor: Colors.dark.primaryDark,
   },
   metricsContent: {
     flex: 1,
-    backgroundColor: Colors.dark.primaryDark,
+  },
+  metricsWrapper: {
+    flex: 1,
   },
   controlsWrapper: {
     position: 'absolute',

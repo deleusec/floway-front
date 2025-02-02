@@ -211,61 +211,63 @@ export default function LiveSession() {
       onStopPress={onStopPress}
       onStopCountdownChange={setIsStopCountingDown}
       location={sessionData?.locations?.[sessionData.locations.length - 1]}>
-       <View style={styles.container}>
-      {/* Timer */}
-      <TimeDisplay time={totalSeconds} />
+      <View style={styles.container}>
+        {/* Slide bar */}
+        <View style={[styles.slideBar, { marginTop: isPlaying ? 48 : 24 }]} />
+        {/* Timer */}
+        <TimeDisplay time={totalSeconds} />
 
-      {/* Metrics */}
-      <SessionMetrics distance={distance} pace={pace} calories={calories} />
+        {/* Metrics */}
+        <SessionMetrics distance={distance} pace={pace} calories={calories} />
 
-      {/* Session Target */}
-      {(sessionData?.type === 'time' || sessionData?.type === 'distance') && (
-        <View style={styles.targetSection}>
-          <ThemedText style={styles.targetLabel}>Objectif de la session</ThemedText>
-          <View style={styles.targetBox}>
-            <SessionTarget
-              type={sessionData.type}
-              timeObjective={sessionData.time_objective}
-              distanceObjective={sessionData.distance_objective}
-            />
-          </View>
-        </View>
-      )}
-
-          {/* Guided Run */}
-          {sessionData?.run && (
-            <View style={styles.targetSection}>
-              <ThemedText style={styles.targetLabel}>Course guidée</ThemedText>
-
-              <PictureCard
-                key={sessionData?.run.run.id}
-                title={sessionData?.run.run.title}
-                image={{ uri: 'https://picsum.photos/200' }}
-                metrics={
-                  sessionData?.run.run.distance_objective
-                    ? [`${sessionData?.run.run.distance_objective} km`]
-                    : [secondsToCompactReadableTime(sessionData?.run.run.time_objective || 0)]
-                }
-                subtitle={sessionData?.run.run.description}
-                onPress={() => {}}
+        {/* Session Target */}
+        {(sessionData?.type === 'time' || sessionData?.type === 'distance') && (
+          <View style={styles.targetSection}>
+            <ThemedText style={styles.targetLabel}>Objectif de la session</ThemedText>
+            <View style={styles.targetBox}>
+              <SessionTarget
+                type={sessionData.type}
+                timeObjective={sessionData.time_objective}
+                distanceObjective={sessionData.distance_objective}
               />
             </View>
-          )}
+          </View>
+        )}
 
-          {/* Modal de confirmation */}
-          <CustomModal
-            visible={showModal}
-            onClose={cancelExit}
-            header={<ThemedText style={styles.modalHeader}>Quitter la session ?</ThemedText>}
-            cancelButton={true}
-            confirmButton={true}
-            cancelAction={cancelExit}
-            confirmAction={confirmExit}>
-            <ThemedText style={styles.modalBody}>
-              Êtes-vous sûr de vouloir arrêter la session ? Les données actuelles seront perdues.
-            </ThemedText>
-          </CustomModal>
-        </View>
+        {/* Guided Run */}
+        {sessionData?.run && (
+          <View style={styles.targetSection}>
+            <ThemedText style={styles.targetLabel}>Course guidée</ThemedText>
+
+            <PictureCard
+              key={sessionData?.run.run.id}
+              title={sessionData?.run.run.title}
+              image={{ uri: 'https://picsum.photos/200' }}
+              metrics={
+                sessionData?.run.run.distance_objective
+                  ? [`${sessionData?.run.run.distance_objective} km`]
+                  : [secondsToCompactReadableTime(sessionData?.run.run.time_objective || 0)]
+              }
+              subtitle={sessionData?.run.run.description}
+              onPress={() => {}}
+            />
+          </View>
+        )}
+
+        {/* Modal de confirmation */}
+        <CustomModal
+          visible={showModal}
+          onClose={cancelExit}
+          header={<ThemedText style={styles.modalHeader}>Quitter la session ?</ThemedText>}
+          cancelButton={true}
+          confirmButton={true}
+          cancelAction={cancelExit}
+          confirmAction={confirmExit}>
+          <ThemedText style={styles.modalBody}>
+            Êtes-vous sûr de vouloir arrêter la session ? Les données actuelles seront perdues.
+          </ThemedText>
+        </CustomModal>
+      </View>
     </SessionContainer>
   );
 }
@@ -273,7 +275,16 @@ export default function LiveSession() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.dark.primaryDark, // Ajout du background ici
+    backgroundColor: Colors.dark.primaryDark,
+    paddingHorizontal: 16,
+  },
+  slideBar: {
+    width: 150,
+    height: 2,
+    backgroundColor: Colors.dark.secondaryDark,
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginVertical: 24,
   },
   targetSection: {
     marginVertical: 16,
