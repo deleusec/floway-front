@@ -53,7 +53,6 @@ export default function TimeInputs({
     if (value === '') {
       setter('0');
     }
-
     updateTotalSeconds(
       field === 'hours' ? value : hours,
       field === 'minutes' ? value : minutes,
@@ -78,6 +77,12 @@ export default function TimeInputs({
     if (cleanValue.length === 2 && nextRef?.current) {
       nextRef.current.focus();
     }
+
+    updateTotalSeconds(
+      field === 'hours' ? cleanValue : hours,
+      field === 'minutes' ? cleanValue : minutes,
+      field === 'seconds' ? cleanValue : seconds,
+    );
   };
 
   const containerStyles = (field: 'hours' | 'minutes' | 'seconds') => [
