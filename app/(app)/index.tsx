@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
+import {View, Text, StyleSheet, Image, ScrollView, ActivityIndicator} from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { PictureCard } from '@/components/cards/ThemedPictureCard';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,7 +13,7 @@ export default function HomeScreen() {
   const { user, authToken } = useAuth();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const { signOut } = useAuth();
-  const { userSessions, fetchUserSessions, weeklyStats } = useSessionContext();
+  const { userSessions, fetchUserSessions, weeklyStats, isLoading } = useSessionContext();
 
   useEffect(() => {
     if (user?.id && authToken) {
@@ -84,20 +84,22 @@ export default function HomeScreen() {
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.scrollContent}
               style={styles.scrollView}>
-              {userSessions.length === 0 ? (
+              {isLoading ? (
+                <View style={styles.placeholder}>
+                  <ActivityIndicator size="large" color={Colors.light.white} />
+                </View>
+              ) : userSessions.length === 0 ? (
                 <View style={styles.placeholder}>
                   <Text style={styles.placeholderText}>
-                    Vous n’avez pas encore lancer une course.
-                    Cliquez sur le bouton “play” pour lancer une course !
+                    Vous n'avez pas encore lancé une course.
+                    Cliquez sur le bouton "play" pour lancer une course !
                   </Text>
                 </View>
               ) : (
                 userSessions.map((session) => (
                   <PictureCard
                     key={session._id}
-                    title={
-                      session.title
-                    }
+                    title={session.title}
                     metrics={[
                       secondsToCompactReadableTime(session.time),
                       `${session.calories}kcal`,

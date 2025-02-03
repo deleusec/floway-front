@@ -74,6 +74,7 @@ export interface SessionContextType {
   fetchUserSessions: (userId: number, token: string) => Promise<void>;
   weeklyStats: WeeklyStats;
   updateSessionTitle: (newTitle: string) => Promise<void>;
+  isLoading: boolean;
 }
 
 export interface SessionPayload {

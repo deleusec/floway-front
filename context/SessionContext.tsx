@@ -22,6 +22,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const locationSubscription = useRef<Location.LocationSubscription | null>(null);
   const [userSessions, setUserSessions] = useState<Session[]>([]);
   const { user, authToken } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
 
   const weeklyStats = useMemo(
     () => ({
@@ -33,6 +34,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   );
 
   const fetchUserSessions = useCallback(async (userId: number, token: string) => {
+    setIsLoading(true);
     try {
       const fromDate = formatDate(getLastWeekDate());
       const toDate = formatDate(new Date());
@@ -53,6 +55,8 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     } catch (error) {
       console.error('Error fetching sessions:', error);
       setUserSessions([]);
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -234,6 +238,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         fetchUserSessions,
         weeklyStats,
         updateSessionTitle,
+        isLoading
       }}>
       {children}
     </SessionContext.Provider>
