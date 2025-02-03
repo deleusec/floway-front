@@ -10,6 +10,7 @@ import { useStudioContext } from '@/context/StudioContext';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,

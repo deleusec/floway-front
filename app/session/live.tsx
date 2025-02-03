@@ -226,9 +226,6 @@ export default function LiveSession() {
       onStopPress={onStopPress}
       onStopCountdownChange={setIsStopCountingDown}
       location={sessionData?.locations?.[sessionData.locations.length - 1]}>
-      <View style={styles.container}>
-        {/* Slide bar */}
-        <View style={[styles.slideBar, { marginTop: isPlaying && StatusBar.currentHeight ? 24 + StatusBar.currentHeight  : 24 }]} />
         {/* Timer */}
         <TimeDisplay time={totalSeconds} />
 
@@ -282,25 +279,11 @@ export default function LiveSession() {
             {modalText}
           </ThemedText>
         </CustomModal>
-      </View>
     </SessionContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.dark.primaryDark,
-    paddingHorizontal: 16,
-  },
-  slideBar: {
-    width: 150,
-    height: 2,
-    backgroundColor: Colors.dark.secondaryDark,
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginVertical: 24,
-  },
   targetSection: {
     marginVertical: 16,
   },

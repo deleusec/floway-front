@@ -1,9 +1,20 @@
 import React, { useRef, useEffect } from 'react';
-import { View, Animated, PanResponder, StyleSheet, Dimensions, SafeAreaView, Platform, StatusBar } from 'react-native';
+import {
+  View,
+  Animated,
+  PanResponder,
+  StyleSheet,
+  Dimensions,
+  SafeAreaView,
+  Platform,
+  StatusBar,
+  ScrollView,
+  KeyboardAvoidingView,
+} from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import SessionControls from './SessionControls';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
 import StartPointMapSvg from '@/assets/icons/start_point_map.svg';
+import { Colors } from '@/constants/Colors';
 
 const { height } = Dimensions.get('window');
 
@@ -85,11 +96,28 @@ const SessionContainer = ({
             </MapView>
           )}
         </View>
-
         <Animated.View
           style={[styles.contentContainer, { transform: [{ translateY: slideAnimation }] }]}>
-          <View {...panResponder.panHandlers} style={styles.gestureContainer}>
-            <View style={styles.metricsContent}>{children}</View>
+          <View style={styles.gestureContainer}>
+            <View style={styles.metricsContent}>
+              <View style={styles.liveContainer}>
+                <View
+                  {...panResponder.panHandlers}
+                  style={[
+                    styles.slideBarContainer,
+                    { marginTop: StatusBar.currentHeight  && isPlaying ? StatusBar.currentHeight : 0 },
+                  ]}>
+                  <View style={styles.slideBar} />
+                </View>
+
+                <ScrollView
+                  style={styles.metricsWrapper}
+                  contentContainerStyle={styles.scrollContentContainer}
+                  showsVerticalScrollIndicator={false}>
+                  {children}
+                </ScrollView>
+              </View>
+            </View>
           </View>
         </Animated.View>
 
@@ -111,8 +139,29 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.dark.primaryDark,
   },
+  slideBarContainer: {
+    width: '100%',
+    height: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.dark.primaryDark,
+  },
+  slideBar: {
+    width: 150,
+    height: 2,
+    backgroundColor: Colors.dark.secondaryDark,
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginVertical: 24,
+  },
   container: {
+    backgroundColor: Colors.dark.primaryDark,
     flex: 1,
+  },
+  liveContainer: {
+    flex: 1,
+    backgroundColor: Colors.dark.primaryDark,
+    paddingHorizontal: 16,
   },
   mapWrapper: {
     backgroundColor: Colors.dark.primaryDark,
@@ -130,9 +179,10 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     overflow: 'hidden',
-    marginTop: StatusBar.currentHeight ? -(StatusBar.currentHeight) : -20,
+    marginTop: StatusBar.currentHeight ? -StatusBar.currentHeight : -20,
   },
   gestureContainer: {
+    backgroundColor: Colors.dark.primaryDark,
     flex: 1,
   },
   metricsContent: {
@@ -153,6 +203,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: 30,
     height: 30,
+  },
+  scrollContentContainer: {
+    paddingBottom: 120,
   },
 });
 
