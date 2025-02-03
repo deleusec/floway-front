@@ -105,7 +105,7 @@ const SessionContainer = ({
                   {...panResponder.panHandlers}
                   style={[
                     styles.slideBarContainer,
-                    { marginTop: StatusBar.currentHeight  && isPlaying ? StatusBar.currentHeight : 0 },
+                    { marginTop: StatusBar.currentHeight  && isPlaying ? StatusBar.currentHeight + 24 : 0 },
                   ]}>
                   <View style={styles.slideBar} />
                 </View>
