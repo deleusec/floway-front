@@ -18,7 +18,7 @@ import AudioListStudio from '@/components/studio/AudioListStudio';
 import useAudioPermissions from '@/hooks/useAudioPermissions';
 import { importAudioFile, uploadAudioFile } from '@/utils/audioUtils';
 import { router } from 'expo-router';
-import Tooltip from '@/components/Tooltip';
+import Tooltip from '@/components/tooltip/Tooltip';
 import TimelineStudio from '@/components/studio/TimelineStudio';
 import { formatDuration } from '@/utils/timeUtils';
 

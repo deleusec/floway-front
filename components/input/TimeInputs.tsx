@@ -53,6 +53,7 @@ export default function TimeInputs({
     if (value === '') {
       setter('0');
     }
+
     updateTotalSeconds(
       field === 'hours' ? value : hours,
       field === 'minutes' ? value : minutes,
@@ -67,7 +68,7 @@ export default function TimeInputs({
     field: 'hours' | 'minutes' | 'seconds',
     nextRef?: React.RefObject<TextInput>,
   ) => {
-    let cleanValue = value.replace(/[^0-9]/g, ''); // Retirer tout caractère non numérique
+    let cleanValue = value.replace(/[^0-9]/g, '');
     if (parseInt(cleanValue, 10) >= max) {
       cleanValue = (max - 1).toString();
     }
@@ -75,14 +76,8 @@ export default function TimeInputs({
     setter(cleanValue);
 
     if (cleanValue.length === 2 && nextRef?.current) {
-      nextRef.current.focus(); // Déplacer le focus si 2 chiffres
+      nextRef.current.focus();
     }
-
-    updateTotalSeconds(
-      field === 'hours' ? cleanValue : hours,
-      field === 'minutes' ? cleanValue : minutes,
-      field === 'seconds' ? cleanValue : seconds,
-    );
   };
 
   const containerStyles = (field: 'hours' | 'minutes' | 'seconds') => [

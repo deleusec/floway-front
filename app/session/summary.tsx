@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { SafeAreaView, View, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { Colors } from '@/constants/Colors';
-import { ThemedText } from '@/components/ThemedText';
+import { ThemedText } from '@/components/text/ThemedText';
 import { ThemedButton } from '@/components/button/ThemedButton';
 import { useRouter } from 'expo-router';
 import { useSessionContext } from '@/context/SessionContext';

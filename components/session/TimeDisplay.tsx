@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { ThemedText } from '@/components/ThemedText';
+import { ThemedText } from '@/components/text/ThemedText';
 import { Colors } from '@/constants/Colors';
 import { secondsToTimeObject } from '@/utils/timeUtils';
 

@@ -4,7 +4,6 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { Colors } from '@/constants/Colors';
 import { Audio } from 'expo-av';
 import SessionMetrics from '@/components/session/SessionMetrics';
-import SessionControls from '@/components/session/SessionControls';
 import { useSessionContext } from '@/context/SessionContext';
 import TimeDisplay from '@/components/session/TimeDisplay';
 import { ThemedText } from '@/components/text/ThemedText';
