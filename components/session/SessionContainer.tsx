@@ -110,7 +110,6 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: Colors.dark.primaryDark,
-    paddingTop: Platform.OS === 'android' ? 0 : 0,
   },
   container: {
     flex: 1,
@@ -131,7 +130,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     overflow: 'hidden',
-    marginTop: StatusBar.currentHeight ? -StatusBar.currentHeight : 0,
+    marginTop: StatusBar.currentHeight ? -(StatusBar.currentHeight) : -20,
   },
   gestureContainer: {
     flex: 1,
