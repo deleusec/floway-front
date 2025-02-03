@@ -27,6 +27,7 @@ export default function LiveSession() {
   const [isStopCountingDown, setIsStopCountingDown] = useState(false);
   const [playedAudios, setPlayedAudios] = useState<Set<string>>(new Set());
   const [sessionEnded, setSessionEnded] = useState(false);
+  const [modalText, setModalText] = useState('');
 
   const router = useRouter();
   const { sessionData, saveSession, startSession, setSessionData, stopLocationTracking } =
@@ -168,7 +169,14 @@ export default function LiveSession() {
   };
 
   useEffect(() => {
-    if (sessionEnded && sessionData?.metrics && sessionData?.time) {
+    if (
+      sessionEnded &&
+      sessionData?.metrics &&
+      sessionData?.time &&
+      sessionData?.metrics.distance > 0 &&
+      sessionData?.metrics.pace > 0 &&
+      sessionData?.metrics.calories > 0
+    ) {
       saveSession()
         .then(() => {
           console.log('Session sauvegardée avec succès.');
@@ -177,6 +185,11 @@ export default function LiveSession() {
         .catch((error) => {
           console.error('Erreur lors de la sauvegarde de la session:', error);
         });
+    } else if (sessionEnded) {
+      setShowModal(true);
+      setModalText(
+        "Vous n'avez aucunes données à sauvegarder. Voulez-vous vraiment quitter la session ?",
+      );
     }
   }, [sessionEnded, sessionData]);
 
@@ -193,6 +206,9 @@ export default function LiveSession() {
   useFocusEffect(
     useCallback(() => {
       const onBackPress = () => {
+        setModalText(
+          'Êtes-vous sûr de vouloir arrêter la session ? Les données actuelles seront perdues.',
+        );
         setShowModal(true);
         return true;
       };
@@ -263,7 +279,7 @@ export default function LiveSession() {
           cancelAction={cancelExit}
           confirmAction={confirmExit}>
           <ThemedText style={styles.modalBody}>
-            Êtes-vous sûr de vouloir arrêter la session ? Les données actuelles seront perdues.
+            {modalText}
           </ThemedText>
         </CustomModal>
       </View>
