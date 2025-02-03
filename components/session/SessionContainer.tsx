@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { View, Animated, PanResponder, StyleSheet, Dimensions, SafeAreaView } from 'react-native';
+import { View, Animated, PanResponder, StyleSheet, Dimensions, SafeAreaView, Platform, StatusBar } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import SessionControls from './SessionControls';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
@@ -109,6 +109,8 @@ const SessionContainer = ({
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    backgroundColor: Colors.dark.primaryDark,
+    paddingTop: Platform.OS === 'android' ? 0 : 0,
   },
   container: {
     flex: 1,
@@ -129,7 +131,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     overflow: 'hidden',
-    marginTop: -20,
+    marginTop: StatusBar.currentHeight ? -StatusBar.currentHeight : 0,
   },
   gestureContainer: {
     flex: 1,

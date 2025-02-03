@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, View, BackHandler } from 'react-native';
+import { SafeAreaView, StyleSheet, View, BackHandler, StatusBar } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { Colors } from '@/constants/Colors';
 import { Audio } from 'expo-av';
@@ -228,7 +228,7 @@ export default function LiveSession() {
       location={sessionData?.locations?.[sessionData.locations.length - 1]}>
       <View style={styles.container}>
         {/* Slide bar */}
-        <View style={[styles.slideBar, { marginTop: isPlaying ? 48 : 24 }]} />
+        <View style={[styles.slideBar, { marginTop: isPlaying && StatusBar.currentHeight ? 24 + StatusBar.currentHeight  : 24 }]} />
         {/* Timer */}
         <TimeDisplay time={totalSeconds} />
 
