@@ -74,7 +74,7 @@ export default function CreateRun() {
     <SafeAreaView style={styles.screen}>
       {/* KeyboardAvoidingView pour gérer le clavier */}
       <KeyboardAvoidingView
-        style={styles.keyboardContainer}
+        style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         {/* Contenu défilable */}
         <ScrollView
@@ -165,9 +165,6 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     backgroundColor: Colors.dark.primaryDark,
-  },
-  keyboardContainer: {
-    flex: 1,
   },
   scrollContent: {
     flexGrow: 1,

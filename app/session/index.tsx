@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { SafeAreaView, View, StyleSheet, Text, ScrollView } from 'react-native';
+import {
+  SafeAreaView,
+  View,
+  StyleSheet,
+  Text,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { router } from 'expo-router';
 import { Colors } from '@/constants/Colors';
 import BackButton from '@/components/button/BackButton';
@@ -292,7 +300,11 @@ export default function SessionScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>{renderCurrentStep()}</View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}>
+        <View style={styles.container}>{renderCurrentStep()}</View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
