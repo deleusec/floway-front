@@ -39,7 +39,9 @@
         "UIBackgroundModes": ["location", "fetch", "audio"],
         "NSLocationUsageDescription": "Floway needs access to location when open to track your running sessions.",
         "NSLocationWhenInUseUsageDescription": "Floway needs access to location when open to track your running sessions.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Floway needs access to location to track your running sessions even when the app is in background."
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Floway needs access to location to track your running sessions even when the app is in background.",
+        "NSMicrophoneUsageDescription": "Floway needs access to your microphone to record guided run sessions.",
+        "NSLocationAlwaysUsageDescription": "Floway needs access to your location at all times to track your running sessions."
       }
     },
     "android": {
@@ -52,7 +54,9 @@
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
         "ACCESS_BACKGROUND_LOCATION",
-        "FOREGROUND_SERVICE"
+        "FOREGROUND_SERVICE",
+        "RECORD_AUDIO",
+        "WRITE_EXTERNAL_STORAGE"
       ]
     },
     "web": {

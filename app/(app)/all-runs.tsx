@@ -78,7 +78,6 @@ export default function AllRunsScreen() {
 
             // Déterminer l'extension du fichier audio
             const contentType = audioResponse.headers.get('Content-Type');
-            console.log('Content-Type:', contentType);
 
             let extension = 'mp3';
             if (contentType?.includes('mp4')) {
