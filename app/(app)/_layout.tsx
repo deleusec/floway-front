@@ -11,7 +11,6 @@ export default function TabLayout() {
   useEffect(() => {
     const requestPermissions = async () => {
       if (Platform.OS === 'ios') {
-        // iOS : Demander permission pour le micro et les médias
         const { status: audioStatus } = await Audio.requestPermissionsAsync();
 
         if (audioStatus !== 'granted') {

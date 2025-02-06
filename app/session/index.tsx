@@ -113,7 +113,13 @@ export default function SessionScreen() {
 
             // Récupérer le type MIME et définir l'extension
             const contentType = audioResponse.headers.get('Content-Type');
-            const extension = contentType?.split('/')[1] || 'mp3'; // Par défaut, mp3
+
+            let extension = 'mp3';
+            if (contentType?.includes('mp4')) {
+              extension = 'm4a';
+            } else if (contentType?.includes('x-m4a')) {
+              extension = 'm4a';
+            }
 
             // Chemin local pour sauvegarder l'audio
             const localPath = `${FileSystem.documentDirectory}audio_${param.audio_id}.${extension}`;
