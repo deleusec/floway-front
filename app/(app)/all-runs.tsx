@@ -14,7 +14,7 @@ import * as FileSystem from 'expo-file-system';
 import { useSessionContext } from '@/context/SessionContext';
 
 export default function AllRunsScreen() {
-  const [activeTab, setActiveTab] = useState('audio');
+  const [activeTab, setActiveTab] = useState('runs');
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedRun, setSelectedRun] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -23,7 +23,7 @@ export default function AllRunsScreen() {
   const { initializeSession } = useSessionContext();
 
   const tabs = [
-    { key: 'audio', label: 'Audio' },
+    { key: 'runs', label: 'Runs' },
     { key: 'program', label: 'Programmes' },
   ];
 
@@ -138,7 +138,7 @@ export default function AllRunsScreen() {
 
         <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
-        {activeTab === 'audio' ? (
+        {activeTab === 'runs' ? (
           <View style={styles.listContainer}>
             <GuidedRunList onRunSelect={handleRunSelect} shadowBottom={false} />
           </View>
