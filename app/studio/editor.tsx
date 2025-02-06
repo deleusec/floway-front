@@ -10,7 +10,7 @@ import CustomModal from '@/components/modal/CustomModal';
 import TextInputField from '@/components/input/TextInputField';
 import DistanceInput from '@/components/input/DistanceInput';
 import { useAuth } from '@/context/ctx';
-import { Audio } from 'expo-av';
+import { Audio, InterruptionModeIOS } from 'expo-av';
 import Animated, { useSharedValue } from 'react-native-reanimated';
 import { useRef } from 'react';
 import TimeInputs from '@/components/input/TimeInputs';
@@ -110,11 +110,19 @@ export default function Editor() {
     try {
       await ensurePermissions();
 
-      await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: true,
+        interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+        shouldDuckAndroid: true,
+        playThroughEarpieceAndroid: false,
+      });
 
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY,
-      );
+      const { recording } = await Audio.Recording.createAsync({
+        ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
+        isMeteringEnabled: true,
+      });
 
       setRecordingInstance(recording);
       setIsRecording(true);

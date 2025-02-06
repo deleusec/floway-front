@@ -17,15 +17,21 @@ export default function TabLayout() {
           console.log('Permissions non accordées sur iOS');
         }
       } else if (Platform.OS === 'android') {
-        const audioPermission = await PermissionsAndroid.request(
+        const hasAudioPermission = await PermissionsAndroid.check(
           PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-          {
-            title: 'Permission Microphone',
-            message:
-              "L'application a besoin d'accéder à votre micro pour enregistrer des audios.",
-            buttonPositive: 'OK',
-          }
         );
+        let audioPermission;
+        if (!hasAudioPermission) {
+          audioPermission = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+            {
+              title: 'Permission Microphone',
+              message:
+                "L'application a besoin d'accéder à votre micro pour enregistrer des audios.",
+              buttonPositive: 'OK',
+            },
+          );
+        }
 
         const storagePermission = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
@@ -34,7 +40,7 @@ export default function TabLayout() {
             message:
               "L'application a besoin d'accéder à vos fichiers pour enregistrer et lire des audios.",
             buttonPositive: 'OK',
-          }
+          },
         );
 
         if (audioPermission !== PermissionsAndroid.RESULTS.GRANTED) {
