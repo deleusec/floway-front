@@ -105,7 +105,7 @@ export default function HomeScreen() {
                       `${session.calories}kcal`,
                       `${session.allure}Km/h`,
                     ]}
-                    image={require('@/assets/images/start.jpg')}
+                    image={require('@/assets/images/map_ex.png')}
                   />
                 ))
               )}
