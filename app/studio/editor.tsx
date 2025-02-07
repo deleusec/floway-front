@@ -3,7 +3,7 @@ import {ThemedText} from '@/components/text/ThemedText';
 import {Colors} from '@/constants/Colors';
 import {useStudioContext} from '@/context/StudioContext';
 import {Ionicons} from '@expo/vector-icons';
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -13,7 +13,7 @@ import {
   Pressable,
   KeyboardAvoidingView,
   Platform,
-  TouchableWithoutFeedback, Keyboard
+  TouchableWithoutFeedback, Keyboard, ActivityIndicator
 } from 'react-native';
 import ThemedButton from '@/components/button/ThemedButton';
 import CustomModal from '@/components/modal/CustomModal';
@@ -76,6 +76,7 @@ export default function Editor() {
   const [waveLevels, setWaveLevels] = useState<number[]>([]);
   const waveWidth = useSharedValue(10);
   const waveformScrollRef = useRef<ScrollView>(null);
+  const [isAudioLoading, setIsAudioLoading] = useState(false);
 
   const {ensurePermissions} = useAudioPermissions();
   const {authToken} = useAuth();
@@ -94,16 +95,24 @@ export default function Editor() {
   };
 
   const handleImportAudioFile = async () => {
-    const uri = await importAudioFile();
-    if (!uri) {
-      console.log('No audio file selected');
-      return;
-    }
-    if (authToken) {
-      const response = await uploadAudioFile(uri, authToken);
-      if (response) {
-        handleAudioResponse(uri, response);
+    try {
+      setIsAudioLoading(true);
+      const uri = await importAudioFile();
+      if (!uri) {
+        setIsAudioLoading(false);
+        return;
       }
+
+      if (authToken) {
+        const response = await uploadAudioFile(uri, authToken);
+        if (response) {
+          handleAudioResponse(uri, response);
+        }
+      }
+    } catch (error) {
+      console.error('Error importing audio:', error);
+    } finally {
+      setIsAudioLoading(false);
     }
   };
 
@@ -168,31 +177,38 @@ export default function Editor() {
     if (!recordingInstance) return;
 
     setIsRecording(false);
+    setIsRecordingModalVisible(false);
+    setIsAudioLoading(true);
 
-    // Nettoyage des intervalles
-    if (timerInterval) {
-      clearInterval(timerInterval.waveInterval!);
-      clearInterval(timerInterval.durationInterval!);
-      setTimerInterval(null); // Réinitialise l'état
-    }
-
-    await recordingInstance.stopAndUnloadAsync();
-    await Audio.setAudioModeAsync({allowsRecordingIOS: false});
-
-    setWaveLevels([0]);
-    waveWidth.value = 10;
-
-    const uri = recordingInstance.getURI();
-    setRecordingInstance(null);
-
-    if (uri && authToken) {
-      const response = await uploadAudioFile(uri, authToken);
-      if (response) {
-        handleAudioResponse(uri, response);
+    try {
+      if (timerInterval) {
+        clearInterval(timerInterval.waveInterval!);
+        clearInterval(timerInterval.durationInterval!);
+        setTimerInterval(null);
       }
-    }
 
-    return uri;
+      await recordingInstance.stopAndUnloadAsync();
+      await Audio.setAudioModeAsync({allowsRecordingIOS: false});
+
+      setWaveLevels([0]);
+      waveWidth.value = 10;
+
+      const uri = recordingInstance.getURI();
+      setRecordingInstance(null);
+
+      if (uri && authToken) {
+        const response = await uploadAudioFile(uri, authToken);
+        if (response) {
+          handleAudioResponse(uri, response);
+        }
+      }
+
+      return uri;
+    } catch (error) {
+      console.error('Error stopping recording:', error);
+    } finally {
+      setIsAudioLoading(false);
+    }
   };
 
   const cancelRecording = async () => {
@@ -425,6 +441,7 @@ export default function Editor() {
             selectedAudio={selectedAudio}
             openAudioEditModal={openAudioEditModal}
             goalType={goalType}
+            isLoading={isAudioLoading}
           />
         </View>
         <View style={styles.timelineSection}>
@@ -616,23 +633,31 @@ export default function Editor() {
 }
 
 const AudioListSection = ({
-  audioList,
-  selectedAudio,
-  openAudioEditModal,
-  goalType,
-}: {
+                            audioList,
+                            selectedAudio,
+                            openAudioEditModal,
+                            goalType,
+                            isLoading,
+                          }: {
   audioList: AudioProps[];
   selectedAudio: AudioProps | null;
   openAudioEditModal: (audio: AudioProps) => void;
   goalType: string;
+  isLoading: boolean;
 }) => (
   <View style={styles.audioListWrapper}>
-    <AudioListStudio
-      audioList={audioList}
-      selectedAudio={selectedAudio}
-      openAudioEditModal={openAudioEditModal}
-      goalType={goalType}
-    />
+    {isLoading ? (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color={Colors.light.white}/>
+      </View>
+    ) : (
+      <AudioListStudio
+        audioList={audioList}
+        selectedAudio={selectedAudio}
+        openAudioEditModal={openAudioEditModal}
+        goalType={goalType}
+      />
+    )}
   </View>
 );
 
@@ -797,5 +822,10 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'center',
     pointerEvents: 'box-none',
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
