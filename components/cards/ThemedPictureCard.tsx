@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, {useRef} from 'react';
 import {
   View,
   Text,
@@ -9,8 +9,8 @@ import {
   ViewStyle,
   ImageSourcePropType,
 } from 'react-native';
-import { GestureHandlerRootView, PanGestureHandler, State } from 'react-native-gesture-handler';
-import { Colors } from '@/constants/Colors';
+import {GestureHandlerRootView, PanGestureHandler, State} from 'react-native-gesture-handler';
+import {Colors} from '@/constants/Colors';
 import TrashSvg from '@/assets/icons/trash.svg';
 
 interface PictureCardProps {
@@ -41,11 +41,11 @@ export const PictureCard: React.FC<PictureCardProps> = ({
   const maxSwipe = -90;
   const minSwipe = 0;
 
-  const handleGestureEvent = Animated.event([{ nativeEvent: { translationX: translateX } }], {
+  const handleGestureEvent = Animated.event([{nativeEvent: {translationX: translateX}}], {
     useNativeDriver: false,
   });
 
-  const handleStateChange = ({ nativeEvent }: any) => {
+  const handleStateChange = ({nativeEvent}: any) => {
     if (!onDelete) return;
 
     if (nativeEvent.state === State.END) {
@@ -88,9 +88,9 @@ export const PictureCard: React.FC<PictureCardProps> = ({
     <GestureHandlerRootView style={styles.wrapper}>
       {/* Bouton poubelle en arrière-plan */}
       {onDelete && (
-        <Animated.View style={[styles.deleteContainer, { opacity }]}>
+        <Animated.View style={[styles.deleteContainer, {opacity}]}>
           <TouchableOpacity onPress={onDelete} style={styles.deleteButton}>
-            <TrashSvg width={24} height={24} />
+            <TrashSvg width={24} height={24}/>
           </TouchableOpacity>
         </Animated.View>
       )}
@@ -99,7 +99,10 @@ export const PictureCard: React.FC<PictureCardProps> = ({
       {onDelete ? (
         <PanGestureHandler
           onGestureEvent={handleGestureEvent}
-          onHandlerStateChange={handleStateChange}>
+          onHandlerStateChange={handleStateChange}
+          activeOffsetX={[-10, 10]}
+          failOffsetY={[-10, 10]}
+        >
           <Animated.View
             style={[
               styles.cardContainer,
@@ -109,7 +112,7 @@ export const PictureCard: React.FC<PictureCardProps> = ({
                     translateX: translateX.interpolate({
                       inputRange: [maxSwipe, 0],
                       outputRange: [maxSwipe, 0],
-                      extrapolate: 'clamp', // Empêche d'aller plus loin que maxSwipe
+                      extrapolate: 'clamp',
                     }),
                   },
                 ],
@@ -121,9 +124,9 @@ export const PictureCard: React.FC<PictureCardProps> = ({
               disabled={!onPress}>
               {/* Image à gauche */}
               {image ? (
-                <Image source={image} style={styles.image} />
+                <Image source={image} style={styles.image}/>
               ) : (
-                <Image src="https://picsum.photos/200/300" style={styles.image} />
+                <Image src="https://picsum.photos/200/300" style={styles.image}/>
               )}
 
               {/* Contenu principal */}
@@ -171,9 +174,9 @@ export const PictureCard: React.FC<PictureCardProps> = ({
         >
           {/* Image à gauche */}
           {image ? (
-            <Image source={image} style={styles.image} />
+            <Image source={image} style={styles.image}/>
           ) : (
-            <Image src="https://picsum.photos/200/300" style={styles.image} />
+            <Image src="https://picsum.photos/200/300" style={styles.image}/>
           )}
           {/* Contenu principal */}
           <View style={styles.content}>
@@ -224,7 +227,7 @@ const styles = StyleSheet.create({
     width: 64,
     alignItems: 'center',
     justifyContent: 'center',
-    transform: [{ translateY: '-50%' }],
+    transform: [{translateY: '-50%'}],
     zIndex: 0,
   },
   deleteButton: {
@@ -243,7 +246,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.light.secondaryDark,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 2,

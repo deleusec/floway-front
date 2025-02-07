@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, View, Image, Text } from 'react-native';
-import { Colors } from '@/constants/Colors';
-import { ThemedText } from '@/components/text/ThemedText';
-import { Tabs } from '@/components/tabs/Tabs';
+import React, {useState} from 'react';
+import {SafeAreaView, StyleSheet, View, Image, Text} from 'react-native';
+import {Colors} from '@/constants/Colors';
+import {ThemedText} from '@/components/text/ThemedText';
+import {Tabs} from '@/components/tabs/Tabs';
 import CustomModal from '@/components/modal/CustomModal';
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Link, router } from 'expo-router';
+import {TabBarIcon} from '@/components/navigation/TabBarIcon';
+import {Link, router} from 'expo-router';
 import ThemedButton from '@/components/button/ThemedButton';
-import { GuidedRunList } from '@/components/runs/GuidedRunList';
-import { secondsToCompactReadableTime } from '@/utils/timeUtils';
-import { useAuth } from '@/context/ctx';
+import {GuidedRunList} from '@/components/runs/GuidedRunList';
+import {secondsToCompactReadableTime} from '@/utils/timeUtils';
+import {useAuth} from '@/context/ctx';
 import * as FileSystem from 'expo-file-system';
-import { useSessionContext } from '@/context/SessionContext';
+import {useSessionContext} from '@/context/SessionContext';
 
 export default function AllRunsScreen() {
   const [activeTab, setActiveTab] = useState('runs');
@@ -19,12 +19,12 @@ export default function AllRunsScreen() {
   const [selectedRun, setSelectedRun] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { authToken } = useAuth();
-  const { initializeSession } = useSessionContext();
+  const {authToken} = useAuth();
+  const {initializeSession} = useSessionContext();
 
   const tabs = [
-    { key: 'runs', label: 'Runs' },
-    { key: 'program', label: 'Programmes' },
+    {key: 'runs', label: 'Runs'},
+    {key: 'program', label: 'Programmes'},
   ];
 
   const handleRunSelect = (run: any) => {
@@ -73,7 +73,7 @@ export default function AllRunsScreen() {
 
             if (!audioResponse.ok) {
               console.error(`Failed to fetch audio for ID: ${param.audio_id}`);
-              return { ...param, audioFile: null };
+              return {...param, audioFile: null};
             }
 
             // Déterminer l'extension du fichier audio
@@ -102,10 +102,10 @@ export default function AllRunsScreen() {
               encoding: FileSystem.EncodingType.Base64,
             });
 
-            return { ...param, audioFile: localPath };
+            return {...param, audioFile: localPath};
           } catch (error) {
             console.error(`Error downloading audio ID ${param.audio_id}:`, error);
-            return { ...param, audioFile: null };
+            return {...param, audioFile: null};
           }
         }),
       );
@@ -128,19 +128,19 @@ export default function AllRunsScreen() {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <ThemedText type="title" style={{ color: 'white' }}>
+          <ThemedText type="title" style={{color: 'white'}}>
             Mes runs guidées
           </ThemedText>
           <Link href="/studio">
-            <TabBarIcon name="add-circle-outline" color="white" size={28} />
+            <TabBarIcon name="add-circle-outline" color="white" size={28}/>
           </Link>
         </View>
 
-        <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
+        <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab}/>
 
         {activeTab === 'runs' ? (
           <View style={styles.listContainer}>
-            <GuidedRunList onRunSelect={handleRunSelect} shadowBottom={false} />
+            <GuidedRunList onRunSelect={handleRunSelect} shadowBottom={false}/>
           </View>
         ) : (
           <View style={styles.emptyProgramContainer}>
@@ -166,7 +166,7 @@ export default function AllRunsScreen() {
           <View style={styles.modal}>
             <View style={styles.modalContent}>
               {selectedRun && (
-                <Image source={{ uri: selectedRun.image_url }} style={styles.image} />
+                <Image source={{uri: selectedRun.image_url}} style={styles.image}/>
               )}
 
               <View style={styles.modalHeader}>

@@ -1,17 +1,17 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, View, BackHandler, StatusBar } from 'react-native';
-import { useFocusEffect, useRouter } from 'expo-router';
-import { Colors } from '@/constants/Colors';
-import { Audio } from 'expo-av';
+import React, {useCallback, useEffect, useState} from 'react';
+import {StyleSheet, View, BackHandler, Platform} from 'react-native';
+import {useFocusEffect, useRouter} from 'expo-router';
+import {Colors} from '@/constants/Colors';
+import {Audio} from 'expo-av';
 import SessionMetrics from '@/components/session/SessionMetrics';
-import { useSessionContext } from '@/context/SessionContext';
+import {useSessionContext} from '@/context/SessionContext';
 import TimeDisplay from '@/components/session/TimeDisplay';
-import { ThemedText } from '@/components/text/ThemedText';
+import {ThemedText} from '@/components/text/ThemedText';
 import SessionTarget from '@/components/session/SessionTarget';
-import { PictureCard } from '@/components/cards/ThemedPictureCard';
-import { secondsToCompactReadableTime } from '@/utils/timeUtils';
+import {PictureCard} from '@/components/cards/ThemedPictureCard';
+import {secondsToCompactReadableTime} from '@/utils/timeUtils';
 import CustomModal from '@/components/modal/CustomModal';
-import { calculateDistance, calculatePace, calculateCalories } from '@/utils/metricsUtils';
+import {calculateDistance, calculatePace, calculateCalories} from '@/utils/metricsUtils';
 import SessionContainer from '@/components/session/SessionContainer';
 
 export default function LiveSession() {
@@ -30,7 +30,7 @@ export default function LiveSession() {
   const [modalText, setModalText] = useState('');
 
   const router = useRouter();
-  const { sessionData, saveSession, startSession, setSessionData, stopLocationTracking } =
+  const {sessionData, saveSession, startSession, setSessionData, stopLocationTracking} =
     useSessionContext();
 
   useEffect(() => {
@@ -112,7 +112,7 @@ export default function LiveSession() {
           await currentAudio.unloadAsync();
         }
 
-        const { sound } = await Audio.Sound.createAsync({ uri: audioFile });
+        const {sound} = await Audio.Sound.createAsync({uri: audioFile});
         setCurrentAudio(sound);
 
         await sound.playAsync();
@@ -172,10 +172,9 @@ export default function LiveSession() {
     if (
       sessionEnded &&
       sessionData?.metrics &&
-      sessionData?.time &&
-      sessionData?.metrics.distance > 0 &&
-      sessionData?.metrics.pace > 0 &&
-      sessionData?.metrics.calories > 0
+      sessionData?.time && (
+        sessionData?.time > 0
+      )
     ) {
       saveSession()
         .then(() => {
@@ -185,7 +184,7 @@ export default function LiveSession() {
         .catch((error) => {
           console.error('Erreur lors de la sauvegarde de la session:', error);
         });
-    } else if (sessionEnded) {
+    } else if (sessionEnded && Platform.OS === 'ios') {
       setShowModal(true);
       setModalText(
         "Vous n'avez aucunes données à sauvegarder. Voulez-vous vraiment quitter la session ?",
@@ -226,59 +225,59 @@ export default function LiveSession() {
       onStopPress={onStopPress}
       onStopCountdownChange={setIsStopCountingDown}
       location={sessionData?.locations?.[sessionData.locations.length - 1]}>
-        {/* Timer */}
-        <TimeDisplay time={totalSeconds} />
+      {/* Timer */}
+      <TimeDisplay time={totalSeconds}/>
 
-        {/* Metrics */}
-        <SessionMetrics distance={distance} pace={pace} calories={calories} />
+      {/* Metrics */}
+      <SessionMetrics distance={distance} pace={pace} calories={calories}/>
 
-        {/* Session Target */}
-        {(sessionData?.type === 'time' || sessionData?.type === 'distance') && (
-          <View style={styles.targetSection}>
-            <ThemedText style={styles.targetLabel}>Objectif de la session</ThemedText>
-            <View style={styles.targetBox}>
-              <SessionTarget
-                type={sessionData.type}
-                timeObjective={sessionData.time_objective}
-                distanceObjective={sessionData.distance_objective}
-              />
-            </View>
-          </View>
-        )}
-
-        {/* Guided Run */}
-        {sessionData?.run && (
-          <View style={styles.targetSection}>
-            <ThemedText style={styles.targetLabel}>Course guidée</ThemedText>
-
-            <PictureCard
-              key={sessionData?.run.run.id}
-              title={sessionData?.run.run.title}
-              image={{ uri: 'https://picsum.photos/200' }}
-              metrics={
-                sessionData?.run.run.distance_objective
-                  ? [`${sessionData?.run.run.distance_objective} km`]
-                  : [secondsToCompactReadableTime(sessionData?.run.run.time_objective || 0)]
-              }
-              subtitle={sessionData?.run.run.description}
-              onPress={() => {}}
+      {/* Session Target */}
+      {(sessionData?.type === 'time' || sessionData?.type === 'distance') && (
+        <View style={styles.targetSection}>
+          <ThemedText style={styles.targetLabel}>Objectif de la session</ThemedText>
+          <View style={styles.targetBox}>
+            <SessionTarget
+              type={sessionData.type}
+              timeObjective={sessionData.time_objective}
+              distanceObjective={sessionData.distance_objective}
             />
           </View>
-        )}
+        </View>
+      )}
 
-        {/* Modal de confirmation */}
-        <CustomModal
-          visible={showModal}
-          onClose={cancelExit}
-          header={<ThemedText style={styles.modalHeader}>Quitter la session ?</ThemedText>}
-          cancelButton={true}
-          confirmButton={true}
-          cancelAction={cancelExit}
-          confirmAction={confirmExit}>
-          <ThemedText style={styles.modalBody}>
-            {modalText}
-          </ThemedText>
-        </CustomModal>
+      {/* Guided Run */}
+      {sessionData?.run && (
+        <View style={styles.targetSection}>
+          <ThemedText style={styles.targetLabel}>Course guidée</ThemedText>
+
+          <PictureCard
+            key={sessionData?.run.run.id}
+            title={sessionData?.run.run.title}
+            image={{uri: 'https://picsum.photos/200'}}
+            metrics={
+              sessionData?.run.run.distance_objective
+                ? [`${sessionData?.run.run.distance_objective} km`]
+                : [secondsToCompactReadableTime(sessionData?.run.run.time_objective || 0)]
+            }
+            subtitle={sessionData?.run.run.description}
+            onPress={() => {}}
+          />
+        </View>
+      )}
+
+      {/* Modal de confirmation */}
+      <CustomModal
+        visible={showModal}
+        onClose={cancelExit}
+        header={<ThemedText style={styles.modalHeader}>Quitter la session ?</ThemedText>}
+        cancelButton={true}
+        confirmButton={true}
+        cancelAction={cancelExit}
+        confirmAction={confirmExit}>
+        <ThemedText style={styles.modalBody}>
+          {modalText}
+        </ThemedText>
+      </CustomModal>
     </SessionContainer>
   );
 }

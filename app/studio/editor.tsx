@@ -1,26 +1,36 @@
 import BackButton from '@/components/button/BackButton';
-import { ThemedText } from '@/components/text/ThemedText';
-import { Colors } from '@/constants/Colors';
-import { useStudioContext } from '@/context/StudioContext';
-import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, View, Pressable } from 'react-native';
+import {ThemedText} from '@/components/text/ThemedText';
+import {Colors} from '@/constants/Colors';
+import {useStudioContext} from '@/context/StudioContext';
+import {Ionicons} from '@expo/vector-icons';
+import {useEffect, useState} from 'react';
+import {
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  Pressable,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback, Keyboard
+} from 'react-native';
 import ThemedButton from '@/components/button/ThemedButton';
 import CustomModal from '@/components/modal/CustomModal';
 import TextInputField from '@/components/input/TextInputField';
 import DistanceInput from '@/components/input/DistanceInput';
-import { useAuth } from '@/context/ctx';
-import { Audio, InterruptionModeIOS } from 'expo-av';
-import Animated, { useSharedValue } from 'react-native-reanimated';
-import { useRef } from 'react';
+import {useAuth} from '@/context/ctx';
+import {Audio, InterruptionModeIOS} from 'expo-av';
+import Animated, {useSharedValue} from 'react-native-reanimated';
+import {useRef} from 'react';
 import TimeInputs from '@/components/input/TimeInputs';
 import AudioListStudio from '@/components/studio/AudioListStudio';
 import useAudioPermissions from '@/hooks/useAudioPermissions';
-import { importAudioFile, uploadAudioFile } from '@/utils/audioUtils';
-import { router } from 'expo-router';
+import {importAudioFile, uploadAudioFile} from '@/utils/audioUtils';
+import {router} from 'expo-router';
 import Tooltip from '@/components/tooltip/Tooltip';
 import TimelineStudio from '@/components/studio/TimelineStudio';
-import { formatDuration } from '@/utils/timeUtils';
+import {formatDuration} from '@/utils/timeUtils';
 
 interface AudioProps {
   id: number;
@@ -67,10 +77,10 @@ export default function Editor() {
   const waveWidth = useSharedValue(10);
   const waveformScrollRef = useRef<ScrollView>(null);
 
-  const { ensurePermissions } = useAudioPermissions();
-  const { authToken } = useAuth();
-  const { studioData } = useStudioContext();
-  const { title, description, goalType, goalTime, goalDistance } = studioData;
+  const {ensurePermissions} = useAudioPermissions();
+  const {authToken} = useAuth();
+  const {studioData} = useStudioContext();
+  const {title, description, goalType, goalTime, goalDistance} = studioData;
 
   const openAudioEditModal = (audio: AudioProps) => {
     if (!selectedAudio || selectedAudio.id !== audio.id) {
@@ -119,7 +129,7 @@ export default function Editor() {
         playThroughEarpieceAndroid: false,
       });
 
-      const { recording } = await Audio.Recording.createAsync({
+      const {recording} = await Audio.Recording.createAsync({
         ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
         isMeteringEnabled: true,
       });
@@ -135,7 +145,7 @@ export default function Editor() {
             const newLevels = [...prevLevels, Math.max(0, (status.metering ?? 0) + 100)];
 
             if (waveformScrollRef.current) {
-              waveformScrollRef.current.scrollToEnd({ animated: true });
+              waveformScrollRef.current.scrollToEnd({animated: true});
             }
             return newLevels;
           });
@@ -146,7 +156,7 @@ export default function Editor() {
         setRecordingDuration((prev) => prev + 1);
       }, 1000);
 
-      setTimerInterval({ waveInterval, durationInterval });
+      setTimerInterval({waveInterval, durationInterval});
 
       console.log('Recording started');
     } catch (err) {
@@ -167,7 +177,7 @@ export default function Editor() {
     }
 
     await recordingInstance.stopAndUnloadAsync();
-    await Audio.setAudioModeAsync({ allowsRecordingIOS: false });
+    await Audio.setAudioModeAsync({allowsRecordingIOS: false});
 
     setWaveLevels([0]);
     waveWidth.value = 10;
@@ -197,7 +207,7 @@ export default function Editor() {
     }
 
     await recordingInstance.stopAndUnloadAsync();
-    await Audio.setAudioModeAsync({ allowsRecordingIOS: false });
+    await Audio.setAudioModeAsync({allowsRecordingIOS: false});
 
     setWaveLevels([0]);
     waveWidth.value = 10;
@@ -208,7 +218,7 @@ export default function Editor() {
 
   const handleAudioResponse = (localUri: string, backendData: any) => {
     if (!backendData || !backendData.id || !localUri) {
-      console.error('Invalid backend data or local URI:', { localUri, backendData });
+      console.error('Invalid backend data or local URI:', {localUri, backendData});
       return;
     }
 
@@ -218,7 +228,7 @@ export default function Editor() {
   };
 
   const createAudioEntry = (localUri: string, backendData: any): AudioProps => {
-    const { id, title, duration } = backendData;
+    const {id, title, duration} = backendData;
     return {
       id: audioCounter,
       audio_id: id,
@@ -245,11 +255,11 @@ export default function Editor() {
       prev.map((audio) =>
         audio.id === selectedAudio?.id
           ? {
-              ...audio,
-              title: modalAudioTitle,
-              start_time: modalAudioStartTime,
-              start_distance: modalAudioStartDistance,
-            }
+            ...audio,
+            title: modalAudioTitle,
+            start_time: modalAudioStartTime,
+            start_distance: modalAudioStartDistance,
+          }
           : audio,
       ),
     );
@@ -351,7 +361,7 @@ export default function Editor() {
         }
       } else {
         console.log("Chargement de l'audio :", selectedAudio.localPath);
-        const { sound } = await Audio.Sound.createAsync({ uri: selectedAudio.localPath });
+        const {sound} = await Audio.Sound.createAsync({uri: selectedAudio.localPath});
         setCurrentAudioPlayer(sound);
         await sound.playAsync();
         setIsAudioPlaying(true);
@@ -397,7 +407,7 @@ export default function Editor() {
         <View style={styles.mainContent}>
           <View style={styles.header}>
             <View>
-              <BackButton />
+              <BackButton/>
             </View>
             <Tooltip
               message="Une run guidée est une session audio motivante avec un objectif de temps ou de distance prédéfini."
@@ -407,7 +417,7 @@ export default function Editor() {
           </View>
 
           {/* Audio list */}
-          <ThemedText type="title" style={{ paddingHorizontal: 24 }}>
+          <ThemedText type="title" style={{paddingHorizontal: 24}}>
             Mes audios
           </ThemedText>
           <AudioListSection
@@ -425,28 +435,28 @@ export default function Editor() {
                   name="trash"
                   size={20}
                   color="white"
-                  style={[selectedAudio === null && { opacity: 0.4 }]}
+                  style={[selectedAudio === null && {opacity: 0.4}]}
                   onPress={() => setIsDeleteAudioModalVisible(true)}
                 />
                 <Ionicons
                   name="create"
                   size={20}
                   color="white"
-                  style={[selectedAudio === null && { opacity: 0.4 }]}
+                  style={[selectedAudio === null && {opacity: 0.4}]}
                   onPress={() => setIsAudioEditModalVisible(true)}
                 />
               </View>
               <View style={styles.actionBarElement}>
-                <Ionicons name="play-back" size={20} color="white" onPress={selectePreviousAudio} />
+                <Ionicons name="play-back" size={20} color="white" onPress={selectePreviousAudio}/>
                 {playerState === 'playing' ? (
-                  <Ionicons name="pause" size={24} color="white" onPress={handlePlayAudio} />
+                  <Ionicons name="pause" size={24} color="white" onPress={handlePlayAudio}/>
                 ) : (
-                  <Ionicons name="play" size={24} color="white" onPress={handlePlayAudio} />
+                  <Ionicons name="play" size={24} color="white" onPress={handlePlayAudio}/>
                 )}
-                <Ionicons name="play-forward" size={20} color="white" onPress={selecteNextAudio} />
+                <Ionicons name="play-forward" size={20} color="white" onPress={selecteNextAudio}/>
               </View>
               <View style={styles.actionBarElement}>
-                <Ionicons name="mic" size={20} color="white" onPress={startRecordingProcess} />
+                <Ionicons name="mic" size={20} color="white" onPress={startRecordingProcess}/>
                 <Ionicons
                   name="file-tray"
                   size={20}
@@ -489,41 +499,53 @@ export default function Editor() {
             setIsAudioEditModalVisible(false);
             setErrorMessage('');
           }}>
-          <View style={styles.modalContent}>
-            <ThemedText type="title" style={styles.modalText}>
-              Modifier l’audio
-            </ThemedText>
-            <View style={styles.modalInputGroup}>
-              <ThemedText type="default">Titre</ThemedText>
-              <TextInputField
-                placeholder="Titre de l’audio"
-                value={modalAudioTitle}
-                onChange={setModalAudioTitle}
-              />
-            </View>
-            <View style={styles.modalInputGroup}>
-              <ThemedText type="default">Lancement de l'audio à</ThemedText>
-              <View style={styles.timeInputFields}>
-                {goalType === 'Temps' ? (
-                  <TimeInputs
-                    totalSeconds={modalAudioStartTime}
-                    onChange={(seconds) => setModalAudioStartTime(seconds)}
-                    status={errorMessage && goalType === 'Temps' ? 'error' : 'default'}
-                    errorMessage={goalType === 'Temps' ? errorMessage : ''}
-                  />
-                ) : (
-                  <DistanceInput
-                    placeholder="00"
-                    unit="km"
-                    status={errorMessage && goalType === 'Distance' ? 'error' : 'default'}
-                    value={modalAudioStartDistance}
-                    onChange={setModalAudioStartDistance}
-                    errorMessage={goalType === 'Distance' ? errorMessage : ''}
-                  />
-                )}
-              </View>
-            </View>
-          </View>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <KeyboardAvoidingView
+              style={styles.modalContent}
+              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+              keyboardVerticalOffset={Platform.OS === 'ios' ? 40 : 0}
+            >
+              <ScrollView>
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                  <View>
+                    <ThemedText type="title" style={styles.modalText}>
+                      Modifier l'audio
+                    </ThemedText>
+                    <View style={styles.modalInputGroup}>
+                      <ThemedText type="default">Titre</ThemedText>
+                      <TextInputField
+                        placeholder="Titre de l'audio"
+                        value={modalAudioTitle}
+                        onChange={setModalAudioTitle}
+                      />
+                    </View>
+                    <View style={styles.modalInputGroup}>
+                      <ThemedText type="default">Lancement de l'audio à</ThemedText>
+                      <View style={styles.timeInputFields}>
+                        {goalType === 'Temps' ? (
+                          <TimeInputs
+                            totalSeconds={modalAudioStartTime}
+                            onChange={(seconds) => setModalAudioStartTime(seconds)}
+                            status={errorMessage && goalType === 'Temps' ? 'error' : 'default'}
+                            errorMessage={goalType === 'Temps' ? errorMessage : ''}
+                          />
+                        ) : (
+                          <DistanceInput
+                            placeholder="00"
+                            unit="km"
+                            status={errorMessage && goalType === 'Distance' ? 'error' : 'default'}
+                            value={modalAudioStartDistance}
+                            onChange={setModalAudioStartDistance}
+                            errorMessage={goalType === 'Distance' ? errorMessage : ''}
+                          />
+                        )}
+                      </View>
+                    </View>
+                  </View>
+                </TouchableWithoutFeedback>
+              </ScrollView>
+            </KeyboardAvoidingView>
+          </TouchableWithoutFeedback>
         </CustomModal>
 
         <CustomModal
@@ -551,7 +573,7 @@ export default function Editor() {
           <View style={styles.recordingContainer}>
             <View style={styles.recordingHeader}>
               <Text style={styles.recIndicator}>
-                <View style={styles.recDot} /> REC
+                <View style={styles.recDot}/> REC
               </Text>
               <Text style={styles.timer}>{formatDuration(recordingDuration)}</Text>
             </View>
@@ -562,7 +584,7 @@ export default function Editor() {
                 ref={waveformScrollRef} // Lier la référence
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                style={{ width: '100%', height: '100%' }}>
+                style={{width: '100%', height: '100%'}}>
                 <Animated.View
                   style={{
                     display: 'flex',

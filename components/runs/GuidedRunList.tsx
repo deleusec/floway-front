@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
-import { Colors } from '@/constants/Colors';
-import { ThemedText } from '@/components/text/ThemedText';
-import { PictureCard } from '@/components/cards/ThemedPictureCard';
-import { useAuth } from '@/context/ctx';
-import { secondsToCompactReadableTime } from '@/utils/timeUtils';
+import React, {useEffect, useState} from 'react';
+import {View, StyleSheet, ActivityIndicator, ScrollView} from 'react-native';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {Colors} from '@/constants/Colors';
+import {ThemedText} from '@/components/text/ThemedText';
+import {PictureCard} from '@/components/cards/ThemedPictureCard';
+import {useAuth} from '@/context/ctx';
+import {secondsToCompactReadableTime} from '@/utils/timeUtils';
 import ShadowTopSvg from '@/assets/icons/shadow-top.svg';
 import ShadowBottomSvg from '@/assets/icons/shadow-bottom.svg';
 
@@ -38,7 +39,7 @@ export const GuidedRunList: React.FC<GuidedRunListProps> = ({
   const [runs, setRuns] = useState<Run[]>([]);
   const [selectedRun, setSelectedRun] = useState<Run | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { authToken } = useAuth();
+  const {authToken} = useAuth();
 
   useEffect(() => {
     fetchRuns();
@@ -64,7 +65,7 @@ export const GuidedRunList: React.FC<GuidedRunListProps> = ({
         const runsWithImages = await Promise.all(
           data.runs.map(async (run: any) => {
             const imageResponse = await fetch('https://picsum.photos/200');
-            return { ...run, image_url: imageResponse.url };
+            return {...run, image_url: imageResponse.url};
           }),
         );
         setRuns(runsWithImages);
@@ -103,7 +104,7 @@ export const GuidedRunList: React.FC<GuidedRunListProps> = ({
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={Colors.light.white} />
+        <ActivityIndicator size="large" color={Colors.light.white}/>
       </View>
     );
   }
@@ -119,12 +120,12 @@ export const GuidedRunList: React.FC<GuidedRunListProps> = ({
   }
 
   return (
-    <View style={styles.container}>
-      {shadowTop && <ShadowTopSvg style={styles.topGradient} />}
+    <GestureHandlerRootView style={styles.container}>
+      {shadowTop && <ShadowTopSvg style={styles.topGradient}/>}
       <ScrollView
         style={styles.scrollContent}
-        contentContainerStyle={{ alignItems: 'center' }}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.content}>
           {runs.map((run) => {
             const metrics = [];
@@ -142,7 +143,7 @@ export const GuidedRunList: React.FC<GuidedRunListProps> = ({
                 isSelected={enableSelection && selectedRun?.id === run.id}
                 key={run.id}
                 title={run.title}
-                image={{ uri: run.image_url }}
+                image={{uri: run.image_url}}
                 metrics={metrics.length > 0 ? metrics : ['Aucun objectif']}
                 subtitle={run.description}
                 onPress={() => handleRunSelect(run)}
@@ -152,8 +153,8 @@ export const GuidedRunList: React.FC<GuidedRunListProps> = ({
           })}
         </View>
       </ScrollView>
-      {shadowBottom && <ShadowBottomSvg style={styles.bottomGradient} />}
-    </View>
+      {shadowBottom && <ShadowBottomSvg style={styles.bottomGradient}/>}
+    </GestureHandlerRootView>
   );
 };
 
