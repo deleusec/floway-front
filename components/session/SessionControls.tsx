@@ -4,6 +4,7 @@ import StopCountdown from './StopCountdown';
 import PlayButtonIcon from '@/assets/icons/play-button.svg';
 import PauseButtonIcon from '@/assets/icons/pause-button.svg';
 import StopButtonIcon from '@/assets/icons/stop-button.svg';
+import {Colors} from "@/constants/Colors";
 
 interface SessionControlsProps {
   isRunning: boolean;
@@ -77,6 +78,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 32,
     padding: 24,
+    paddingBottom: 48, // Ajouter le padding bottom ici
+    backgroundColor: Colors.dark.primaryDark, // Assurer que le background est le même
   },
   pauseButton: {
     height: 64,

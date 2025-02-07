@@ -9,7 +9,6 @@ import {
   Platform,
   StatusBar,
   ScrollView,
-  KeyboardAvoidingView,
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import SessionControls from './SessionControls';
@@ -202,10 +201,11 @@ const styles = StyleSheet.create({
   },
   controlsWrapper: {
     position: 'absolute',
-    bottom: 48,
+    bottom: -40,
     left: 0,
     right: 0,
-    alignItems: 'center',
+    backgroundColor: Colors.dark.primaryDark,
+    paddingBottom: 32,
   },
   markerWrapper: {
     alignItems: 'center',
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
     height: 30,
   },
   scrollContentContainer: {
-    paddingBottom: 120,
+    paddingBottom: 180,
   },
 });
 
