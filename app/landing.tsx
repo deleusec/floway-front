@@ -24,11 +24,11 @@ export default function StartScreen() {
 
           <ThemedButton
             title="Créer un compte"
-            onPress={() => router.push('/create-account')}
+            onPress={() => router.push('/register')}
             style={styles.button}
           />
 
-          <TouchableOpacity onPress={() => router.push('/sign-in')}>
+          <TouchableOpacity onPress={() => router.push('/login')}>
             <Text style={styles.signInText}>
               Déjà un compte ? <Text style={styles.signInLink}>Se connecter</Text>
             </Text>

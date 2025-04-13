@@ -61,7 +61,7 @@ export default function TabLayout() {
   }
 
   if (!authToken) {
-    return <Redirect href="/start" />;
+    return <Redirect href="/landing" />;
   }
 
   return (

@@ -1,12 +1,14 @@
 import { router } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, SafeAreaView, View } from 'react-native';
-import { useAuth } from '@/context/ctx';
+
+import { useAuthStore } from '@/stores/auth';
 import { ThemedButton } from '@/components/button/ThemedButton';
 import TextInputField from '@/components/input/TextInputField';
 import React, { useState } from 'react';
 
 export default function CreateAccount() {
-  const { register } = useAuth();
+  const register = useAuthStore((state) => state.register);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -59,7 +61,7 @@ export default function CreateAccount() {
 
       setIsLoading(true);
       await register(email, password, firstName, lastName);
-      router.replace('/sign-in');
+      router.replace('/login');
     } catch (err) {
       setError("Merci de remplir tous les champs correctement afin de procéder à l'inscription.");
     } finally {
@@ -121,7 +123,7 @@ export default function CreateAccount() {
         {error && <Text style={styles.error}>{error}</Text>}
       </View>
 
-      <TouchableOpacity onPress={() => router.push('/sign-in')} style={styles.signUpContainer}>
+      <TouchableOpacity onPress={() => router.push('/login')} style={styles.signUpContainer}>
         <Text style={styles.signUpText}>
           Déjà un compte ?<Text style={styles.signUpLink}> Se connecter</Text>
         </Text>

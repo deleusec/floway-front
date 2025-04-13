@@ -1,14 +1,15 @@
 import { router } from 'expo-router';
 import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView } from 'react-native';
 
-import { useAuth } from '@/context/ctx';
+import { useAuthStore } from '@/stores/auth';
 import { ThemedButton } from '@/components/button/ThemedButton';
 import React, { useState } from 'react';
 import TextInputField from '@/components/input/TextInputField';
 import { Colors } from '@/constants/Colors';
 
 export default function SignIn() {
-  const { signIn } = useAuth();
+  const signIn = useAuthStore((state) => state.signIn);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -41,10 +42,7 @@ export default function SignIn() {
   const handleSignIn = async () => {
     try {
       setError(null);
-      setFieldErrors({
-        email: '',
-        password: '',
-      });
+      setFieldErrors({ email: '', password: '' });
 
       if (!validateForm()) {
         setError('Merci de remplir tous les champs correctement.');
@@ -56,14 +54,12 @@ export default function SignIn() {
       router.replace('/');
     } catch (err) {
       setError('Votre email ou mot de passe est incorrect.');
-      setFieldErrors({
-        email: ' ',
-        password: ' ',
-      });
+      setFieldErrors({ email: ' ', password: ' ' });
     } finally {
       setIsLoading(false);
     }
   };
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -102,7 +98,7 @@ export default function SignIn() {
       </View>
 
       <TouchableOpacity
-        onPress={() => router.push('/create-account')}
+        onPress={() => router.push('/register')}
         style={styles.signUpContainer}>
         <Text style={styles.signUpText}>
           Pas encore de compte ?<Text style={styles.signUpLink}> S'inscrire</Text>

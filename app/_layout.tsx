@@ -6,10 +6,9 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { AuthProvider } from '@/context/ctx';
-import {SessionProvider} from "@/context/SessionContext";
+import { SessionProvider } from '@/context/SessionContext';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
+// Splash screen setup
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -33,20 +32,17 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <SessionProvider>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <Stack>
-            <Stack.Screen name="start" options={{ headerShown: false }} />
-            <Stack.Screen name="session" options={{ headerShown: false }} />
-            <Stack.Screen name="create-account" options={{ headerShown: false }} />
-            <Stack.Screen name="sign-in" options={{ headerShown: false }} />
-            <Stack.Screen name="(app)" options={{ headerShown: false }} />
-            <Stack.Screen name="studio" options={{ headerShown: false }} />
-            <Stack.Screen name="+not-found" />
-          </Stack>
-        </ThemeProvider>
-      </SessionProvider>
-    </AuthProvider>
+    <SessionProvider>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="landing" options={{ headerShown: false }} />
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+          <Stack.Screen name="session" options={{ headerShown: false }} />
+          <Stack.Screen name="(app)" options={{ headerShown: false }} />
+          <Stack.Screen name="studio" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+      </ThemeProvider>
+    </SessionProvider>
   );
 }
