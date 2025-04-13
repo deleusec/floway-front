@@ -4,7 +4,7 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {Colors} from '@/constants/Colors';
 import {ThemedText} from '@/components/text/ThemedText';
 import {PictureCard} from '@/components/cards/ThemedPictureCard';
-import {useAuth} from '@/context/ctx';
+import {useAuth} from '@/context/AuthContext';
 import {secondsToCompactReadableTime} from '@/utils/timeUtils';
 import ShadowTopSvg from '@/assets/icons/shadow-top.svg';
 import ShadowBottomSvg from '@/assets/icons/shadow-bottom.svg';

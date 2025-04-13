@@ -9,7 +9,7 @@ import {Link, router} from 'expo-router';
 import ThemedButton from '@/components/button/ThemedButton';
 import {GuidedRunList} from '@/components/runs/GuidedRunList';
 import {secondsToCompactReadableTime} from '@/utils/timeUtils';
-import {useAuth} from '@/context/ctx';
+import {useAuth} from '@/context/AuthContext';
 import * as FileSystem from 'expo-file-system';
 import {useSessionContext} from '@/context/SessionContext';
 

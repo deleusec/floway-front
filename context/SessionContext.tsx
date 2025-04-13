@@ -10,7 +10,7 @@ import {
   Session,
   RunData,
 } from '@/constants/SessionData';
-import { useAuth } from '@/context/ctx';
+import { useAuth } from '@/context/AuthContext';
 import { formatDate, getLastWeekDate } from '@/utils/timeUtils';
 
 // Context creation

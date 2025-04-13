@@ -2,7 +2,7 @@ import { Redirect, Slot } from 'expo-router';
 import React, { useEffect } from 'react';
 import { PermissionsAndroid, Platform, Text } from 'react-native';
 
-import { useAuth } from '@/context/ctx';
+import { useAuth } from '@/context/AuthContext';
 import AppMenu from '@/components/AppMenu';
 import { Audio } from 'expo-av';
 

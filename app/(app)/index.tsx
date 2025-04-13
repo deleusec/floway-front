@@ -3,7 +3,7 @@ import {View, Text, StyleSheet, Image, ScrollView, ActivityIndicator} from 'reac
 import { Colors } from '@/constants/Colors';
 import { PictureCard } from '@/components/cards/ThemedPictureCard';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '@/context/ctx';
+import { useAuth } from '@/context/AuthContext';
 import Logout from '@/assets/icons/logout.svg';
 import {useSessionContext} from "@/context/SessionContext";
 import { secondsToCompactReadableTime } from '@/utils/timeUtils';

@@ -1,7 +1,7 @@
 import { Redirect, Slot } from 'expo-router';
 import React from 'react';
 import { Text } from 'react-native';
-import { useAuth } from '@/context/ctx';
+import { useAuth } from '@/context/AuthContext';
 import { StudioProvider } from '@/context/StudioContext';
 
 export default function TabLayout() {

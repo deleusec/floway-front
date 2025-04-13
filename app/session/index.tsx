@@ -22,7 +22,7 @@ import { useSessionContext } from '@/context/SessionContext';
 import ButterflyIcon from '@/components/icons/ButterflyIcon';
 import TargetIcon from '@/components/icons/TargetIcon';
 import HeadphoneIcon from '@/components/icons/HeadphoneIcon';
-import { useAuth } from '@/context/ctx';
+import { useAuth } from '@/context/AuthContext';
 import * as FileSystem from 'expo-file-system';
 
 type SessionStep = 'selection' | 'target-config' | 'guide-selection';

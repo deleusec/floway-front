@@ -19,7 +19,7 @@ import ThemedButton from '@/components/button/ThemedButton';
 import CustomModal from '@/components/modal/CustomModal';
 import TextInputField from '@/components/input/TextInputField';
 import DistanceInput from '@/components/input/DistanceInput';
-import {useAuth} from '@/context/ctx';
+import {useAuth} from '@/context/AuthContext';
 import {Audio, InterruptionModeIOS} from 'expo-av';
 import Animated, {useSharedValue} from 'react-native-reanimated';
 import {useRef} from 'react';
