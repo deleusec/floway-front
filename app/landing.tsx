@@ -8,7 +8,7 @@ import {
   SafeAreaView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ThemedButton } from '@/components/button/ThemedButton';
+import ThemedButton from '@/components/button/ThemedButton';
 
 export default function StartScreen() {
   const router = useRouter();
