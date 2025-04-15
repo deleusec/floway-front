@@ -10,10 +10,11 @@ import {
 } from 'react-native';
 import { Colors, FontFamily, FontSize, Spacing, Radius } from '@/constants/theme';
 
-type ButtonVariant = '' | 'outline' | 'ghost';
+type ButtonVariant = 'primary' | 'outline' | 'ghost';
 type ButtonSize = 'small' | 'medium' | 'large';
 type ButtonState = 'default' | 'disabled' | 'loading';
 type ButtonWidth = 'full' | 'fit';
+type ButtonRounded = keyof typeof Radius;
 
 interface ButtonProps extends TouchableOpacityProps {
   title: string;
@@ -21,6 +22,7 @@ interface ButtonProps extends TouchableOpacityProps {
   size?: ButtonSize;
   state?: ButtonState;
   width?: ButtonWidth;
+  rounded?: ButtonRounded;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -29,6 +31,7 @@ const Button: React.FC<ButtonProps> = ({
   size = 'large',
   state = 'default',
   width = 'full',
+  rounded = 'full',
   style,
   ...rest
 }) => {
@@ -45,9 +48,7 @@ const Button: React.FC<ButtonProps> = ({
   const textColor =
     variant === 'primary'
       ? Colors.white
-      : variant === 'outline'
-        ? Colors.textPrimary
-        : Colors.textPrimary;
+      : Colors.textPrimary;
 
   const borderStyle =
     variant === 'outline'
@@ -58,7 +59,9 @@ const Button: React.FC<ButtonProps> = ({
     width === 'full'
       ? { width: '100%' }
       : { alignSelf: 'flex-start' };
+
   const heightStyle = sizeStyles[size];
+  const borderRadius = { borderRadius: Radius[rounded] };
   const opacityStyle = isDisabled ? { opacity: 0.5 } : {};
 
   const ButtonContent = () => (
@@ -75,6 +78,7 @@ const Button: React.FC<ButtonProps> = ({
         styles.base,
         heightStyle,
         widthStyle,
+        borderRadius,
         { backgroundColor },
         borderStyle,
         opacityStyle,
@@ -92,7 +96,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: Spacing.md,
-    borderRadius: Radius.full,
   },
   text: {
     fontSize: FontSize.md,
@@ -107,14 +110,17 @@ const styles = StyleSheet.create({
 const sizeStyles = StyleSheet.create({
   small: {
     height: 40,
+    paddingVertical: 10,
     paddingHorizontal: Spacing.sm,
   },
   medium: {
     height: 45,
+    paddingVertical: 12,
     paddingHorizontal: Spacing.md,
   },
   large: {
     height: 52,
+    paddingVertical: 14,
     paddingHorizontal: Spacing.lg,
   },
 });

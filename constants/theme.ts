@@ -5,6 +5,11 @@ export const Colors = {
     border: '#EAEAEA',
     textPrimary: '#000000',
     textSecondary: '#666666',
+    gray: {
+        400: '#979799',
+        500: '#6E6E6E',
+        600: '#5E5E5E',
+    },
     pink: '#F7E3FE',
     yellow: '#FFE59B',
     white: '#FFFFFF',
@@ -27,7 +32,7 @@ export const FontSize = {
     md: 16,
     lg: 20,
     xl: 24,
-    xxl: 32,
+    xxl: 28,
 };
 
 export const Radius = {

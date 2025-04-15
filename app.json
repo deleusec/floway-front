@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#1C1F26"
+      "backgroundColor": "#624AF6"
     },
     "plugins": [
       [
@@ -30,7 +30,14 @@
         }
       ],
       "expo-router",
-      "expo-secure-store"
+      [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": true,
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID for secure authentication.",
+          "fingerprintPermission": "Allow $(PRODUCT_NAME) to access your fingerprint for secure authentication."
+        }
+      ]
     ],
     "ios": {
       "supportsTablet": true,
