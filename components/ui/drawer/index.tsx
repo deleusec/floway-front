@@ -40,9 +40,10 @@ const Drawer: React.FC<DrawerProps> = ({
   }
 
   const backdropOpacity = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(drawerHeight)).current;
+  const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const dragY = useRef(new Animated.Value(0)).current;
   const [dragging, setDragging] = useState(false);
+  const [fitReady, setFitReady] = useState(mode !== 'fit');
 
   const panResponder = useRef(
     PanResponder.create({
@@ -76,6 +77,14 @@ const Drawer: React.FC<DrawerProps> = ({
   ).current;
 
   useEffect(() => {
+    if (mode === 'fit' && contentHeight > 0 && visible) {
+      translateY.setValue(drawerHeight);
+      setFitReady(true);
+    }
+  }, [mode, contentHeight, drawerHeight, visible, translateY]);
+
+  useEffect(() => {
+    if (mode === 'fit' && !fitReady) return;
     if (visible) {
       setIsMounted(true);
       Animated.parallel([
@@ -105,11 +114,11 @@ const Drawer: React.FC<DrawerProps> = ({
       ]).start(() => setIsMounted(false));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible, backdropOpacity, translateY, drawerHeight]);
+  }, [visible, backdropOpacity, translateY, drawerHeight, fitReady, mode]);
 
   const drawerTranslateY = Animated.add(translateY, dragY);
 
-  if (!isMounted && !visible) return null;
+  if ((mode === 'fit' && (!fitReady || !contentHeight)) || (!isMounted && !visible)) return null;
 
   return (
     <Modal
