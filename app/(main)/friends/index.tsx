@@ -1,14 +1,16 @@
 import SvgAddFriend from '@/components/icons/AddFriend';
 import Title from '@/components/ui/title';
 import { Spacing } from '@/constants/theme';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
 import { SearchInput } from '@/components/ui/input';
 import React, { useState } from 'react';
 import Tabs from '@/components/ui/tabs';
+import Drawer from '@/components/ui/drawer';
 
 export default function FriendsScreen() {
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState('friends');
+  const [drawerVisible, setDrawerVisible] = useState(false);
   return (
     <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
       <View style={styles.headerSection}>
@@ -32,6 +34,19 @@ export default function FriendsScreen() {
         value={tab}
         onChange={setTab}
       />
+      <TouchableOpacity
+        style={{ margin: 32, backgroundColor: '#624AF6', borderRadius: 12, padding: 16, alignItems: 'center' }}
+        onPress={() => setDrawerVisible(true)}
+      >
+        <Text style={{ color: 'white', fontWeight: 'bold' }}>Ouvrir Drawer exemple</Text>
+      </TouchableOpacity>
+      <Drawer mode='fit' visible={drawerVisible} onClose={() => setDrawerVisible(false)}>
+        <View style={{ gap: 12, padding: Spacing.lg }}>
+          <Text style={{ fontSize: 16 }}>Encourager maintenant</Text>
+          <Text style={{ fontSize: 16, color: '#979799' }}>Notifier de mes courses</Text>
+          <Text style={{ fontSize: 16, color: '#EF4444' }}>Supprimer de mes amis</Text>
+        </View>
+      </Drawer>
     </ScrollView>
   );
 }
