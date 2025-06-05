@@ -1,50 +1,64 @@
-# Welcome to your Expo app 👋
+# Floway 🏃‍♂️
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+[![Expo](https://img.shields.io/badge/Expo-000000?style=for-the-badge&logo=expo&logoColor=white)](https://expo.dev)
+[![React Native](https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactnative.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 
-## Get started
+Floway est une application mobile de running qui révolutionne l'expérience de course à pied en combinant performance et motivation. Notre mission est de rendre chaque course plus engageante grâce à un système unique d'envoi d'audios entre amis pendant vos courses et de coaching personnalisé.
 
-1. Install dependencies
+## 🌟 Fonctionnalités
 
+### 🎯 Performance & Suivi
+- 🏃‍♂️ Suivi en temps réel de vos courses
+- 📊 Statistiques détaillées de vos performances
+- 🗺️ Intégration de cartes pour visualiser vos parcours
+- 🎯 Objectifs personnalisés et challenges
+
+### 💪 Motivation & Social
+- 🎙️ Envoi de messages vocaux en temps réel à vos amis pendant leur course
+- 🎧 Coaching vocal personnalisé pendant vos courses
+- 🌟 Deux modes de motivation :
+  - 👨‍👩‍👧‍👦 Mode Social : Recevez des encouragements de vos proches
+  - 👨‍🏫 Mode Coach : Bénéficiez des conseils de coachs professionnels
+
+### 📱 Interface & Expérience
+- 🎨 Interface utilisateur intuitive et moderne
+- 🎵 Intégration de playlists personnalisées
+- 🔔 Notifications intelligentes basées sur vos performances
+- 🌙 Mode nuit pour les courses nocturnes
+
+## 🛠️ Stack Technique
+
+- **Framework**: React Native avec Expo
+- **Language**: TypeScript
+- **Navigation**: Expo Router
+- **Stores**: Zustand
+
+## 🚀 Installation
+
+1. Clonez le repository
+   ```bash
+   git clone https://github.com/deleusec/floway-front
+   cd floway
+   ```
+
+2. Installez les dépendances
    ```bash
    npm install
    ```
 
-2. Start the app
-
+3. Lancez l'application
    ```bash
-    npx expo start
+   npm run start
    ```
 
-In the output, you'll find options to open the app in a
+## 📄 Licence
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Ce projet est sous licence MIT - voir le fichier [LICENSE](LICENSE) pour plus de détails.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## 📞 Contact
 
-## Get a fresh project
+Contact Equipe Floway : floway.dev@gmail.com
 
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Lien du projet: [https://github.com/deleusec/floway-front](https://github.com/deleusec/floway-front)
