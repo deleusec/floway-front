@@ -82,7 +82,7 @@ export default function SessionScreen() {
             Authorization: `Bearer ${authToken}`,
             'Content-Type': 'application/json',
           },
-        },
+        }
       );
 
       if (!runResponse.ok) {
@@ -103,7 +103,7 @@ export default function SessionScreen() {
                 headers: {
                   Authorization: `Bearer ${authToken}`,
                 },
-              },
+              }
             );
 
             if (!audioResponse.ok) {
@@ -148,7 +148,7 @@ export default function SessionScreen() {
             console.error(`Error fetching audio ID ${param.audio_id}:`, error);
             return { ...param, audioFile: null };
           }
-        }),
+        })
       );
 
       // Intégrer les audios préchargés dans `runData`
@@ -175,7 +175,7 @@ export default function SessionScreen() {
 
       <View style={styles.sessionButtonsContainer}>
         <CustomButton
-          text="Session libre"
+          text='Session libre'
           state={selectedSession === 'free' ? 'selected' : 'default'}
           onPress={() => handleSessionSelect('free')}
           style={styles.sessionButton}
@@ -188,7 +188,7 @@ export default function SessionScreen() {
           }
         />
         <CustomButton
-          text="Session avec objectif"
+          text='Session avec objectif'
           state={selectedSession === 'target' ? 'selected' : 'default'}
           onPress={() => handleSessionSelect('target')}
           style={styles.sessionButton}
@@ -201,7 +201,7 @@ export default function SessionScreen() {
           }
         />
         <CustomButton
-          text="Session avec run guidée"
+          text='Session avec run guidée'
           state={selectedSession === 'guide' ? 'selected' : 'default'}
           onPress={() => handleSessionSelect('guide')}
           style={styles.sessionButton}
@@ -217,10 +217,10 @@ export default function SessionScreen() {
 
       <View style={styles.startButtonContainer}>
         <ThemedButton
-          title="Commencer"
-          buttonSize="medium"
-          buttonType="confirm"
-          buttonState="default"
+          title='Commencer'
+          buttonSize='medium'
+          buttonType='confirm'
+          buttonState='default'
           onPress={handleContinue}
         />
       </View>
@@ -240,18 +240,18 @@ export default function SessionScreen() {
           <View style={styles.selectContainer}>
             <SelectInput
               options={['Temps', 'Distance']}
-              onValueChange={(value) => setGoalType(value as GoalType)}
+              onValueChange={value => setGoalType(value as GoalType)}
               value={goalType}
               hidePlaceholder
             />
             {goalType === 'Temps' ? (
-              <TimeInputs totalSeconds={timeValues} onChange={setTimeValues} status="active" />
+              <TimeInputs totalSeconds={timeValues} onChange={setTimeValues} status='active' />
             ) : (
               <DistanceInput
                 value={goalDistance}
                 onChange={setGoalDistance}
-                unit="km"
-                status="default"
+                unit='km'
+                status='default'
               />
             )}
           </View>
@@ -260,9 +260,9 @@ export default function SessionScreen() {
 
       <View style={styles.startButtonContainer}>
         <ThemedButton
-          title="Commencer"
-          buttonSize="medium"
-          buttonType="confirm"
+          title='Commencer'
+          buttonSize='medium'
+          buttonType='confirm'
           onPress={handleTargetStart}
         />
       </View>
@@ -282,9 +282,9 @@ export default function SessionScreen() {
 
       <View style={styles.startButtonContainer}>
         <ThemedButton
-          title="Commencer"
-          buttonSize="medium"
-          buttonType="confirm"
+          title='Commencer'
+          buttonSize='medium'
+          buttonType='confirm'
           buttonState={selectedRun ? 'default' : 'disabled'}
           disabled={!selectedRun}
           onPress={handleGuideStart}

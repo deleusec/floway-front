@@ -63,17 +63,17 @@ export default function SessionSummary() {
               style={styles.titleInput}
               ref={inputRef}
               onBlur={handleSaveTitle}
-              returnKeyType="done"
+              returnKeyType='done'
               onSubmitEditing={handleSaveTitle}
             />
           ) : (
             <TouchableOpacity onPress={startEditing}>
-              <ThemedText type="subtitle" numberOfLines={1} ellipsizeMode="tail">
+              <ThemedText type='subtitle' numberOfLines={1} ellipsizeMode='tail'>
                 {sessionData?.title || 'Sans titre'}
               </ThemedText>
             </TouchableOpacity>
           )}
-          <ThemedText type="default" style={styles.dateText}>
+          <ThemedText type='default' style={styles.dateText}>
             {formattedDate}
           </ThemedText>
         </View>
@@ -93,23 +93,23 @@ export default function SessionSummary() {
       <TimeDisplay time={sessionData?.time || 0} />
       <View style={styles.metricsContainer}>
         <View style={styles.metricItem}>
-          <ThemedText type="default">Distance</ThemedText>
-          <ThemedText type="subtitle">{sessionData?.metrics?.distance || 0.0}km</ThemedText>
+          <ThemedText type='default'>Distance</ThemedText>
+          <ThemedText type='subtitle'>{sessionData?.metrics?.distance || 0.0}km</ThemedText>
         </View>
         <View style={styles.metricItem}>
-          <ThemedText type="default">Allure</ThemedText>
-          <ThemedText type="subtitle">{sessionData?.metrics?.pace || 0.0}</ThemedText>
+          <ThemedText type='default'>Allure</ThemedText>
+          <ThemedText type='subtitle'>{sessionData?.metrics?.pace || 0.0}</ThemedText>
         </View>
         <View style={styles.metricItem}>
-          <ThemedText type="default">Calories</ThemedText>
-          <ThemedText type="subtitle">{sessionData?.metrics?.calories || 0}kcal</ThemedText>
+          <ThemedText type='default'>Calories</ThemedText>
+          <ThemedText type='subtitle'>{sessionData?.metrics?.calories || 0}kcal</ThemedText>
         </View>
       </View>
       <View style={styles.buttonContainer}>
         <ThemedButton
-          title="Terminer"
-          buttonSize="medium"
-          buttonType="confirm"
+          title='Terminer'
+          buttonSize='medium'
+          buttonType='confirm'
           buttonState={isSaving ? 'loading' : 'default'}
           onPress={handleFinish}
         />

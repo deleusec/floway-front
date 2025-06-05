@@ -21,22 +21,22 @@ export default function InputComponentsDemo() {
             <Text style={styles.stateTitle}>Active State</Text>
             <View style={styles.row}>
               <TimeInputField
-                placeholder="00"
-                unit="heures"
-                value="1"
-                onChange={(value) => console.log(value)}
+                placeholder='00'
+                unit='heures'
+                value='1'
+                onChange={value => console.log(value)}
               />
               <TimeInputField
-                placeholder="00"
-                unit="min"
-                value="30"
-                onChange={(value) => console.log(value)}
+                placeholder='00'
+                unit='min'
+                value='30'
+                onChange={value => console.log(value)}
               />
               <TimeInputField
-                placeholder="00"
-                unit="sec"
-                value="45"
-                onChange={(value) => console.log(value)}
+                placeholder='00'
+                unit='sec'
+                value='45'
+                onChange={value => console.log(value)}
               />
             </View>
           </View>
@@ -45,25 +45,25 @@ export default function InputComponentsDemo() {
             <Text style={styles.stateTitle}>Disabled State</Text>
             <View style={styles.row}>
               <TimeInputField
-                placeholder="00"
-                unit="heures"
-                status="deactivate"
-                value="1"
-                onChange={(value) => console.log(value)}
+                placeholder='00'
+                unit='heures'
+                status='deactivate'
+                value='1'
+                onChange={value => console.log(value)}
               />
               <TimeInputField
-                placeholder="00"
-                unit="min"
-                status="deactivate"
-                value="30"
-                onChange={(value) => console.log(value)}
+                placeholder='00'
+                unit='min'
+                status='deactivate'
+                value='30'
+                onChange={value => console.log(value)}
               />
               <TimeInputField
-                placeholder="00"
-                unit="sec"
-                status="deactivate"
-                value="45"
-                onChange={(value) => console.log(value)}
+                placeholder='00'
+                unit='sec'
+                status='deactivate'
+                value='45'
+                onChange={value => console.log(value)}
               />
             </View>
           </View>
@@ -72,25 +72,25 @@ export default function InputComponentsDemo() {
             <Text style={styles.stateTitle}>Error State</Text>
             <View style={styles.row}>
               <TimeInputField
-                placeholder="00"
-                unit="heures"
-                status="error"
-                value=""
-                onChange={(value) => console.log(value)}
+                placeholder='00'
+                unit='heures'
+                status='error'
+                value=''
+                onChange={value => console.log(value)}
               />
               <TimeInputField
-                placeholder="00"
-                unit="min"
-                status="error"
-                value=""
-                onChange={(value) => console.log(value)}
+                placeholder='00'
+                unit='min'
+                status='error'
+                value=''
+                onChange={value => console.log(value)}
               />
               <TimeInputField
-                placeholder="00"
-                unit="sec"
-                status="error"
-                value=""
-                onChange={(value) => console.log(value)}
+                placeholder='00'
+                unit='sec'
+                status='error'
+                value=''
+                onChange={value => console.log(value)}
               />
             </View>
           </View>
@@ -105,15 +105,15 @@ export default function InputComponentsDemo() {
             <View style={styles.selectContainer}>
               <SelectInput
                 options={timeOptions}
-                placeholder="Sélectionner le type"
-                label="Type de mesure"
+                placeholder='Sélectionner le type'
+                label='Type de mesure'
               />
             </View>
             <View style={styles.selectContainer}>
               <SelectInput
                 options={distanceOptions}
                 placeholder="Sélectionner l'unité"
-                label="Unité"
+                label='Unité'
               />
             </View>
           </View>
@@ -123,9 +123,9 @@ export default function InputComponentsDemo() {
             <View style={styles.selectContainer}>
               <SelectInput
                 options={timeOptions}
-                placeholder="Sélectionner le type"
-                status="disabled"
-                label="Type de mesure"
+                placeholder='Sélectionner le type'
+                status='disabled'
+                label='Type de mesure'
               />
             </View>
           </View>
@@ -135,9 +135,9 @@ export default function InputComponentsDemo() {
             <View style={styles.selectContainer}>
               <SelectInput
                 options={timeOptions}
-                placeholder="Sélectionner le type"
-                status="error"
-                label="Type de mesure"
+                placeholder='Sélectionner le type'
+                status='error'
+                label='Type de mesure'
               />
             </View>
           </View>

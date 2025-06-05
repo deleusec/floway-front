@@ -36,7 +36,7 @@ export default function SignIn() {
 
     setFieldErrors(newFieldErrors);
 
-    return !Object.values(newFieldErrors).some((error) => error !== '');
+    return !Object.values(newFieldErrors).some(error => error !== '');
   };
 
   const handleSignIn = async () => {
@@ -60,25 +60,24 @@ export default function SignIn() {
     }
   };
 
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         <Text style={styles.title}>Se connecter</Text>
 
         <TextInputField
-          label="Email"
+          label='Email'
           value={email}
           onChange={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
+          keyboardType='email-address'
+          autoCapitalize='none'
           status={fieldErrors.email ? 'error' : 'default'}
           errorMessage={fieldErrors.email}
           style={styles.input}
         />
 
         <TextInputField
-          label="Mot de passe"
+          label='Mot de passe'
           value={password}
           onChange={setPassword}
           secureTextEntry
@@ -88,7 +87,7 @@ export default function SignIn() {
         />
 
         <ThemedButton
-          title="Se connecter"
+          title='Se connecter'
           onPress={handleSignIn}
           style={styles.button}
           buttonState={isLoading ? 'loading' : 'default'}
@@ -97,9 +96,7 @@ export default function SignIn() {
         {error && <Text style={styles.error}>{error}</Text>}
       </View>
 
-      <TouchableOpacity
-        onPress={() => router.push('/register')}
-        style={styles.signUpContainer}>
+      <TouchableOpacity onPress={() => router.push('/register')} style={styles.signUpContainer}>
         <Text style={styles.signUpText}>
           Pas encore de compte ?<Text style={styles.signUpLink}> S'inscrire</Text>
         </Text>

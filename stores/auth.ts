@@ -26,7 +26,7 @@ type AuthState = {
   getUserAndTokenFromStorage: () => Promise<{ user: User | null; token: string | null }>;
 };
 
-export const useAuth = create<AuthState>((set) => ({
+export const useAuth = create<AuthState>(set => ({
   user: null,
   token: null,
   isAuthenticated: false,

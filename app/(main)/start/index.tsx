@@ -21,10 +21,10 @@ export default function StartScreen() {
           timeInterval: 1000,
           distanceInterval: 1,
         },
-        (location) => {
+        location => {
           updateLocation(location);
         }
-      ).then((subscription) => {
+      ).then(subscription => {
         locationSubscription = subscription;
       });
     }
@@ -59,16 +59,14 @@ export default function StartScreen() {
         <View style={styles.typeSelector}>
           <TouchableOpacity
             style={[styles.typeButton, sessionType === 'time' && styles.selectedType]}
-            onPress={() => setSessionType('time')}
-          >
+            onPress={() => setSessionType('time')}>
             <Text style={[styles.typeText, sessionType === 'time' && styles.selectedTypeText]}>
               Temps
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.typeButton, sessionType === 'distance' && styles.selectedType]}
-            onPress={() => setSessionType('distance')}
-          >
+            onPress={() => setSessionType('distance')}>
             <Text style={[styles.typeText, sessionType === 'distance' && styles.selectedTypeText]}>
               Distance
             </Text>
@@ -83,7 +81,7 @@ export default function StartScreen() {
             style={styles.input}
             value={objective}
             onChangeText={setObjective}
-            keyboardType="numeric"
+            keyboardType='numeric'
             placeholder={`Entrez votre objectif en ${sessionType === 'time' ? 'minutes' : 'km'}`}
           />
         </View>

@@ -1,1 +1,1 @@
-export const API_URL = "https://api.floway.edgar-lecomte.fr";
+export const API_URL = 'https://api.floway.edgar-lecomte.fr';

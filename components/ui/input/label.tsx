@@ -3,9 +3,7 @@ import { Text, StyleSheet, TextProps } from 'react-native';
 import { Colors, FontSize, FontFamily } from '@/constants/theme';
 
 const InputLabel: React.FC<TextProps> = ({ children, style, ...rest }) => (
-  <Text
-    style={[styles.label, style]}
-    {...rest}>
+  <Text style={[styles.label, style]} {...rest}>
     {children}
   </Text>
 );

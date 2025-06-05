@@ -20,8 +20,7 @@ export default function FriendStatusAvatar({ image, isRunning = false, onPress }
             {
               borderColor: isRunning ? Colors.primary : Colors.border,
             },
-          ]}
-        >
+          ]}>
           <Image source={{ uri: image }} style={styles.avatar} />
         </View>
 

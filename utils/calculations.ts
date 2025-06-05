@@ -30,5 +30,5 @@ export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2
 export function calculatePace(distance: number, time: number): number {
   if (distance === 0 || time === 0) return 0;
   // Retourne l'allure en minutes par kilomètre
-  return (time / 60000) / (distance / 1000);
+  return time / 60000 / (distance / 1000);
 }

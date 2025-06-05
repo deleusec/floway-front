@@ -1,4 +1,4 @@
-import { Audio } from "expo-av";
+import { Audio } from 'expo-av';
 
 const useAudioPermissions = () => {
   const [permissionResponse, requestPermission] = Audio.usePermissions();

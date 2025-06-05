@@ -76,7 +76,7 @@ export const useRunningSessionStore = create<RunningSessionStore>((set, get) => 
     const date = new Date();
     const formattedDate = format(date, "dd/MM/yyyy 'à' HH:mm", { locale: fr });
 
-    set((state) => ({
+    set(state => ({
       session: {
         ...state.session,
         isActive: true,
@@ -95,7 +95,7 @@ export const useRunningSessionStore = create<RunningSessionStore>((set, get) => 
     }, 1000); // Mise à jour toutes les secondes
 
     // Stocker l'intervalle dans le store pour pouvoir le nettoyer plus tard
-    set((state) => ({
+    set(state => ({
       session: {
         ...state.session,
         intervalId,
@@ -108,7 +108,7 @@ export const useRunningSessionStore = create<RunningSessionStore>((set, get) => 
     if (session.intervalId) {
       clearInterval(session.intervalId);
     }
-    set((state) => ({
+    set(state => ({
       session: {
         ...state.session,
         isActive: false,
@@ -128,7 +128,7 @@ export const useRunningSessionStore = create<RunningSessionStore>((set, get) => 
       pace: calculatePace(session.metrics.distance, currentTime),
     };
 
-    set((state) => ({
+    set(state => ({
       session: {
         ...state.session,
         metrics: newMetrics,
@@ -136,7 +136,7 @@ export const useRunningSessionStore = create<RunningSessionStore>((set, get) => 
     }));
   },
 
-  updateLocation: (location) => {
+  updateLocation: location => {
     const { session } = get();
     if (!session.isActive) return;
 
@@ -169,7 +169,7 @@ export const useRunningSessionStore = create<RunningSessionStore>((set, get) => 
       ),
     };
 
-    set((state) => ({
+    set(state => ({
       session: {
         ...state.session,
         locations: [...state.session.locations, newLocation],
@@ -231,7 +231,7 @@ export const useRunningSessionStore = create<RunningSessionStore>((set, get) => 
         throw new Error('No session ID received from server');
       }
 
-      set((state) => ({
+      set(state => ({
         session: {
           ...state.session,
           id: responseData.data.insertedId,
@@ -278,23 +278,20 @@ export const useRunningSessionStore = create<RunningSessionStore>((set, get) => 
     }
 
     try {
-      const response = await fetch(
-        `https://node.floway.edgar-lecomte.fr/session/${session.id}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${authToken}`,
-          },
-          body: JSON.stringify({ title: newTitle }),
-        }
-      );
+      const response = await fetch(`https://node.floway.edgar-lecomte.fr/session/${session.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ title: newTitle }),
+      });
 
       if (!response.ok) {
         throw new Error('Failed to update session title');
       }
 
-      set((state) => ({
+      set(state => ({
         session: {
           ...state.session,
           title: newTitle,

@@ -1,5 +1,15 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, Alert, KeyboardAvoidingView, SafeAreaView, ScrollView, Platform } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  Alert,
+  KeyboardAvoidingView,
+  SafeAreaView,
+  ScrollView,
+  Platform,
+} from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -49,17 +59,15 @@ export default function LoginScreen() {
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 20 : 0}
-      >
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 20 : 0}>
         <ScrollView
           contentContainerStyle={styles.scroll}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
+          keyboardShouldPersistTaps='handled'
+          showsVerticalScrollIndicator={false}>
           <Image
             source={require('@/assets/images/runners-holding-hands.png')}
             style={styles.image}
-            resizeMode="contain"
+            resizeMode='contain'
           />
           <View style={styles.formContainer}>
             <Title style={styles.title}>Se connecter</Title>
@@ -68,13 +76,13 @@ export default function LoginScreen() {
               <InputLabel>Email</InputLabel>
               <Controller
                 control={control}
-                name="email"
+                name='email'
                 render={({ field: { onChange, value } }) => (
                   <Input
                     value={value}
                     onChangeText={onChange}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
+                    keyboardType='email-address'
+                    autoCapitalize='none'
                   />
                 )}
               />
@@ -85,13 +93,13 @@ export default function LoginScreen() {
               <InputLabel>Mot de passe</InputLabel>
               <Controller
                 control={control}
-                name="password"
+                name='password'
                 render={({ field: { onChange, value } }) => (
                   <Input
                     value={value}
                     onChangeText={onChange}
                     secureTextEntry
-                    autoCapitalize="none"
+                    autoCapitalize='none'
                   />
                 )}
               />
@@ -101,9 +109,9 @@ export default function LoginScreen() {
             <Button
               title={isSubmitting ? 'Connexion...' : 'Se connecter'}
               onPress={handleSubmit(onSubmit)}
-              size="large"
-              width="full"
-              rounded="md"
+              size='large'
+              width='full'
+              rounded='md'
             />
 
             <Text style={styles.registerText}>
@@ -121,13 +129,13 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   safe: {
-      flex: 1,
-      backgroundColor: Colors.background,
+    flex: 1,
+    backgroundColor: Colors.background,
   },
   scroll: {
-      padding: Spacing.lg,
-      gap: Spacing.md,
-      flexGrow: 1,
+    padding: Spacing.lg,
+    gap: Spacing.md,
+    flexGrow: 1,
   },
   image: {
     width: '100%',

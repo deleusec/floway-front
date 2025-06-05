@@ -18,7 +18,7 @@ export default function TabLayout() {
         }
       } else if (Platform.OS === 'android') {
         const hasAudioPermission = await PermissionsAndroid.check(
-          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO
         );
         let audioPermission;
         if (!hasAudioPermission) {
@@ -29,7 +29,7 @@ export default function TabLayout() {
               message:
                 "L'application a besoin d'accéder à votre micro pour enregistrer des audios.",
               buttonPositive: 'OK',
-            },
+            }
           );
         }
 
@@ -40,7 +40,7 @@ export default function TabLayout() {
             message:
               "L'application a besoin d'accéder à vos fichiers pour enregistrer et lire des audios.",
             buttonPositive: 'OK',
-          },
+          }
         );
 
         if (audioPermission !== PermissionsAndroid.RESULTS.GRANTED) {
@@ -61,7 +61,7 @@ export default function TabLayout() {
   }
 
   if (!authToken) {
-    return <Redirect href="/landing" />;
+    return <Redirect href='/landing' />;
   }
 
   return (

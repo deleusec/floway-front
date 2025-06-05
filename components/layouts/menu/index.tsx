@@ -7,7 +7,6 @@ import SvgHomeIcon from '@/components/icons/HomeIcon';
 import SvgPlayIcon from '@/components/icons/PlayIcon';
 import SvgUsersIcon from '@/components/icons/UsersIcon';
 
-
 const TABS = [
   { label: 'Accueil', href: '/', icon: SvgHomeIcon },
   { label: 'Démarrer', href: '/start', icon: SvgPlayIcon },
@@ -27,9 +26,7 @@ export default function BottomMenu() {
           <Link href={href as any} asChild key={href}>
             <Pressable style={styles.tab}>
               <Icon size={22} color={color} />
-              <Text style={[styles.label, { color }]}>
-                {label}
-              </Text>
+              <Text style={[styles.label, { color }]}>{label}</Text>
             </Pressable>
           </Link>
         );

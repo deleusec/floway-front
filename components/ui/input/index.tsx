@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  TextInput,
-  TextInputProps,
-  StyleSheet,
-  View,
-  ViewStyle,
-} from 'react-native';
+import { TextInput, TextInputProps, StyleSheet, View, ViewStyle } from 'react-native';
 import { Colors, FontSize, FontFamily, Radius, Spacing } from '@/constants/theme';
 
 interface Props extends TextInputProps {
@@ -15,11 +9,7 @@ interface Props extends TextInputProps {
 const Input: React.FC<Props> = ({ containerStyle, style, ...props }) => {
   return (
     <View style={[styles.container, containerStyle]}>
-      <TextInput
-        placeholderTextColor="#707070"
-        style={[styles.input, style]}
-        {...props}
-      />
+      <TextInput placeholderTextColor='#707070' style={[styles.input, style]} {...props} />
     </View>
   );
 };
@@ -41,3 +31,5 @@ const styles = StyleSheet.create({
 });
 
 export default Input;
+
+export { SearchInput } from './search';

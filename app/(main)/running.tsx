@@ -19,41 +19,37 @@ export default function RunningScreen() {
   }, [session.isActive]);
 
   const handleStopSession = () => {
-    Alert.alert(
-      'Arrêter la course',
-      'Êtes-vous sûr de vouloir arrêter la course ?',
-      [
-        {
-          text: 'Annuler',
-          style: 'cancel',
-          onPress: () => console.log('❌ Session stop cancelled by user'),
-        },
-        {
-          text: 'Arrêter',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              let currentUser = user;
-              let currentToken = token;
-              if (!currentUser || !currentToken) {
-                const { user: storedUser, token: storedToken } = await getUserAndTokenFromStorage();
-                currentUser = storedUser;
-                currentToken = storedToken;
-              }
-              if (currentUser && currentToken) {
-                await saveSession(currentToken, currentUser.id);
-              } else {
-                console.warn('⚠️ Impossible de récupérer user/token pour la sauvegarde');
-              }
-              stopSession();
-              router.replace('/start');
-            } catch (error) {
-              Alert.alert('Erreur', 'Impossible de sauvegarder la session');
+    Alert.alert('Arrêter la course', 'Êtes-vous sûr de vouloir arrêter la course ?', [
+      {
+        text: 'Annuler',
+        style: 'cancel',
+        onPress: () => console.log('❌ Session stop cancelled by user'),
+      },
+      {
+        text: 'Arrêter',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            let currentUser = user;
+            let currentToken = token;
+            if (!currentUser || !currentToken) {
+              const { user: storedUser, token: storedToken } = await getUserAndTokenFromStorage();
+              currentUser = storedUser;
+              currentToken = storedToken;
             }
-          },
+            if (currentUser && currentToken) {
+              await saveSession(currentToken, currentUser.id);
+            } else {
+              console.warn('⚠️ Impossible de récupérer user/token pour la sauvegarde');
+            }
+            stopSession();
+            router.replace('/start');
+          } catch (error) {
+            Alert.alert('Erreur', 'Impossible de sauvegarder la session');
+          }
         },
-      ]
-    );
+      },
+    ]);
   };
 
   return (

@@ -30,7 +30,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       totalCalories: userSessions.reduce((sum, session) => sum + (session.calories || 0), 0),
       sessionCount: userSessions.length,
     }),
-    [userSessions],
+    [userSessions]
   );
 
   const fetchUserSessions = useCallback(async (userId: number, token: string) => {
@@ -94,7 +94,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         throw new Error('Location permission denied');
       }
 
-      setSessionData((prev) => {
+      setSessionData(prev => {
         if (!prev) return null;
         return {
           ...prev,
@@ -110,7 +110,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
           timeInterval: 1000,
           distanceInterval: 5,
         },
-        updateLocation,
+        updateLocation
       );
     } catch (error) {
       console.error('Error starting session:', error);
@@ -154,7 +154,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const responseData = await response.json();
       if (!response.ok) throw new Error(`Failed to save session: ${responseData?.message}`);
 
-      setSessionData((prev) => {
+      setSessionData(prev => {
         if (!prev) return null;
         return {
           ...prev,
@@ -181,12 +181,12 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
               Authorization: `Bearer ${authToken}`,
             },
             body: JSON.stringify({ title: newTitle }),
-          },
+          }
         );
 
         if (!response.ok) throw new Error('Failed to update session title');
 
-        setSessionData((prev) => {
+        setSessionData(prev => {
           if (!prev) return null;
           return {
             ...prev,
@@ -198,11 +198,11 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         throw error;
       }
     },
-    [sessionData?.id, authToken],
+    [sessionData?.id, authToken]
   );
 
   const updateLocation = useCallback((location: Location.LocationObject) => {
-    setSessionData((prev) => {
+    setSessionData(prev => {
       if (!prev) return null;
       const newLocation: LocationData = {
         latitude: location.coords.latitude,
@@ -238,7 +238,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         fetchUserSessions,
         weeklyStats,
         updateSessionTitle,
-        isLoading
+        isLoading,
       }}>
       {children}
     </SessionContext.Provider>

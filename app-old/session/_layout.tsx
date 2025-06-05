@@ -11,7 +11,7 @@ export default function SessionLayout() {
   }
 
   if (!authToken) {
-    return <Redirect href="/landing" />;
+    return <Redirect href='/landing' />;
   }
 
   return <Slot />;

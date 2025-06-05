@@ -23,7 +23,7 @@ export default function StartScreen() {
           </Text>
 
           <ThemedButton
-            title="Créer un compte"
+            title='Créer un compte'
             onPress={() => router.push('/register')}
             style={styles.button}
           />

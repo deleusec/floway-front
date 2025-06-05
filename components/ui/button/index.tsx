@@ -39,26 +39,13 @@ const Button: React.FC<ButtonProps> = ({
   const isDisabled = state === 'disabled' || isLoading;
 
   const backgroundColor =
-    variant === 'primary'
-      ? Colors.primary
-      : variant === 'outline'
-        ? Colors.white
-        : 'transparent';
+    variant === 'primary' ? Colors.primary : variant === 'outline' ? Colors.white : 'transparent';
 
-  const textColor =
-    variant === 'primary'
-      ? Colors.white
-      : Colors.textPrimary;
+  const textColor = variant === 'primary' ? Colors.white : Colors.textPrimary;
 
-  const borderStyle =
-    variant === 'outline'
-      ? { borderWidth: 1, borderColor: Colors.border }
-      : {};
+  const borderStyle = variant === 'outline' ? { borderWidth: 1, borderColor: Colors.border } : {};
 
-  const widthStyle: ViewStyle =
-    width === 'full'
-      ? { width: '100%' }
-      : { alignSelf: 'flex-start' };
+  const widthStyle: ViewStyle = width === 'full' ? { width: '100%' } : { alignSelf: 'flex-start' };
 
   const heightStyle = sizeStyles[size];
   const borderRadius = { borderRadius: Radius[rounded] };
@@ -67,7 +54,7 @@ const Button: React.FC<ButtonProps> = ({
   const ButtonContent = () => (
     <View style={isLoading ? styles.loadingContainer : undefined}>
       <Text style={[styles.text, { color: textColor }]}>{title}</Text>
-      {isLoading && <ActivityIndicator size="small" color={textColor} style={{ marginLeft: 8 }} />}
+      {isLoading && <ActivityIndicator size='small' color={textColor} style={{ marginLeft: 8 }} />}
     </View>
   );
 
@@ -84,8 +71,7 @@ const Button: React.FC<ButtonProps> = ({
         opacityStyle,
         style,
       ]}
-      {...rest}
-    >
+      {...rest}>
       <ButtonContent />
     </TouchableOpacity>
   );

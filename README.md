@@ -10,12 +10,14 @@ Floway est une application mobile de running qui révolutionne l'expérience de 
 ## 🌟 Fonctionnalités
 
 ### 🎯 Performance & Suivi
+
 - 🏃‍♂️ Suivi en temps réel de vos courses
 - 📊 Statistiques détaillées de vos performances
 - 🗺️ Intégration de cartes pour visualiser vos parcours
 - 🎯 Objectifs personnalisés et challenges
 
 ### 💪 Motivation & Social
+
 - 🎙️ Envoi de messages vocaux en temps réel à vos amis pendant leur course
 - 🎧 Coaching vocal personnalisé pendant vos courses
 - 🌟 Deux modes de motivation :
@@ -23,6 +25,7 @@ Floway est une application mobile de running qui révolutionne l'expérience de 
   - 👨‍🏫 Mode Coach : Bénéficiez des conseils de coachs professionnels
 
 ### 📱 Interface & Expérience
+
 - 🎨 Interface utilisateur intuitive et moderne
 - 🎵 Intégration de playlists personnalisées
 - 🔔 Notifications intelligentes basées sur vos performances
@@ -38,12 +41,14 @@ Floway est une application mobile de running qui révolutionne l'expérience de 
 ## 🚀 Installation
 
 1. Clonez le repository
+
    ```bash
    git clone https://github.com/deleusec/floway-front
    cd floway
    ```
 
 2. Installez les dépendances
+
    ```bash
    npm install
    ```

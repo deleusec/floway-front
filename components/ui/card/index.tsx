@@ -11,26 +11,14 @@ interface CardProps extends ViewProps {
 }
 
 const radiusMap = {
-  sm: Radius.sm,   // 6px
-  md: Radius.md,   // 12px
-  lg: Radius.lg,   // 20px
+  sm: Radius.sm, // 6px
+  md: Radius.md, // 12px
+  lg: Radius.lg, // 20px
 };
 
-const Card: React.FC<CardProps> = ({
-  radius = 'md',
-  style,
-  children,
-  ...rest
-}) => {
+const Card: React.FC<CardProps> = ({ radius = 'md', style, children, ...rest }) => {
   return (
-    <View
-      style={[
-        styles.base,
-        { borderRadius: radiusMap[radius] },
-        style,
-      ]}
-      {...rest}
-    >
+    <View style={[styles.base, { borderRadius: radiusMap[radius] }, style]} {...rest}>
       {children}
     </View>
   );

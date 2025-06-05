@@ -41,7 +41,7 @@ export default function CreateAccount() {
 
     setFieldErrors(newFieldErrors);
 
-    return !Object.values(newFieldErrors).some((error) => error !== '');
+    return !Object.values(newFieldErrors).some(error => error !== '');
   };
 
   const handleRegister = async () => {
@@ -75,7 +75,7 @@ export default function CreateAccount() {
         <Text style={styles.title}>Créer un compte</Text>
 
         <TextInputField
-          label="Prénom"
+          label='Prénom'
           value={firstName}
           onChange={setFirstName}
           status={fieldErrors.firstName ? 'error' : 'default'}
@@ -84,7 +84,7 @@ export default function CreateAccount() {
         />
 
         <TextInputField
-          label="Nom"
+          label='Nom'
           value={lastName}
           onChange={setLastName}
           status={fieldErrors.lastName ? 'error' : 'default'}
@@ -93,18 +93,18 @@ export default function CreateAccount() {
         />
 
         <TextInputField
-          label="Email"
+          label='Email'
           value={email}
           onChange={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
+          keyboardType='email-address'
+          autoCapitalize='none'
           status={fieldErrors.email ? 'error' : 'default'}
           errorMessage={fieldErrors.email}
           style={styles.input}
         />
 
         <TextInputField
-          label="Mot de passe"
+          label='Mot de passe'
           value={password}
           onChange={setPassword}
           secureTextEntry

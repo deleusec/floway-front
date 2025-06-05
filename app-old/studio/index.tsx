@@ -86,13 +86,13 @@ export default function CreateRun() {
           </View>
 
           <View style={styles.headerContainer}>
-            <ThemedText type="title">Créer ma Run Guidée</ThemedText>
+            <ThemedText type='title'>Créer ma Run Guidée</ThemedText>
           </View>
 
           <View style={styles.inputGroup}>
-            <ThemedText type="default">Titre de la Run</ThemedText>
+            <ThemedText type='default'>Titre de la Run</ThemedText>
             <TextInputField
-              placeholder="Ma première Run guidée"
+              placeholder='Ma première Run guidée'
               value={title}
               onChange={setTitle}
               status={errors.title ? 'error' : 'default'}
@@ -101,18 +101,18 @@ export default function CreateRun() {
           </View>
 
           <View style={styles.inputGroup}>
-            <ThemedText type="default">Type de l'objectif</ThemedText>
+            <ThemedText type='default'>Type de l'objectif</ThemedText>
             <View style={styles.selectContainer}>
               <SelectInput
                 options={['Temps', 'Distance']}
-                onValueChange={(value) => setGoalType(value as 'Temps' | 'Distance')}
+                onValueChange={value => setGoalType(value as 'Temps' | 'Distance')}
                 value={goalType}
                 hidePlaceholder
               />
               {goalType === 'Temps' ? (
                 <TimeInputs
                   totalSeconds={timeValues}
-                  onChange={(seconds) => {
+                  onChange={seconds => {
                     console.log(seconds);
 
                     setTimeValues(seconds);
@@ -124,7 +124,7 @@ export default function CreateRun() {
                 <DistanceInput
                   value={goalDistance}
                   onChange={setGoalDistance}
-                  unit="km"
+                  unit='km'
                   status={errors.goal ? 'error' : 'default'}
                   errorMessage={errors.goal}
                 />
@@ -133,9 +133,9 @@ export default function CreateRun() {
           </View>
 
           <View style={styles.inputGroup}>
-            <ThemedText type="default">Description de la Run</ThemedText>
+            <ThemedText type='default'>Description de la Run</ThemedText>
             <TextInputField
-              placeholder="Une petite description de ma Run guidée"
+              placeholder='Une petite description de ma Run guidée'
               multiline
               value={description}
               onChange={setDescription}
@@ -148,10 +148,10 @@ export default function CreateRun() {
           <View style={styles.footerContainer}>
             <View style={styles.buttonWrapper}>
               <ThemedButton
-                title="Suivant"
-                buttonSize="medium"
-                buttonType="confirm"
-                buttonState="default"
+                title='Suivant'
+                buttonSize='medium'
+                buttonType='confirm'
+                buttonState='default'
                 onPress={() => handleNext()}
               />
             </View>

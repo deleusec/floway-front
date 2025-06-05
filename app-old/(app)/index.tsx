@@ -1,11 +1,11 @@
-import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet, Image, ScrollView, ActivityIndicator} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, ActivityIndicator } from 'react-native';
 import { Colors } from '@/constants/Colors';
 import { PictureCard } from '@/components/cards/ThemedPictureCard';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/context/AuthContext';
 import Logout from '@/assets/icons/logout.svg';
-import {useSessionContext} from "@/context/SessionContext";
+import { useSessionContext } from '@/context/SessionContext';
 import { secondsToCompactReadableTime } from '@/utils/timeUtils';
 import CustomModal from '@/components/modal/CustomModal';
 
@@ -60,7 +60,8 @@ export default function HomeScreen() {
               <Text style={styles.statValue}>
                 {Number.isInteger(weeklyStats.totalDistance)
                   ? weeklyStats.totalDistance
-                  : weeklyStats.totalDistance.toFixed(1)} km
+                  : weeklyStats.totalDistance.toFixed(1)}{' '}
+                km
               </Text>
             </View>
             <View style={styles.statBlock}>
@@ -86,17 +87,17 @@ export default function HomeScreen() {
               style={styles.scrollView}>
               {isLoading ? (
                 <View style={styles.placeholder}>
-                  <ActivityIndicator size="large" color={Colors.light.white} />
+                  <ActivityIndicator size='large' color={Colors.light.white} />
                 </View>
               ) : userSessions.length === 0 ? (
                 <View style={styles.placeholder}>
                   <Text style={styles.placeholderText}>
-                    Vous n'avez pas encore lancé une course.
-                    Cliquez sur le bouton "play" pour lancer une course !
+                    Vous n'avez pas encore lancé une course. Cliquez sur le bouton "play" pour
+                    lancer une course !
                   </Text>
                 </View>
               ) : (
-                userSessions.map((session) => (
+                userSessions.map(session => (
                   <PictureCard
                     key={session._id}
                     title={session.title}

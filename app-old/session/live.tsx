@@ -1,17 +1,17 @@
-import React, {useCallback, useEffect, useState} from 'react';
-import {StyleSheet, View, BackHandler, Platform} from 'react-native';
-import {useFocusEffect, useRouter} from 'expo-router';
-import {Colors} from '@/constants/Colors';
-import {Audio} from 'expo-av';
+import React, { useCallback, useEffect, useState } from 'react';
+import { StyleSheet, View, BackHandler, Platform } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { Colors } from '@/constants/Colors';
+import { Audio } from 'expo-av';
 import SessionMetrics from '@/components/olds/session/SessionMetrics';
-import {useSessionContext} from '@/context/SessionContext';
+import { useSessionContext } from '@/context/SessionContext';
 import TimeDisplay from '@/components/olds/session/TimeDisplay';
-import {ThemedText} from '@/components/olds/text/ThemedText';
+import { ThemedText } from '@/components/olds/text/ThemedText';
 import SessionTarget from '@/components/olds/session/SessionTarget';
-import {PictureCard} from '@/components/cards/ThemedPictureCard';
-import {secondsToCompactReadableTime} from '@/utils/timeUtils';
+import { PictureCard } from '@/components/cards/ThemedPictureCard';
+import { secondsToCompactReadableTime } from '@/utils/timeUtils';
 import CustomModal from '@/components/modal/CustomModal';
-import {calculateDistance, calculatePace, calculateCalories} from '@/utils/metricsUtils';
+import { calculateDistance, calculatePace, calculateCalories } from '@/utils/metricsUtils';
 import SessionContainer from '@/components/olds/session/SessionContainer';
 
 export default function LiveSession() {
@@ -30,7 +30,7 @@ export default function LiveSession() {
   const [modalText, setModalText] = useState('');
 
   const router = useRouter();
-  const {sessionData, saveSession, startSession, setSessionData, stopLocationTracking} =
+  const { sessionData, saveSession, startSession, setSessionData, stopLocationTracking } =
     useSessionContext();
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export default function LiveSession() {
 
     if (isPlaying && !isStopCountingDown) {
       interval = setInterval(() => {
-        setTotalSeconds((prev) => prev + 1);
+        setTotalSeconds(prev => prev + 1);
       }, 1000);
     } else if (interval) {
       clearInterval(interval);
@@ -74,7 +74,7 @@ export default function LiveSession() {
   }, [isPlaying, isStopCountingDown]);
 
   const addToQueue = (audioFile: string) => {
-    setAudioQueue((prevQueue) => {
+    setAudioQueue(prevQueue => {
       if (!prevQueue.includes(audioFile)) {
         return [...prevQueue, audioFile];
       }
@@ -94,7 +94,7 @@ export default function LiveSession() {
 
         if (shouldTrigger && !playedAudios.has(param.audioFile)) {
           addToQueue(param.audioFile);
-          setPlayedAudios((prev) => new Set(prev).add(param.audioFile));
+          setPlayedAudios(prev => new Set(prev).add(param.audioFile));
         }
       });
     }, 1000);
@@ -112,12 +112,12 @@ export default function LiveSession() {
           await currentAudio.unloadAsync();
         }
 
-        const {sound} = await Audio.Sound.createAsync({uri: audioFile});
+        const { sound } = await Audio.Sound.createAsync({ uri: audioFile });
         setCurrentAudio(sound);
 
         await sound.playAsync();
 
-        sound.setOnPlaybackStatusUpdate((status) => {
+        sound.setOnPlaybackStatusUpdate(status => {
           if (status.isLoaded && status.didJustFinish) {
             sound.unloadAsync();
             setCurrentAudio(null);
@@ -169,25 +169,19 @@ export default function LiveSession() {
   };
 
   useEffect(() => {
-    if (
-      sessionEnded &&
-      sessionData?.metrics &&
-      sessionData?.time && (
-        sessionData?.time > 0
-      )
-    ) {
+    if (sessionEnded && sessionData?.metrics && sessionData?.time && sessionData?.time > 0) {
       saveSession()
         .then(() => {
           console.log('Session sauvegardée avec succès.');
           router.push('/session/summary');
         })
-        .catch((error) => {
+        .catch(error => {
           console.error('Erreur lors de la sauvegarde de la session:', error);
         });
     } else if (sessionEnded && Platform.OS === 'ios') {
       setShowModal(true);
       setModalText(
-        "Vous n'avez aucunes données à sauvegarder. Voulez-vous vraiment quitter la session ?",
+        "Vous n'avez aucunes données à sauvegarder. Voulez-vous vraiment quitter la session ?"
       );
     }
   }, [sessionEnded, sessionData]);
@@ -206,7 +200,7 @@ export default function LiveSession() {
     useCallback(() => {
       const onBackPress = () => {
         setModalText(
-          'Êtes-vous sûr de vouloir arrêter la session ? Les données actuelles seront perdues.',
+          'Êtes-vous sûr de vouloir arrêter la session ? Les données actuelles seront perdues.'
         );
         setShowModal(true);
         return true;
@@ -215,7 +209,7 @@ export default function LiveSession() {
       return () => {
         BackHandler.removeEventListener('hardwareBackPress', onBackPress);
       };
-    }, []),
+    }, [])
   );
 
   return (
@@ -226,10 +220,10 @@ export default function LiveSession() {
       onStopCountdownChange={setIsStopCountingDown}
       location={sessionData?.locations?.[sessionData.locations.length - 1]}>
       {/* Timer */}
-      <TimeDisplay time={totalSeconds}/>
+      <TimeDisplay time={totalSeconds} />
 
       {/* Metrics */}
-      <SessionMetrics distance={distance} pace={pace} calories={calories}/>
+      <SessionMetrics distance={distance} pace={pace} calories={calories} />
 
       {/* Session Target */}
       {(sessionData?.type === 'time' || sessionData?.type === 'distance') && (
@@ -253,7 +247,7 @@ export default function LiveSession() {
           <PictureCard
             key={sessionData?.run.run.id}
             title={sessionData?.run.run.title}
-            image={{uri: 'https://picsum.photos/200'}}
+            image={{ uri: 'https://picsum.photos/200' }}
             metrics={
               sessionData?.run.run.distance_objective
                 ? [`${sessionData?.run.run.distance_objective} km`]
@@ -274,9 +268,7 @@ export default function LiveSession() {
         confirmButton={true}
         cancelAction={cancelExit}
         confirmAction={confirmExit}>
-        <ThemedText style={styles.modalBody}>
-          {modalText}
-        </ThemedText>
+        <ThemedText style={styles.modalBody}>{modalText}</ThemedText>
       </CustomModal>
     </SessionContainer>
   );
