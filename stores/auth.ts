@@ -23,6 +23,7 @@ type AuthState = {
   }) => Promise<boolean>;
   logout: () => void;
   restoreSession: () => Promise<void>;
+  getUserAndTokenFromStorage: () => Promise<{ user: User | null; token: string | null }>;
 };
 
 export const useAuth = create<AuthState>((set) => ({
@@ -30,6 +31,18 @@ export const useAuth = create<AuthState>((set) => ({
   token: null,
   isAuthenticated: false,
   isLoading: false,
+
+  getUserAndTokenFromStorage: async () => {
+    try {
+      const token = await SecureStore.getItemAsync('token');
+      const userStr = await SecureStore.getItemAsync('user');
+      const user = userStr ? JSON.parse(userStr) : null;
+      return { user, token };
+    } catch (error) {
+      console.error('Error getting user and token from storage:', error);
+      return { user: null, token: null };
+    }
+  },
 
   login: async (email, password) => {
     try {

@@ -4,13 +4,12 @@ import { Link, usePathname } from 'expo-router';
 import { Colors, FontFamily, FontSize, Spacing } from '@/constants/theme';
 
 import SvgHomeIcon from '@/components/icons/HomeIcon';
-import SvgHeadphoneIcon from '@/components/icons/HeadphoneIcon';
 import SvgPlayIcon from '@/components/icons/PlayIcon';
 import SvgUsersIcon from '@/components/icons/UsersIcon';
 
+
 const TABS = [
   { label: 'Accueil', href: '/', icon: SvgHomeIcon },
-  { label: 'Sessions', href: '/sessions', icon: SvgHeadphoneIcon },
   { label: 'Démarrer', href: '/start', icon: SvgPlayIcon },
   { label: 'Amis', href: '/friends', icon: SvgUsersIcon },
 ];
