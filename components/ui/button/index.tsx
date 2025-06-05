@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { Colors, FontFamily, FontSize, Spacing, Radius } from '@/constants/theme';
 
-type ButtonVariant = 'primary' | 'outline' | 'ghost';
+type ButtonVariant = 'primary' | 'outline' | 'ghost' | 'error';
 type ButtonSize = 'small' | 'medium' | 'large';
 type ButtonState = 'default' | 'disabled' | 'loading';
 type ButtonWidth = 'full' | 'fit';
@@ -39,7 +39,13 @@ const Button: React.FC<ButtonProps> = ({
   const isDisabled = state === 'disabled' || isLoading;
 
   const backgroundColor =
-    variant === 'primary' ? Colors.primary : variant === 'outline' ? Colors.white : 'transparent';
+    variant === 'primary'
+      ? Colors.primary
+      : variant === 'outline'
+        ? Colors.white
+        : variant === 'error'
+          ? Colors.error
+          : 'transparent';
 
   const textColor = variant === 'primary' ? Colors.white : Colors.textPrimary;
 

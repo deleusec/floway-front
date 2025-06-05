@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 import { useRunningSessionStore } from '../../../stores/session';
 import { Colors, FontSize, FontFamily, Radius, Spacing } from '../../../constants/theme';
+import Button from '@/components/ui/button';
 
 export default function StartScreen() {
   const router = useRouter();
@@ -86,9 +87,7 @@ export default function StartScreen() {
           />
         </View>
 
-        <TouchableOpacity style={styles.startButton} onPress={handleStartSession}>
-          <Text style={styles.startButtonText}>Démarrer la course</Text>
-        </TouchableOpacity>
+        <Button onPress={handleStartSession} title='Démarrer la course' variant='primary' />
       </View>
     </View>
   );
@@ -108,17 +107,8 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
   },
   configContainer: {
-    backgroundColor: Colors.surface,
     borderRadius: Radius.lg,
     padding: Spacing.lg,
-    shadowColor: Colors.black,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
   typeSelector: {
     flexDirection: 'row',
@@ -156,6 +146,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
+    backgroundColor: Colors.surface,
     borderColor: Colors.border,
     borderRadius: Radius.md,
     padding: Spacing.md,

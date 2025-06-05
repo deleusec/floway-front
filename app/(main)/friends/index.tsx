@@ -4,9 +4,11 @@ import { Spacing } from '@/constants/theme';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SearchInput } from '@/components/ui/input';
 import React, { useState } from 'react';
+import Tabs from '@/components/ui/tabs';
 
 export default function FriendsScreen() {
   const [search, setSearch] = useState('');
+  const [tab, setTab] = useState('friends');
   return (
     <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
       <View style={styles.headerSection}>
@@ -22,6 +24,14 @@ export default function FriendsScreen() {
           autoCapitalize='none'
         />
       </View>
+      <Tabs
+        tabs={[
+          { label: 'Mes amis', value: 'friends' },
+          { label: 'Mes demandes', value: 'requests' },
+        ]}
+        value={tab}
+        onChange={setTab}
+      />
     </ScrollView>
   );
 }

@@ -72,15 +72,7 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     backgroundColor: Colors.surface,
     borderRadius: Radius.lg,
-    margin: Spacing.md,
-    shadowColor: Colors.black,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    margin: Spacing.lg,
   },
   progressContainer: {
     marginBottom: Spacing.md,

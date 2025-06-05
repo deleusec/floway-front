@@ -5,6 +5,7 @@ import { useRunningSessionStore } from '../../stores/session';
 import { RunningMetrics } from '../../components/RunningMetrics';
 import { Colors, FontSize, FontFamily, Radius, Spacing } from '../../constants/theme';
 import { useAuth } from '../../stores/auth';
+import Button from '@/components/ui/button';
 
 export default function RunningScreen() {
   const router = useRouter();
@@ -65,9 +66,9 @@ export default function RunningScreen() {
         <Text style={styles.mapPlaceholder}>Carte en cours de chargement...</Text>
       </View>
 
-      <TouchableOpacity style={styles.stopButton} onPress={handleStopSession}>
-        <Text style={styles.stopButtonText}>Arrêter la course</Text>
-      </TouchableOpacity>
+      <View style={styles.stopButtonContainer}>
+        <Button onPress={handleStopSession} title='Arrêter la course' variant='error'  />
+      </View>
     </View>
   );
 }
@@ -98,38 +99,17 @@ const styles = StyleSheet.create({
     borderRadius: Radius.lg,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: Colors.black,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
   mapPlaceholder: {
     color: Colors.textSecondary,
     fontSize: FontSize.md,
     fontFamily: FontFamily.medium,
   },
-  stopButton: {
-    backgroundColor: Colors.error,
-    margin: Spacing.lg,
-    padding: Spacing.md,
-    borderRadius: Radius.lg,
-    alignItems: 'center',
-    shadowColor: Colors.black,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+  stopButtonContainer: {
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.lg,
   },
-  stopButtonText: {
-    color: Colors.white,
-    fontSize: FontSize.lg,
-    fontFamily: FontFamily.bold,
+  stopButton: {
+    marginHorizontal: Spacing.lg,
   },
 });
