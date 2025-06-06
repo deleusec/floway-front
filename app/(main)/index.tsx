@@ -1,4 +1,5 @@
 import FriendsStatusList from '@/components/friends/status-list';
+import CardMap from '@/components/ui/map';
 import Title from '@/components/ui/title';
 import { Spacing } from '@/constants/theme';
 import { useAuth } from '@/stores/auth';
@@ -22,6 +23,7 @@ export default function MainScreen() {
       {/* Content Section */}
       <View style={styles.contentSection}>
         <Title level={2}>Mes courses</Title>
+        <CardMap/>
       </View>
     </ScrollView>
   );
