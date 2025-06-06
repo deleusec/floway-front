@@ -77,13 +77,6 @@ const Drawer: React.FC<DrawerProps> = ({
   ).current;
 
   useEffect(() => {
-    if (mode === 'fit' && contentHeight > 0 && visible) {
-      translateY.setValue(drawerHeight);
-      setFitReady(true);
-    }
-  }, [mode, contentHeight, drawerHeight, visible, translateY]);
-
-  useEffect(() => {
     if (mode === 'fit' && !fitReady) return;
     if (visible) {
       setIsMounted(true);
@@ -113,12 +106,13 @@ const Drawer: React.FC<DrawerProps> = ({
         }),
       ]).start(() => setIsMounted(false));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, backdropOpacity, translateY, drawerHeight, fitReady, mode]);
 
   const drawerTranslateY = Animated.add(translateY, dragY);
 
-  if ((mode === 'fit' && (!fitReady || !contentHeight)) || (!isMounted && !visible)) return null;
+  if ((mode === 'fit' && (!fitReady || !contentHeight)) || (!isMounted && !visible)) {
+    return null;
+  }
 
   return (
     <Modal
@@ -126,35 +120,38 @@ const Drawer: React.FC<DrawerProps> = ({
       animationType="none"
       transparent
       onRequestClose={onClose}
+      statusBarTranslucent
     >
-      <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
-      </Animated.View>
-      <Animated.View
-        style={[
-          styles.drawer,
-          mode === 'fit' ? { maxHeight: SCREEN_HEIGHT * 0.9 } : { height: drawerHeight },
-          { transform: [{ translateY: drawerTranslateY }] },
-          style,
-        ]}
-        pointerEvents={visible ? 'auto' : 'none'}
-        {...panResponder.panHandlers}
-      >
-        <View style={styles.handleContainer}>
-          <Animated.View
-            style={[
-              styles.handle,
-              dragging && { opacity: 0.5, transform: [{ scaleX: 1.2 }] },
-            ]}
-          />
-        </View>
-        <View
-          style={mode === 'fit' ? { flexGrow: 0 } : { flex: 1 }}
-          onLayout={mode === 'fit' ? (e) => setContentHeight(e.nativeEvent.layout.height) : undefined}
+      <View style={StyleSheet.absoluteFill}>
+        <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
+          <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+        </Animated.View>
+        <Animated.View
+          style={[
+            styles.drawer,
+            mode === 'fit' ? { maxHeight: SCREEN_HEIGHT * 0.9 } : { height: drawerHeight },
+            { transform: [{ translateY: drawerTranslateY }] },
+            style,
+          ]}
+          pointerEvents={visible ? 'auto' : 'none'}
+          {...panResponder.panHandlers}
         >
-          {children}
-        </View>
-      </Animated.View>
+          <View style={styles.handleContainer}>
+            <Animated.View
+              style={[
+                styles.handle,
+                dragging && { opacity: 0.5, transform: [{ scaleX: 1.2 }] },
+              ]}
+            />
+          </View>
+          <View
+            style={mode === 'fit' ? { flexGrow: 0 } : { flex: 1 }}
+            onLayout={mode === 'fit' ? (e) => setContentHeight(e.nativeEvent.layout.height) : undefined}
+          >
+            {children}
+          </View>
+        </Animated.View>
+      </View>
     </Modal>
   );
 };

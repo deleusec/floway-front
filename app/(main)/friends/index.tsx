@@ -36,11 +36,20 @@ export default function FriendsScreen() {
       />
       <TouchableOpacity
         style={{ margin: 32, backgroundColor: '#624AF6', borderRadius: 12, padding: 16, alignItems: 'center' }}
-        onPress={() => setDrawerVisible(true)}
+        onPress={() => {
+          setDrawerVisible(true);
+        }}
       >
         <Text style={{ color: 'white', fontWeight: 'bold' }}>Ouvrir Drawer exemple</Text>
       </TouchableOpacity>
-      <Drawer mode='fit' visible={drawerVisible} onClose={() => setDrawerVisible(false)}>
+      <Drawer
+        mode='fixed'
+        height={300}
+        visible={drawerVisible}
+        onClose={() => {
+          setDrawerVisible(false);
+        }}
+      >
         <View style={{ gap: 12, padding: Spacing.lg }}>
           <Text style={{ fontSize: 16 }}>Encourager maintenant</Text>
           <Text style={{ fontSize: 16, color: '#979799' }}>Notifier de mes courses</Text>
