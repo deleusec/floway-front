@@ -7,8 +7,15 @@ type Friend = {
   isRunning: boolean;
 };
 
+type FriendRequest = {
+  id: string;
+  firstName: string;
+  avatar: string;
+};
+
 type FriendsState = {
   friends: Friend[];
+  requests: FriendRequest[];
 };
 
 export const useFriendsStore = create<FriendsState>(() => ({
@@ -60,6 +67,23 @@ export const useFriendsStore = create<FriendsState>(() => ({
       firstName: 'Léo',
       avatar: 'https://picsum.photos/seed/leo/200',
       isRunning: false,
+    },
+  ],
+  requests: [
+    {
+      id: '101',
+      firstName: 'Sarah',
+      avatar: 'https://picsum.photos/seed/sarah/200',
+    },
+    {
+      id: '102',
+      firstName: 'Paul',
+      avatar: 'https://picsum.photos/seed/paul/200',
+    },
+    {
+      id: '103',
+      firstName: 'Julie',
+      avatar: 'https://picsum.photos/seed/julie/200',
     },
   ],
 }));

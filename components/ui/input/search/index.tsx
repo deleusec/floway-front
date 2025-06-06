@@ -40,7 +40,7 @@ const SearchInput: React.FC<SearchInputProps> = ({
   inputStyle,
   iconColor = Colors.gray[400],
   borderColor = Colors.border,
-  backgroundColor = Colors.surface,
+  backgroundColor = Colors.background,
   placeholder = "Nom d'utilisateur...",
   ...props
 }) => {
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.full,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.md,
-    backgroundColor: Colors.surface,
+    backgroundColor: Colors.white,
   },
   icon: {
     marginRight: Spacing.sm,

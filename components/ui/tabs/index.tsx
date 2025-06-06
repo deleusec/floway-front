@@ -53,10 +53,8 @@ const Tabs: React.FC<TabsProps> = ({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    backgroundColor: Colors.background,
     paddingHorizontal: Spacing.lg,
     paddingTop: Spacing.lg,
-    paddingBottom: Spacing.sm,
   },
   tab: {
     flex: 1,
@@ -85,7 +83,7 @@ const styles = StyleSheet.create({
   },
   indicator: {
     position: 'absolute',
-    bottom: 0,
+    bottom: -1,
     left: '5%',
     right: '5%',
     height: 4,

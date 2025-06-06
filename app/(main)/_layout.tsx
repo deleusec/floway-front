@@ -22,9 +22,7 @@ export default function MainLayout() {
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Slot />
-      </ScrollView>
       <BottomMenu />
     </View>
   );
