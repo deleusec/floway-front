@@ -16,6 +16,7 @@ type FriendRequest = {
 type FriendsState = {
   friends: Friend[];
   requests: FriendRequest[];
+  allUsers: FriendRequest[];
 };
 
 export const useFriendsStore = create<FriendsState>(() => ({
@@ -84,6 +85,33 @@ export const useFriendsStore = create<FriendsState>(() => ({
       id: '103',
       firstName: 'Julie',
       avatar: 'https://picsum.photos/seed/julie/200',
+    },
+  ],
+  allUsers: [
+    {
+      id: '1',
+      firstName: 'Farah',
+      avatar: 'https://randomuser.me/api/portraits/women/1.jpg',
+    },
+    {
+      id: '2',
+      firstName: 'Farah',
+      avatar: 'https://randomuser.me/api/portraits/men/2.jpg',
+    },
+    {
+      id: '3',
+      firstName: 'Farah',
+      avatar: 'https://randomuser.me/api/portraits/men/3.jpg',
+    },
+    {
+      id: '4',
+      firstName: 'Farah',
+      avatar: 'https://randomuser.me/api/portraits/men/4.jpg',
+    },
+    {
+      id: '5',
+      firstName: 'Farah',
+      avatar: 'https://randomuser.me/api/portraits/men/5.jpg',
     },
   ],
 }));
