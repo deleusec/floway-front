@@ -18,6 +18,7 @@ type AuthState = {
   register: (data: {
     email: string;
     password: string;
+    username: string;
     first_name: string;
     last_name: string;
   }) => Promise<boolean>;
@@ -54,6 +55,7 @@ export const useAuth = create<AuthState>(set => ({
 
       if (!response.ok) return false;
 
+      console.log('response', response);
       const { token } = await response.json();
 
       await SecureStore.setItemAsync('token', token);
@@ -79,12 +81,12 @@ export const useAuth = create<AuthState>(set => ({
     }
   },
 
-  register: async ({ email, password, first_name, last_name }) => {
+  register: async ({ email, password, username, first_name, last_name }) => {
     try {
       const response = await fetch(`${API_URL}/api/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, first_name, last_name }),
+        body: JSON.stringify({ email, password, username, first_name, last_name }),
       });
 
       return response.status === 201;

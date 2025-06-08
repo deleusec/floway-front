@@ -9,7 +9,7 @@ import SvgUsersIcon from '@/components/icons/UsersIcon';
 
 const TABS = [
   { label: 'Accueil', href: '/', icon: SvgHomeIcon },
-  { label: 'Démarrer', href: '/start', icon: SvgPlayIcon },
+  { label: 'Démarrer', href: '/session/start', icon: SvgPlayIcon },
   { label: 'Amis', href: '/friends', icon: SvgUsersIcon },
 ];
 

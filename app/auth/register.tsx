@@ -27,6 +27,7 @@ import Title from '@/components/ui/title';
 const schema = z.object({
   first_name: z.string().min(1, 'Prénom requis'),
   last_name: z.string().min(1, 'Nom requis'),
+  username: z.string().min(1, 'Nom d\'utilisateur requis'),
   email: z.string().email('Email invalide'),
   password: z.string().min(6, 'Minimum 6 caractères'),
 });
@@ -46,6 +47,7 @@ export default function RegisterScreen() {
     defaultValues: {
       first_name: '',
       last_name: '',
+      username: '',
       email: '',
       password: '',
     },
@@ -100,6 +102,18 @@ export default function RegisterScreen() {
                 )}
               />
               <InputError message={errors.last_name?.message} />
+            </View>
+
+            <View style={styles.field}>
+              <InputLabel>Nom d'utilisateur</InputLabel>
+              <Controller
+                control={control}
+                name='username'
+                render={({ field: { onChange, value } }) => (
+                  <Input value={value} onChangeText={onChange} />
+                )}
+              />
+              <InputError message={errors.username?.message} />
             </View>
 
             <View style={styles.field}>

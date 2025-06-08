@@ -1,23 +1,53 @@
-import React, { useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, Alert } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, Text, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useRunningSessionStore } from '../../stores/session';
-import { RunningMetrics } from '../../components/RunningMetrics';
-import { Colors, FontSize, FontFamily, Radius, Spacing } from '../../constants/theme';
-import { useAuth } from '../../stores/auth';
+import { useRunningSessionStore } from '@/stores/session';
+import { Colors, FontSize, FontFamily, Radius, Spacing } from '@/constants/theme';
+import { useAuth } from '@/stores/auth';
 import Button from '@/components/ui/button';
+import { RunningMetrics } from '@/components/ui/running/metrics';
+import { useSpeechManager } from '@/hooks/useSpeechManager';
 
-export default function RunningScreen() {
+export default function SessionScreen() {
   const router = useRouter();
   const { session, stopSession, saveSession } = useRunningSessionStore();
   const { user, token, getUserAndTokenFromStorage } = useAuth();
+  const { speak } = useSpeechManager();
+  const lastAnnouncedKm = useRef(0);
 
   useEffect(() => {
+    console.log('Session state changed:', { isActive: session.isActive });
+
     if (!session.isActive) {
-      console.log('🔄 Session inactive, redirecting to start screen');
-      router.replace('/start');
+      router.replace('/session/start');
+    } else {
+      console.log('Attempting to speak start message');
+      speak({
+        type: 'info',
+        text: 'Début de la séance',
+        priority: 1
+      });
     }
   }, [session.isActive]);
+
+  useEffect(() => {
+    if (!session.isActive) return;
+
+    const currentKm = Math.floor(session.metrics.distance / 1000);
+
+    if (currentKm > lastAnnouncedKm.current) {
+      const paceMinutes = Math.floor(session.metrics.pace / 60);
+      const paceSeconds = Math.floor(session.metrics.pace % 60);
+
+      speak({
+        type: 'info',
+        text: `${currentKm} kilomètres parcourus. Allure moyenne : ${paceMinutes} minutes et ${paceSeconds} secondes au kilomètre.`,
+        priority: 2
+      });
+
+      lastAnnouncedKm.current = currentKm;
+    }
+  }, [session.metrics.distance, session.isActive]);
 
   const handleStopSession = () => {
     Alert.alert('Arrêter la course', 'Êtes-vous sûr de vouloir arrêter la course ?', [
@@ -44,7 +74,7 @@ export default function RunningScreen() {
               console.warn('⚠️ Impossible de récupérer user/token pour la sauvegarde');
             }
             stopSession();
-            router.replace('/start');
+            router.replace('/session/start');
           } catch (error) {
             Alert.alert('Erreur', 'Impossible de sauvegarder la session');
           }
@@ -56,19 +86,18 @@ export default function RunningScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>{session.title}</Text>
+        <RunningMetrics />
       </View>
 
-      <RunningMetrics />
-
-      <View style={styles.mapContainer}>
-        {/* La carte sera ajoutée ici plus tard */}
-        <Text style={styles.mapPlaceholder}>Carte en cours de chargement...</Text>
+      <View style={styles.content}>
+        <View style={styles.mapContainer}>
+          <Text style={styles.mapPlaceholder}>Carte en cours de chargement...</Text>
+        </View>
+        <View style={styles.stopButtonContainer}>
+          <Button onPress={handleStopSession} title='Arrêter la course' variant='error' />
+        </View>
       </View>
 
-      <View style={styles.stopButtonContainer}>
-        <Button onPress={handleStopSession} title='Arrêter la course' variant='error'  />
-      </View>
     </View>
   );
 }
@@ -76,25 +105,19 @@ export default function RunningScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.white,
   },
   header: {
-    paddingTop: Spacing.lg,
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.md,
     backgroundColor: Colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
-  title: {
-    fontSize: FontSize.xl,
-    fontFamily: FontFamily.semiBold,
-    color: Colors.textPrimary,
-    textAlign: 'center',
+  content: {
+    flex: 1,
+    backgroundColor: Colors.background,
   },
   mapContainer: {
     flex: 1,
-    backgroundColor: Colors.surface,
     margin: Spacing.lg,
     borderRadius: Radius.lg,
     justifyContent: 'center',

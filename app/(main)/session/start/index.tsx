@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Location from 'expo-location';
-import { useRunningSessionStore } from '../../../stores/session';
-import { Colors, FontSize, FontFamily, Radius, Spacing } from '../../../constants/theme';
+import { useRunningSessionStore } from '@/stores/session';
+import { Colors, FontSize, FontFamily, Radius, Spacing } from '@/constants/theme';
 import Button from '@/components/ui/button';
 
 export default function StartScreen() {
@@ -46,7 +46,7 @@ export default function StartScreen() {
       }
 
       await startSession(sessionType, objectiveValue);
-      router.push('/(main)/running' as any);
+      router.push('/(main)/session' as any);
     } catch (error: any) {
       alert('Erreur lors du démarrage de la session: ' + error.message);
     }

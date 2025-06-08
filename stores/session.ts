@@ -92,9 +92,8 @@ export const useRunningSessionStore = create<RunningSessionStore>((set, get) => 
     // Démarrer la mise à jour des métriques
     const intervalId = setInterval(() => {
       get().updateMetrics();
-    }, 1000); // Mise à jour toutes les secondes
+    }, 1000);
 
-    // Stocker l'intervalle dans le store pour pouvoir le nettoyer plus tard
     set(state => ({
       session: {
         ...state.session,

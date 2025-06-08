@@ -23,6 +23,8 @@ export default function MainScreen() {
       <View style={styles.contentSection}>
         <Title level={2}>Mes courses</Title>
       </View>
+      <View style={{ padding: Spacing.lg }}>
+    </View>
     </ScrollView>
   );
 }

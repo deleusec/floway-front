@@ -1,12 +1,21 @@
 import BottomMenu from '@/components/layouts/menu';
 import { Colors } from '@/constants/theme';
+import { useStore } from '@/stores';
 import { useAuth } from '@/stores/auth';
-import { Redirect, Slot } from 'expo-router';
-import { ScrollView, StyleSheet } from 'react-native';
+import { Redirect, Slot, usePathname } from 'expo-router';
+import { StyleSheet } from 'react-native';
 import { View, ActivityIndicator } from 'react-native';
+import { useEffect } from 'react';
 
 export default function MainLayout() {
+  const store = useStore();
   const { isAuthenticated, isLoading } = useAuth();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    // Cacher le menu uniquement sur la page session
+    store.setHideMenu(pathname === '/session');
+  }, [pathname]);
 
   if (isLoading) {
     return (
@@ -22,8 +31,8 @@ export default function MainLayout() {
 
   return (
     <View style={styles.container}>
-        <Slot />
-      <BottomMenu />
+      <Slot />
+      {!store.hideMenu && <BottomMenu />}
     </View>
   );
 }

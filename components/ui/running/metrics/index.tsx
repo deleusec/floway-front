@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { useRunningSessionStore } from '../stores/session';
-import { Colors, FontSize, FontFamily, Radius, Spacing } from '../constants/theme';
+import { Colors, FontSize, FontFamily, Radius, Spacing } from '@/constants/theme';
+import { useRunningSessionStore } from '@/stores/session';
 
 export const RunningMetrics = () => {
   const { session } = useRunningSessionStore();
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
   metricCard: {
     flex: 1,
     alignItems: 'center',
-    padding: Spacing.sm,
+    paddingVertical: Spacing.sm,
   },
   metricValue: {
     fontSize: FontSize.xl,
