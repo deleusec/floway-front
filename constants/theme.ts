@@ -9,6 +9,7 @@ export const Colors = {
     400: '#979799',
     500: '#6E6E6E',
     600: '#5E5E5E',
+    700: '#444444',
   },
   pink: '#F7E3FE',
   yellow: '#FFE59B',

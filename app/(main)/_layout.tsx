@@ -14,7 +14,7 @@ export default function MainLayout() {
 
   useEffect(() => {
     // Cacher le menu uniquement sur la page session
-    store.setHideMenu(pathname === '/session');
+    store.setHideMenu(pathname === '/session' || pathname === '/cheer');
   }, [pathname]);
 
   if (isLoading) {

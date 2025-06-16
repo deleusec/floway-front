@@ -3,6 +3,7 @@ import { FlatList, View, StyleSheet, Text } from 'react-native';
 import { Spacing, Colors, FontSize, FontFamily } from '@/constants/theme';
 import FriendStatusAvatar from '../status-avatar';
 import { useFriendsStore } from '@/stores/friends';
+import { router } from 'expo-router';
 
 export default function FriendsStatusList() {
   const friends = useFriendsStore(state => state.friends);
@@ -22,7 +23,7 @@ export default function FriendsStatusList() {
             name={item.firstName}
             image={item.avatar}
             isRunning={item.isRunning}
-            onPress={() => console.log('Send audio to', item.firstName)}
+            onPress={() => item.isRunning && router.push(`/cheer`)}
           />
           <Text numberOfLines={1} ellipsizeMode='tail' style={styles.name}>
             {item.firstName}
