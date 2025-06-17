@@ -12,6 +12,19 @@ type BorderRadiusSize = 'sm' | 'md' | 'lg';
 interface CardMapProps extends ViewProps {
   radius?: BorderRadiusSize;
   style?: ViewStyle | ViewStyle[];
+  image: { uri: string } | number;
+  runData?: {
+    title: string;
+    date: string;
+    duration: string;
+    distance: string;
+    speed: string;
+  };
+  participants?: Array<{
+    id: string;
+    avatar: string;
+    firstName: string;
+  }>;
 }
 
 const radiusMap = {
@@ -20,13 +33,20 @@ const radiusMap = {
   lg: Radius.lg,
 };
 
-const CardMap: React.FC<CardMapProps> = ({ radius = 'md', style, ...rest }) => {
+const CardMap: React.FC<CardMapProps> = ({
+  radius = 'md',
+  style,
+  image,
+  runData,
+  participants,
+  ...rest
+}) => {
   const friends = useFriendsStore(state => state.friends);
   return (
     <View style={[styles.base, { borderRadius: radiusMap[radius] }, style]} {...rest}>
       <Card>
         <Image
-          source={require('@/assets/images/map.png')}
+          source={image}
           style={[
             styles.mapImage,
             {
@@ -36,22 +56,21 @@ const CardMap: React.FC<CardMapProps> = ({ radius = 'md', style, ...rest }) => {
           ]}
           resizeMethod='resize'
           resizeMode='cover'
-
-          alt="Carte de la course"
+          alt='Carte de la course'
         />
 
         <View style={styles.content}>
           <View style={styles.titleRow}>
             <View style={styles.titleSubRow}>
-              <Text style={styles.title}>Course du midi</Text>
-              <Text style={styles.subtitle}>13/04/2025</Text>
+              <Text style={styles.title}>{runData?.title || 'Course du midi'}</Text>
+              <Text style={styles.subtitle}>{runData?.date || '13/04/2025'}</Text>
             </View>
             <View style={styles.avatars}>
-              {friends.slice(0,3).map((friend, index) => (
+              {(participants || []).slice(0, 3).map((participant, index) => (
                 <Image
-                  key={friend.id}
-                  source={{ uri: friend.avatar || 'https://via.placeholder.com/24' }}
-                  alt= {`avatar de ${friend.firstName}`}
+                  key={participant.id}
+                  source={{ uri: participant.avatar || 'https://via.placeholder.com/24' }}
+                  alt={`avatar de ${participant.firstName}`}
                   style={[styles.avatar, { marginLeft: index > 0 ? -9 : -9 }]}
                 />
               ))}
@@ -68,20 +87,19 @@ const CardMap: React.FC<CardMapProps> = ({ radius = 'md', style, ...rest }) => {
           <View style={styles.statsRow}>
             <View style={styles.stat}>
               <SvgClockIcon width={12} height={12} />
-              <Text style={styles.statText}>1h29</Text>
+              <Text style={styles.statText}>{runData?.duration || '1h29'}</Text>
             </View>
             <View style={styles.stat}>
               <SvgPinIcon width={12} height={12} />
-              <Text style={styles.statText}>10,2 km</Text>
+              <Text style={styles.statText}>{runData?.distance || '10,2 km'}</Text>
             </View>
             <View style={styles.stat}>
               <SvgSpeedIcon width={12} height={12} />
-              <Text style={styles.statText}>6,7 km/h</Text>
+              <Text style={styles.statText}>{runData?.speed || '6,7 km/h'}</Text>
             </View>
           </View>
         </View>
-        <View style={styles.trophyContent}>
-        </View>
+        <View style={styles.trophyContent}></View>
       </Card>
     </View>
   );
@@ -96,7 +114,7 @@ const styles = StyleSheet.create({
   },
   mapImage: {
     width: '100%',
-    height: 200,
+    height: 107,
   },
   content: {
     padding: 16,
@@ -144,7 +162,7 @@ const styles = StyleSheet.create({
   statsRow: {
     flexDirection: 'row',
     marginTop: 12,
-    gap:12,
+    gap: 12,
   },
   stat: {
     flexDirection: 'row',
@@ -159,7 +177,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     height: 64,
     marginTop: 12,
-    marginLeft:16,
+    marginLeft: 16,
     marginRight: 16,
     marginBottom: 12,
     backgroundColor: '#fff',

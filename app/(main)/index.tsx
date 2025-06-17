@@ -23,7 +23,28 @@ export default function MainScreen() {
       {/* Content Section */}
       <View style={styles.contentSection}>
         <Title level={2}>Mes courses</Title>
-        <CardMap/>
+        <CardMap
+          image={require('@/assets/images/map.png')}
+          runData={{
+            title: 'Course du midi',
+            date: '13/04/2024',
+            duration: '1h29',
+            distance: '10.1 km',
+            speed: '6.7 km/h',
+          }}
+          participants={[
+            {
+              id: '1',
+              avatar: 'https://i.pravatar.cc/150?img=1',
+              firstName: 'Jean',
+            },
+            {
+              id: '2',
+              avatar: 'https://i.pravatar.cc/150?img=2',
+              firstName: 'Marie',
+            },
+          ]}
+        />
       </View>
     </ScrollView>
   );
