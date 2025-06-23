@@ -75,27 +75,29 @@ export default function FriendsScreen() {
       {tab === 'friends' && (
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <View style={{ marginTop: 24 }}>
-            {friends.map(friend => (
-              <View
-                key={friend.id}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  paddingVertical: 12,
-                  paddingHorizontal: 16,
-                }}>
-                <FriendStatusAvatar image={friend.avatar} isRunning={friend.isRunning} />
-                <Text style={{ flex: 1, marginLeft: 12, fontSize: 16 }}>{friend.firstName}</Text>
-                <Pressable
-                  onPress={() => {
-                    setSelectedFriend(friend);
-                    setDrawerVisible(true);
-                  }}
-                  style={{ padding: 8 }}>
-                  <SvgHorizontalDots width={24} height={24} />
-                </Pressable>
-              </View>
-            ))}
+            {friends
+              .filter(friend => friend.firstName.toLowerCase().includes(search.toLowerCase()))
+              .map(friend => (
+                <View
+                  key={friend.id}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    paddingVertical: 12,
+                    paddingHorizontal: 16,
+                  }}>
+                  <FriendStatusAvatar image={friend.avatar} isRunning={friend.isRunning} />
+                  <Text style={{ flex: 1, marginLeft: 12, fontSize: 16 }}>{friend.firstName}</Text>
+                  <Pressable
+                    onPress={() => {
+                      setSelectedFriend(friend);
+                      setDrawerVisible(true);
+                    }}
+                    style={{ padding: 8 }}>
+                    <SvgHorizontalDots width={24} height={24} />
+                  </Pressable>
+                </View>
+              ))}
           </View>
         </ScrollView>
       )}
@@ -105,50 +107,52 @@ export default function FriendsScreen() {
             {requests.length === 0 && (
               <Text style={{ textAlign: 'center', color: '#979799' }}>Aucune demande</Text>
             )}
-            {requests.map(request => (
-              <View
-                key={request.id}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  paddingVertical: 12,
-                  paddingHorizontal: 16,
-                }}>
-                <FriendStatusAvatar image={request.avatar} />
-                <Text style={{ flex: 1, marginLeft: 12, fontSize: 16 }}>{request.firstName}</Text>
-                <Pressable
+            {requests
+              .filter(request => request.firstName.toLowerCase().includes(search.toLowerCase()))
+              .map(request => (
+                <View
+                  key={request.id}
                   style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 24,
-                    borderWidth: 2,
-                    borderColor: Colors.border,
+                    flexDirection: 'row',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    marginRight: 12,
-                    backgroundColor: '#fff',
-                  }}
-                  onPress={() => {
-                    /* TODO: Supprimer la demande */
+                    paddingVertical: 12,
+                    paddingHorizontal: 16,
                   }}>
-                  <SvgX width={24} height={24} color={Colors.gray[500]} />
-                </Pressable>
-                <Pressable
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 24,
-                    backgroundColor: Colors.primary,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                  onPress={() => {
-                    /* TODO: Accepter la demande */
-                  }}>
-                  <SvgCheck width={24} height={24} color={Colors.white} />
-                </Pressable>
-              </View>
-            ))}
+                  <FriendStatusAvatar image={request.avatar} />
+                  <Text style={{ flex: 1, marginLeft: 12, fontSize: 16 }}>{request.firstName}</Text>
+                  <Pressable
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 24,
+                      borderWidth: 2,
+                      borderColor: Colors.border,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: 12,
+                      backgroundColor: '#fff',
+                    }}
+                    onPress={() => {
+                      /* TODO: Supprimer la demande */
+                    }}>
+                    <SvgX width={24} height={24} color={Colors.gray[500]} />
+                  </Pressable>
+                  <Pressable
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 24,
+                      backgroundColor: Colors.primary,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                    onPress={() => {
+                      /* TODO: Accepter la demande */
+                    }}>
+                    <SvgCheck width={24} height={24} color={Colors.white} />
+                  </Pressable>
+                </View>
+              ))}
           </View>
         </ScrollView>
       )}
@@ -167,46 +171,48 @@ export default function FriendsScreen() {
             autoCapitalize='none'
           />
           <ScrollView style={{ marginTop: 16 }}>
-            {allUsers.map(user => {
-              const isPending = pendingRequests.includes(user.id);
-              return (
-                <View
-                  key={user.id}
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12 }}>
-                  <FriendStatusAvatar image={user.avatar} />
-                  <Text style={{ flex: 1, marginLeft: 12, fontSize: 16 }}>{user.firstName}</Text>
-                  {isPending ? (
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        backgroundColor: '#E5E5E5',
-                        borderRadius: 20,
-                        paddingHorizontal: 12,
-                        paddingVertical: 4,
-                      }}>
-                      <Text style={{ color: '#6C6C6C', marginRight: 4 }}>Demande envoyée</Text>
-                      <SvgCheck width={24} height={24} color='#6C6C6C' />
-                    </View>
-                  ) : (
-                    <Pressable
-                      style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: 24,
-                        backgroundColor: Colors.primary,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                      onPress={() => {
-                        /* TODO: Accepter la demande */
-                      }}>
-                      <SvgPlus width={18} height={18} color={Colors.white} />
-                    </Pressable>
-                  )}
-                </View>
-              );
-            })}
+            {allUsers
+              .filter(user => user.firstName.toLowerCase().includes(search.toLowerCase()))
+              .map(user => {
+                const isPending = pendingRequests.includes(user.id);
+                return (
+                  <View
+                    key={user.id}
+                    style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12 }}>
+                    <FriendStatusAvatar image={user.avatar} />
+                    <Text style={{ flex: 1, marginLeft: 12, fontSize: 16 }}>{user.firstName}</Text>
+                    {isPending ? (
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          backgroundColor: '#E5E5E5',
+                          borderRadius: 20,
+                          paddingHorizontal: 12,
+                          paddingVertical: 4,
+                        }}>
+                        <Text style={{ color: '#6C6C6C', marginRight: 4 }}>Demande envoyée</Text>
+                        <SvgCheck width={24} height={24} color='#6C6C6C' />
+                      </View>
+                    ) : (
+                      <Pressable
+                        style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: 24,
+                          backgroundColor: Colors.primary,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                        onPress={() => {
+                          /* TODO: Accepter la demande */
+                        }}>
+                        <SvgPlus width={18} height={18} color={Colors.white} />
+                      </Pressable>
+                    )}
+                  </View>
+                );
+              })}
           </ScrollView>
         </View>
       </Drawer>
