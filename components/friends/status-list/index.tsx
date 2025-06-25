@@ -6,9 +6,16 @@ import { useFriendsStore } from '@/stores/friends';
 import { router } from 'expo-router';
 
 export default function FriendsStatusList() {
-  const friends = useFriendsStore(state => state.friends);
+  const { friends, blockedNotifications } = useFriendsStore();
 
-  const sortedFriends = [...friends].sort((a, b) => Number(b.isRunning) - Number(a.isRunning));
+  // Récupérer les amis en excluant ceux qui ont bloqué les notifications
+  const activeFriends = friends.filter(
+    friend => friend.user_id && !blockedNotifications.includes(friend.user_id)
+  );
+
+  const sortedFriends = [...activeFriends].sort(
+    (a, b) => Number(b.isRunning) - Number(a.isRunning)
+  );
 
   return (
     <FlatList
@@ -23,11 +30,21 @@ export default function FriendsStatusList() {
             name={item.firstName}
             image={item.avatar}
             isRunning={item.isRunning}
-            onPress={() => item.isRunning && router.push(`/cheer`)}
+            onPress={() => {
+              if (item.isRunning) {
+                // TODO: Naviguer vers la page de course en direct de l'ami
+                router.push(`/cheer?friendId=${item.user_id}`);
+              }
+            }}
           />
           <Text numberOfLines={1} ellipsizeMode='tail' style={styles.name}>
             {item.firstName}
           </Text>
+          {item.isRunning && (
+            <View style={styles.liveIndicator}>
+              <Text style={styles.liveText}>En direct</Text>
+            </View>
+          )}
         </View>
       )}
     />
@@ -51,5 +68,17 @@ const styles = StyleSheet.create({
     fontFamily: FontFamily.regular,
     maxWidth: 56,
     textAlign: 'center',
+  },
+  liveIndicator: {
+    marginTop: 4,
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  liveText: {
+    fontSize: FontSize.xs - 2,
+    color: Colors.white,
+    fontFamily: FontFamily.medium,
   },
 });
