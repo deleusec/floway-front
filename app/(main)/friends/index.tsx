@@ -7,9 +7,7 @@ import {
   Text,
   View,
   TouchableOpacity,
-  Image,
   Pressable,
-  SafeAreaView,
   Alert,
   ActivityIndicator,
 } from 'react-native';
@@ -29,48 +27,50 @@ import SvgX from '@/components/icons/X';
 import SvgPlus from '@/components/icons/Plus';
 import { useAuth } from '@/stores/auth';
 import { fuzzySearch } from '@/utils/calculations';
-
-interface Friend {
-  id: string;
-  firstName: string;
-  avatar: string;
-  isRunning: boolean;
-  user_id?: number;
-}
+import { useRouter } from 'expo-router';
+import type { Friend } from '@/stores/friends';
 
 export default function FriendsScreen() {
   const [search, setSearch] = useState('');
+  const [searchAddFriend, setSearchAddFriend] = useState('');
   const [tab, setTab] = useState('friends');
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null);
   const [addFriendModalVisible, setAddFriendModalVisible] = useState(false);
-  const [pendingRequests, setPendingRequests] = useState<string[]>(['1']);
 
   const { isAuthenticated } = useAuth();
   const {
     friends,
     requests,
-    allUsers,
     isLoading,
     error,
     fetchFriends,
     fetchRequests,
-    fetchAllUsers,
     sendFriendRequest,
     acceptFriendRequest,
     declineFriendRequest,
     removeFriend,
     clearError,
+    searchResults,
+    blockedNotifications,
+    toggleNotificationBlock,
+    fetchNotificationSettings,
   } = useFriendsStore();
+
+  const router = useRouter();
 
   // Charger les données au montage du composant
   useEffect(() => {
     if (isAuthenticated) {
       fetchFriends();
       fetchRequests();
-      fetchAllUsers();
     }
   }, [isAuthenticated]);
+
+  // Charger les paramètres de notification au montage
+  useEffect(() => {
+    fetchNotificationSettings();
+  }, [fetchNotificationSettings]);
 
   // Gérer les erreurs
   useEffect(() => {
@@ -118,18 +118,30 @@ export default function FriendsScreen() {
   const handleSendFriendRequest = async (userId: number) => {
     try {
       await sendFriendRequest(userId);
-      setPendingRequests(prev => [...prev, userId.toString()]);
       Alert.alert('Succès', "Demande d'ami envoyée !");
     } catch (error) {
       // L'erreur est déjà gérée dans le store
     }
   };
 
-  const filteredFriends = fuzzySearch(friends, search, 'firstName', 0.3);
+  const filteredFriends = fuzzySearch(friends, search, 'first_name', 0.3);
+  const filteredRequests = fuzzySearch(requests, search, 'first_name', 0.3);
 
-  const filteredRequests = fuzzySearch(requests, search, 'firstName', 0.3);
+  // Debounce la recherche d'amis dans le Drawer
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (addFriendModalVisible && searchAddFriend.trim()) {
+        useFriendsStore.getState().searchUsers(searchAddFriend);
+      }
+    }, 400);
+    return () => clearTimeout(handler);
+  }, [searchAddFriend, addFriendModalVisible]);
 
-  const filteredAllUsers = fuzzySearch(allUsers, search, 'firstName', 0.3);
+  // Helper pour savoir si un ami est bloqué pour les notifications
+  const isNotificationBlocked = (userId?: number) => {
+    if (!userId) return false;
+    return blockedNotifications.includes(userId);
+  };
 
   if (isLoading) {
     return (
@@ -145,11 +157,9 @@ export default function FriendsScreen() {
       <View style={styles.header}>
         <View style={styles.headerSection}>
           <Title>Amis</Title>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <TouchableOpacity onPress={() => setAddFriendModalVisible(true)}>
-              <SvgAddFriend width={32} height={32} />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity onPress={() => setAddFriendModalVisible(true)}>
+            <SvgAddFriend width={32} height={32} />
+          </TouchableOpacity>
         </View>
 
         <View style={{ paddingHorizontal: Spacing.lg, marginTop: 16 }}>
@@ -179,23 +189,24 @@ export default function FriendsScreen() {
                 {search ? 'Aucun ami trouvé' : "Vous n'avez pas encore d'amis"}
               </Text>
             ) : (
-              filteredFriends.map(friend => (
-                <View
-                  key={friend.id}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    paddingVertical: 12,
-                    paddingHorizontal: 16,
-                  }}>
-                  <FriendStatusAvatar image={friend.avatar} isRunning={friend.isRunning} />
-                  <Text style={{ flex: 1, marginLeft: 12, fontSize: 16 }}>{friend.firstName}</Text>
+              filteredFriends.map((friend, index) => (
+                <View key={`friend-${friend.id}-${index}`} style={styles.friendItem}>
+                  <FriendStatusAvatar
+                    image={
+                      friend.avatar ||
+                      `https://ui-avatars.com/api/?name=${encodeURIComponent(friend.first_name + ' ' + friend.last_name)}`
+                    }
+                    isRunning={friend.isRunning}
+                  />
+                  <Text style={styles.friendName}>
+                    {friend.first_name} {friend.last_name}
+                  </Text>
                   <Pressable
                     onPress={() => {
                       setSelectedFriend(friend);
                       setDrawerVisible(true);
                     }}
-                    style={{ padding: 8 }}>
+                    style={styles.dotsButton}>
                     <SvgHorizontalDots width={24} height={24} />
                   </Pressable>
                 </View>
@@ -211,50 +222,25 @@ export default function FriendsScreen() {
             {filteredRequests.length === 0 && (
               <Text style={{ textAlign: 'center', color: '#979799' }}>Aucune demande</Text>
             )}
-            {filteredRequests.map(request => (
-              <View
-                key={request.id}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  paddingVertical: 12,
-                  paddingHorizontal: 16,
-                }}>
-                <FriendStatusAvatar image={request.avatar} />
-                <Text style={{ flex: 1, marginLeft: 12, fontSize: 16 }}>{request.firstName}</Text>
+            {filteredRequests.map((request, index) => (
+              <View key={`request-${request.request_id}-${index}`} style={styles.requestItem}>
+                <FriendStatusAvatar
+                  image={
+                    request.avatar ||
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(request.first_name + ' ' + request.last_name)}`
+                  }
+                />
+                <Text style={styles.friendName}>
+                  {request.first_name} {request.last_name}
+                </Text>
                 <Pressable
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 24,
-                    borderWidth: 2,
-                    borderColor: Colors.border,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginRight: 12,
-                    backgroundColor: '#fff',
-                  }}
-                  onPress={() => {
-                    if (request.request_id) {
-                      handleDeclineRequest(request.request_id);
-                    }
-                  }}>
+                  style={styles.declineButton}
+                  onPress={() => handleDeclineRequest(request.request_id)}>
                   <SvgX width={24} height={24} color={Colors.gray[500]} />
                 </Pressable>
                 <Pressable
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 24,
-                    backgroundColor: Colors.primary,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                  onPress={() => {
-                    if (request.request_id) {
-                      handleAcceptRequest(request.request_id);
-                    }
-                  }}>
+                  style={styles.acceptButton}
+                  onPress={() => handleAcceptRequest(request.request_id)}>
                   <SvgCheck width={24} height={24} color={Colors.white} />
                 </Pressable>
               </View>
@@ -267,88 +253,55 @@ export default function FriendsScreen() {
         mode='fixed'
         height={700}
         visible={addFriendModalVisible}
-        onClose={() => setAddFriendModalVisible(false)}>
+        onClose={() => {
+          setAddFriendModalVisible(false);
+          setSearchAddFriend('');
+        }}>
         <View style={{ padding: 24 }}>
           <Text style={{ fontWeight: 'bold', fontSize: 22, marginBottom: 16 }}>Ajoute un ami</Text>
-
-          {/* Note temporaire */}
-          <View style={styles.tempNote}>
-            <Text style={styles.tempNoteText}>
-              ⚠️ La recherche d'utilisateurs utilise des données temporaires en attendant la
-              création de l'endpoint backend.
-            </Text>
-          </View>
-
           <SearchInput
-            value={search}
-            onChangeText={setSearch}
+            value={searchAddFriend}
+            onChangeText={setSearchAddFriend}
             placeholder="Nom d'utilisateur…"
             autoCorrect={false}
             autoCapitalize='none'
           />
           <ScrollView style={{ marginTop: 16 }}>
-            {filteredAllUsers.length === 0 ? (
+            {searchResults.length === 0 ? (
               <Text style={{ textAlign: 'center', color: '#979799', marginTop: 32 }}>
-                Aucun utilisateur trouvé
+                {searchAddFriend.trim() === ''
+                  ? 'Commencez à taper pour rechercher des utilisateurs'
+                  : 'Aucun utilisateur trouvé'}
               </Text>
             ) : (
-              filteredAllUsers.map(user => {
-                const isPending = pendingRequests.includes(user.id);
-                const isAlreadyFriend = friends.some(friend => friend.id === user.id);
-
-                return (
-                  <View
-                    key={user.id}
-                    style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12 }}>
-                    <FriendStatusAvatar image={user.avatar} />
-                    <Text style={{ flex: 1, marginLeft: 12, fontSize: 16 }}>{user.firstName}</Text>
-                    {isAlreadyFriend ? (
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          backgroundColor: Colors.primary + '20',
-                          borderRadius: 20,
-                          paddingHorizontal: 12,
-                          paddingVertical: 4,
-                        }}>
-                        <Text style={{ color: Colors.primary, marginRight: 4 }}>Déjà ami</Text>
-                        <SvgCheck width={16} height={16} color={Colors.primary} />
-                      </View>
-                    ) : isPending ? (
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          backgroundColor: '#E5E5E5',
-                          borderRadius: 20,
-                          paddingHorizontal: 12,
-                          paddingVertical: 4,
-                        }}>
-                        <Text style={{ color: '#6C6C6C', marginRight: 4 }}>Demande envoyée</Text>
-                        <SvgCheck width={16} height={16} color='#6C6C6C' />
-                      </View>
-                    ) : (
-                      <Pressable
-                        style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: 24,
-                          backgroundColor: Colors.primary,
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                        onPress={() => {
-                          if (user.user_id) {
-                            handleSendFriendRequest(user.user_id);
-                          }
-                        }}>
-                        <SvgPlus width={24} height={24} color={Colors.white} />
-                      </Pressable>
-                    )}
-                  </View>
-                );
-              })
+              searchResults.map((user, index) => (
+                <View key={`search-user-${user.id}-${index}`} style={styles.searchUserItem}>
+                  <FriendStatusAvatar
+                    image={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.first_name + ' ' + user.last_name)}`}
+                    isRunning={false}
+                  />
+                  <Text style={styles.friendName}>
+                    {user.first_name} {user.last_name}
+                  </Text>
+                  {user.friend_status === 'friend' ? (
+                    <View style={styles.alreadyFriendBadge}>
+                      <Text style={{ color: Colors.primary, marginRight: 4 }}>Déjà ami</Text>
+                      <SvgCheck width={16} height={16} color={Colors.primary} />
+                    </View>
+                  ) : user.friend_status === 'waiting' ? (
+                    <View style={styles.waitingBadge}>
+                      <Text style={{ color: '#6C6C6C', marginRight: 4 }}>Demande envoyée</Text>
+                      <SvgCheck width={16} height={16} color='#6C6C6C' />
+                    </View>
+                  ) : (
+                    <Pressable
+                      style={styles.addButton}
+                      onPress={() => handleSendFriendRequest(user.id)}>
+                      <SvgPlus width={16} height={16} color={Colors.white} />
+                    </Pressable>
+                  )}
+                </View>
+              ))
             )}
           </ScrollView>
         </View>
@@ -362,39 +315,50 @@ export default function FriendsScreen() {
         onClose={() => setDrawerVisible(false)}>
         <View style={{ padding: 24 }}>
           <Text style={{ fontWeight: 'bold', fontSize: 22, marginBottom: 16 }}>
-            {selectedFriend?.firstName}
+            {selectedFriend?.first_name || 'Ami'}
           </Text>
 
+          {/* Bouton Encourager maintenant */}
+          <Pressable
+            style={[styles.drawerOption, !selectedFriend?.isRunning && { opacity: 0.5 }]}
+            onPress={() => {
+              if (selectedFriend?.isRunning && selectedFriend.id !== undefined) {
+                setDrawerVisible(false);
+                router.push({ pathname: '/cheer', params: { id: String(selectedFriend.id) } });
+              }
+            }}
+            disabled={!selectedFriend?.isRunning || selectedFriend?.id === undefined}>
+            <SvgRunningShoeIcon size={24} color={Colors.textPrimary} />
+            <Text style={styles.drawerOptionText}>Encourager maintenant</Text>
+          </Pressable>
+
+          {/* Bouton Notifier/Ne pas notifier */}
           <Pressable
             style={styles.drawerOption}
-            onPress={() => {
-              setDrawerVisible(false);
-              // TODO: Naviguer vers le profil de l'ami
+            onPress={async () => {
+              if (selectedFriend?.id) {
+                await toggleNotificationBlock(selectedFriend.id);
+              }
             }}>
             <SvgEye width={24} height={24} color={Colors.textPrimary} />
-            <Text style={styles.drawerOptionText}>Voir le profil</Text>
+            <Text style={styles.drawerOptionText}>
+              {selectedFriend?.id && isNotificationBlocked(selectedFriend.id)
+                ? 'Notifier de mes courses'
+                : 'Ne pas le notifier de mes courses'}
+            </Text>
           </Pressable>
 
-          <Pressable
-            style={styles.drawerOption}
-            onPress={() => {
-              setDrawerVisible(false);
-              // TODO: Bloquer/débloquer les notifications
-            }}>
-            <SvgRunningShoeIcon size={24} color={Colors.textPrimary} />
-            <Text style={styles.drawerOptionText}>Paramètres de notification</Text>
-          </Pressable>
-
+          {/* Bouton Supprimer */}
           <Pressable
             style={[styles.drawerOption, styles.dangerOption]}
             onPress={() => {
               setDrawerVisible(false);
-              if (selectedFriend?.user_id) {
-                handleRemoveFriend(selectedFriend.user_id);
+              if (selectedFriend?.id) {
+                handleRemoveFriend(selectedFriend.id);
               }
             }}>
             <SvgTrash width={24} height={24} color={Colors.error} />
-            <Text style={[styles.drawerOptionText, styles.dangerText]}>Supprimer l'ami</Text>
+            <Text style={[styles.drawerOptionText, styles.dangerText]}>Supprimer de mes amis</Text>
           </Pressable>
         </View>
       </Drawer>
@@ -425,6 +389,79 @@ const styles = StyleSheet.create({
   scroll: {
     flexGrow: 1,
   },
+  friendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  requestItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  searchUserItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  friendName: {
+    flex: 1,
+    marginLeft: 12,
+    fontSize: 16,
+  },
+  dotsButton: {
+    padding: 8,
+    borderRadius: 20,
+    minWidth: 40,
+    minHeight: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  declineButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 24,
+    borderWidth: 2,
+    borderColor: Colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+    backgroundColor: '#fff',
+  },
+  acceptButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 24,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 24,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  alreadyFriendBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.primary + '20',
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  waitingBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E5E5E5',
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
   drawerOption: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -442,16 +479,5 @@ const styles = StyleSheet.create({
   },
   dangerText: {
     color: Colors.error,
-  },
-  tempNote: {
-    backgroundColor: Colors.primary + '20',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  tempNoteText: {
-    color: Colors.primary,
-    fontSize: 14,
-    textAlign: 'center',
   },
 });
