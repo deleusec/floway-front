@@ -36,6 +36,8 @@ interface RunningSessionStore {
   isLoading: boolean;
   startSession: (type: 'time' | 'distance', objective: number) => Promise<void>;
   stopSession: () => void;
+  pauseSession: () => void;
+  resumeSession: () => void;
   updateLocation: (location: Location.LocationObject) => void;
   resetSession: () => void;
   saveSession: (authToken: string, userId: number) => Promise<void>;
@@ -299,5 +301,35 @@ export const useRunningSessionStore = create<RunningSessionStore>((set, get) => 
     } catch (error) {
       throw error;
     }
+  },
+
+  pauseSession: () => {
+    const { session } = get();
+    if (session.intervalId) {
+      clearInterval(session.intervalId);
+    }
+    set(state => ({
+      session: {
+        ...state.session,
+        intervalId: undefined,
+      },
+    }));
+  },
+
+  resumeSession: () => {
+    const { session } = get();
+    if (!session.isActive || session.intervalId) return;
+
+    // Redémarrer la mise à jour des métriques
+    const intervalId = setInterval(() => {
+      get().updateMetrics();
+    }, 1000);
+
+    set(state => ({
+      session: {
+        ...state.session,
+        intervalId,
+      },
+    }));
   },
 }));

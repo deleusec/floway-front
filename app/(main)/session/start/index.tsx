@@ -18,9 +18,17 @@ import ValueSelector from '@/components/ui/value-selector';
 import ClockIcon from '@/components/icons/ClockIcon';
 import SvgX from '@/components/icons/X';
 import Drawer from '@/components/ui/drawer';
-import { ChallengeCardProps } from '@/components/ui/challenge-card';
 
 type ChallengeType = 'free' | 'time' | 'distance';
+
+// Icônes pour les défis
+const RunnerIcon = ({ size = 32, color }: { size?: number; color: string }) => (
+  <Text style={{ fontSize: size, color }}>🏃‍♂️</Text>
+);
+
+const CheckeredFlagIcon = ({ size = 32, color }: { size?: number; color: string }) => (
+  <Text style={{ fontSize: size, color }}>🏁</Text>
+);
 
 export default function StartScreen() {
   const router = useRouter();
@@ -135,23 +143,15 @@ export default function StartScreen() {
       return (
         <View style={styles.drawerSheet}>
           <View style={styles.drawerHandle} />
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingHorizontal: 24,
-              marginBottom: 8,
-            }}>
+          <View style={styles.drawerHeader}>
             <Text style={styles.drawerTitle}>Mode minuterie</Text>
-            <TouchableOpacity
-              style={{ marginLeft: 'auto' }}
-              onPress={() => setDrawerVisible(false)}>
+            <TouchableOpacity style={styles.closeButton} onPress={() => setDrawerVisible(false)}>
               <SvgX width={24} height={24} color={Colors.textSecondary} />
             </TouchableOpacity>
           </View>
           <View style={styles.drawerSeparator} />
           <View style={styles.drawerContent}>
-            <View style={{ flexDirection: 'row', justifyContent: 'center', marginVertical: 16 }}>
+            <View style={styles.valueSelectorContainer}>
               <ValueSelector label='heures' value={hours} onPress={() => openPicker('hours')} />
               <ValueSelector label='min' value={minutes} onPress={() => openPicker('minutes')} />
               <ValueSelector label='sec' value={seconds} onPress={() => openPicker('seconds')} />
@@ -171,23 +171,15 @@ export default function StartScreen() {
       return (
         <View style={styles.drawerSheet}>
           <View style={styles.drawerHandle} />
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingHorizontal: 24,
-              marginBottom: 8,
-            }}>
+          <View style={styles.drawerHeader}>
             <Text style={styles.drawerTitle}>Mission kilomètres</Text>
-            <TouchableOpacity
-              style={{ marginLeft: 'auto' }}
-              onPress={() => setDrawerVisible(false)}>
+            <TouchableOpacity style={styles.closeButton} onPress={() => setDrawerVisible(false)}>
               <SvgX width={24} height={24} color={Colors.textSecondary} />
             </TouchableOpacity>
           </View>
           <View style={styles.drawerSeparator} />
           <View style={styles.drawerContent}>
-            <View style={{ flexDirection: 'row', justifyContent: 'center', marginVertical: 16 }}>
+            <View style={styles.valueSelectorContainer}>
               <ValueSelector
                 label='km'
                 value={targetDistance}
@@ -213,8 +205,8 @@ export default function StartScreen() {
       <View style={styles.headerWrapper}>
         <View style={styles.header}>
           <Text style={styles.title}>Prêt à partir ?</Text>
-          <TouchableOpacity style={styles.closeButton} onPress={() => router.back()}>
-            <SvgX width={24} height={24} color={Colors.textSecondary} />
+          <TouchableOpacity style={styles.headerCloseButton} onPress={() => router.back()}>
+            <SvgX width={24} height={24} color='#000' />
           </TouchableOpacity>
         </View>
       </View>
@@ -224,36 +216,29 @@ export default function StartScreen() {
 
         <View style={styles.challengeCards}>
           <ChallengeCard
-            icon={
-              <ClockIcon
-                size={32}
-                color={challengeType === 'free' ? Colors.primary : Colors.textSecondary}
-              />
-            }
+            icon={<RunnerIcon size={40} color={challengeType === 'free' ? '#6366F1' : '#9CA3AF'} />}
             title='Course libre'
             description='Pas de pression, juste toi et la route. Profite de chaque foulée.'
+            isSelected={challengeType === 'free'}
             onPress={() => handleChallengeSelect('free')}
           />
           <ChallengeCard
-            icon={
-              <ClockIcon
-                size={32}
-                color={challengeType === 'time' ? Colors.primary : Colors.textSecondary}
-              />
-            }
+            icon={<ClockIcon size={40} color={challengeType === 'time' ? '#6366F1' : '#9CA3AF'} />}
             title='Mode minuterie'
             description="Lance un chrono et tiens le rythme jusqu'au bout."
+            isSelected={challengeType === 'time'}
             onPress={() => handleChallengeSelect('time')}
           />
           <ChallengeCard
             icon={
-              <ClockIcon
-                size={32}
-                color={challengeType === 'distance' ? Colors.primary : Colors.textSecondary}
+              <CheckeredFlagIcon
+                size={40}
+                color={challengeType === 'distance' ? '#6366F1' : '#9CA3AF'}
               />
             }
             title='Mission kilomètres'
             description='Fixe une distance, fonce, et ne lâche rien.'
+            isSelected={challengeType === 'distance'}
             onPress={() => handleChallengeSelect('distance')}
           />
         </View>
@@ -261,7 +246,7 @@ export default function StartScreen() {
 
       <Drawer
         mode='fixed'
-        height={400}
+        height={380}
         visible={drawerVisible}
         onClose={() => setDrawerVisible(false)}>
         {renderDrawerContent()}
@@ -272,65 +257,27 @@ export default function StartScreen() {
         transparent
         animationType='slide'
         onRequestClose={() => setPickerVisible(false)}>
-        <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.2)' }}>
-          <View
-            style={{
-              backgroundColor: '#fff',
-              borderTopLeftRadius: 16,
-              borderTopRightRadius: 16,
-              paddingBottom: 24,
-              minHeight: 220,
-            }}>
-            {/* Barre de drag */}
-            <View
-              style={{
-                alignSelf: 'center',
-                width: 48,
-                height: 5,
-                borderRadius: 3,
-                backgroundColor: '#EBEBEB',
-                marginTop: 8,
-                marginBottom: 16,
-              }}
-            />
-            {/* Titre */}
-            <Text
-              style={{
-                fontSize: 20,
-                fontWeight: 'bold',
-                color: '#000',
-                textAlign: 'left',
-                paddingHorizontal: 24,
-                marginBottom: 8,
-              }}>
+        <View style={styles.pickerBackdrop}>
+          <View style={styles.pickerContainer}>
+            <View style={styles.pickerHandle} />
+            <Text style={styles.pickerTitle}>
               {pickerType === 'hours' || pickerType === 'minutes' || pickerType === 'seconds'
                 ? 'Mode minuterie'
                 : 'Mission kilomètres'}
             </Text>
-            {/* Trait de séparation */}
-            <View
-              style={{
-                height: 1,
-                backgroundColor: '#EBEBEB',
-                marginBottom: 16,
-              }}
-            />
-            {/* Contenu dynamique */}
-            <View style={{ alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 }}>
-              <View
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginBottom: 16 }}>
+            <View style={styles.pickerSeparator} />
+            <View style={styles.pickerContent}>
+              <View style={styles.pickerValueContainer}>
                 <TouchableOpacity
                   onPress={() => setPickerValue(Math.max(0, pickerValue - 1))}
-                  style={{ padding: 16 }}>
-                  <Text style={{ fontSize: 24 }}>-</Text>
+                  style={styles.pickerButton}>
+                  <Text style={styles.pickerButtonText}>-</Text>
                 </TouchableOpacity>
-                <Text style={{ fontSize: 32, minWidth: 60, textAlign: 'center' }}>
-                  {pickerValue}
-                </Text>
+                <Text style={styles.pickerValue}>{pickerValue}</Text>
                 <TouchableOpacity
                   onPress={() => setPickerValue(pickerValue + 1)}
-                  style={{ padding: 16 }}>
-                  <Text style={{ fontSize: 24 }}>+</Text>
+                  style={styles.pickerButton}>
+                  <Text style={styles.pickerButtonText}>+</Text>
                 </TouchableOpacity>
               </View>
               <Button title='Valider' onPress={() => handlePickerConfirm(pickerValue)} />
@@ -338,7 +285,7 @@ export default function StartScreen() {
                 title='Annuler'
                 variant='outline'
                 onPress={() => setPickerVisible(false)}
-                style={{ marginTop: 8 }}
+                style={styles.cancelButton}
               />
             </View>
           </View>
@@ -351,15 +298,18 @@ export default function StartScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F8F8',
+    backgroundColor: '#F5F5F7',
   },
   headerWrapper: {
     backgroundColor: '#fff',
-    paddingTop: 60,
-    paddingBottom: Spacing.lg,
-    paddingHorizontal: Spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: '#EBEBEB',
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    paddingBottom: 20,
+    paddingHorizontal: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   header: {
     flexDirection: 'row',
@@ -367,110 +317,137 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: FontSize.xl,
-    fontFamily: FontFamily.bold,
-    color: Colors.textPrimary,
-    textAlign: 'left',
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#000',
   },
-  closeButton: {
-    padding: Spacing.sm,
-  },
-  subtitle: {
-    fontSize: FontSize.lg,
-    fontFamily: FontFamily.semiBold,
-    color: Colors.textPrimary,
-    marginBottom: Spacing.lg,
-    marginTop: Spacing.lg,
-    textAlign: 'left',
+  headerCloseButton: {
+    padding: 8,
   },
   content: {
     flex: 1,
-    paddingHorizontal: Spacing.lg,
-    backgroundColor: '#F8F8F8',
+    paddingHorizontal: 24,
+  },
+  subtitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000',
+    marginTop: 32,
+    marginBottom: 24,
   },
   challengeCards: {
-    marginBottom: Spacing.xl,
     gap: 16,
-  },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 8,
-    elevation: 1,
-    borderWidth: 0,
-  },
-  cardTitle: {
-    color: '#624AF6',
-    fontFamily: FontFamily.semiBold,
-    fontSize: FontSize.md,
-    marginBottom: 2,
-  },
-  cardDescription: {
-    color: '#000',
-    fontFamily: FontFamily.regular,
-    fontSize: FontSize.sm,
-    opacity: 0.7,
-  },
-  cardIcon: {
-    marginRight: 16,
-  },
-  drawerContainer: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  drawerHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.lg,
-    paddingBottom: Spacing.md,
-  },
-  drawerTitle: {
-    fontSize: FontSize.lg,
-    fontFamily: FontFamily.bold,
-    color: Colors.textPrimary,
-  },
-  configSection: {
-    flex: 1,
-    paddingHorizontal: Spacing.lg,
-    justifyContent: 'center',
-  },
-  drawerFooter: {
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.lg,
+    paddingBottom: 32,
   },
   drawerSheet: {
     backgroundColor: '#fff',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    paddingBottom: 24,
-    minHeight: 220,
+    flex: 1,
   },
   drawerHandle: {
     alignSelf: 'center',
-    width: 48,
+    width: 36,
     height: 5,
     borderRadius: 3,
-    backgroundColor: '#EBEBEB',
-    marginTop: 8,
+    backgroundColor: '#D1D5DB',
+    marginTop: 12,
+    marginBottom: 20,
+  },
+  drawerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
     marginBottom: 16,
+  },
+  drawerTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#000',
+  },
+  closeButton: {
+    padding: 8,
   },
   drawerSeparator: {
     height: 1,
-    backgroundColor: '#EBEBEB',
-    marginBottom: 16,
+    backgroundColor: '#E5E7EB',
+    marginBottom: 32,
   },
   drawerContent: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    flex: 1,
     paddingHorizontal: 24,
+    paddingBottom: 32,
+    justifyContent: 'space-between',
+  },
+  valueSelectorContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 12,
+    marginTop: 20,
+  },
+  pickerBackdrop: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  pickerContainer: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    paddingBottom: 32,
+    minHeight: 280,
+  },
+  pickerHandle: {
+    alignSelf: 'center',
+    width: 36,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: '#D1D5DB',
+    marginTop: 12,
+    marginBottom: 20,
+  },
+  pickerTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#000',
+    paddingHorizontal: 24,
+    marginBottom: 16,
+  },
+  pickerSeparator: {
+    height: 1,
+    backgroundColor: '#E5E7EB',
+    marginBottom: 32,
+  },
+  pickerContent: {
+    paddingHorizontal: 24,
+    alignItems: 'center',
+  },
+  pickerValueContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 24,
+    marginBottom: 32,
+  },
+  pickerButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F3F4F6',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  pickerButtonText: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#374151',
+  },
+  pickerValue: {
+    fontSize: 36,
+    fontWeight: '700',
+    color: '#000',
+    minWidth: 80,
+    textAlign: 'center',
+  },
+  cancelButton: {
+    marginTop: 12,
   },
 });

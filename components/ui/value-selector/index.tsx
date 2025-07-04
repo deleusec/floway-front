@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, GestureResponderEvent } from 'react-native';
-import { Colors, FontSize, FontFamily, Radius, Spacing } from '@/constants/theme';
 
 interface ValueSelectorProps {
   label: string;
@@ -13,34 +12,37 @@ export default function ValueSelector({ label, value, onPress }: ValueSelectorPr
   const formatValue = (val: number) => val.toString().padStart(2, '0');
 
   return (
-    <TouchableOpacity
-      style={styles.selector}
-      onPress={onPress}
-      activeOpacity={0.8}
-    >
-      <Text style={styles.value}>
-        {formatValue(value)} {label}
-      </Text>
+    <TouchableOpacity style={styles.selector} onPress={onPress} activeOpacity={0.7}>
+      <Text style={styles.value}>{formatValue(value)}</Text>
+      <Text style={styles.label}>{label}</Text>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   selector: {
-    backgroundColor: '#fff',
+    backgroundColor: '#F9FAFB',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#EBEBEB',
+    borderColor: '#E5E7EB',
     minWidth: 90,
-    minHeight: 48,
+    minHeight: 60,
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 4,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
   },
   value: {
-    fontSize: FontSize.md,
-    fontFamily: FontFamily.medium,
-    color: '#6E6E6E',
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#111827',
+    textAlign: 'center',
+    marginBottom: 2,
+  },
+  label: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#6B7280',
     textAlign: 'center',
   },
 });

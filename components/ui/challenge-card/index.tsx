@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Colors, FontSize, FontFamily, Radius, Spacing } from '@/constants/theme';
 
 interface ChallengeCardProps {
   icon: React.ReactNode;
@@ -21,7 +20,7 @@ export default function ChallengeCard({
     <TouchableOpacity
       style={[styles.card, isSelected && styles.selectedCard]}
       onPress={onPress}
-      activeOpacity={0.7}>
+      activeOpacity={0.8}>
       <View style={styles.iconContainer}>{icon}</View>
       <View style={styles.content}>
         <Text style={[styles.title, isSelected && styles.selectedTitle]}>{title}</Text>
@@ -36,41 +35,44 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    borderRadius: Radius.lg,
-    padding: Spacing.lg,
-    marginBottom: Spacing.md,
-    borderWidth: 0,
+    borderRadius: 16,
+    padding: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
+    shadowOpacity: 0.06,
     shadowRadius: 8,
-    elevation: 1,
+    elevation: 2,
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
   selectedCard: {
-    borderColor: 'transparent',
-    backgroundColor: '#fff',
+    borderColor: '#E0E7FF',
+    backgroundColor: '#FAFBFF',
   },
   iconContainer: {
-    marginRight: Spacing.md,
+    marginRight: 16,
+    width: 48,
+    height: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   content: {
     flex: 1,
   },
   title: {
-    fontSize: FontSize.md,
-    fontFamily: FontFamily.semiBold,
-    color: '#624AF6',
-    marginBottom: Spacing.xs,
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#6366F1',
+    marginBottom: 4,
   },
   selectedTitle: {
-    color: '#624AF6',
+    color: '#6366F1',
   },
   description: {
-    fontSize: FontSize.sm,
-    fontFamily: FontFamily.regular,
-    color: '#000',
-    lineHeight: 20,
-    opacity: 0.7,
+    fontSize: 15,
+    fontWeight: '400',
+    color: '#6B7280',
+    lineHeight: 21,
   },
 });
 
