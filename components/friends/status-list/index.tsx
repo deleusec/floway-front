@@ -2,20 +2,16 @@ import React from 'react';
 import { FlatList, View, StyleSheet, Text } from 'react-native';
 import { Spacing, Colors, FontSize, FontFamily } from '@/constants/theme';
 import FriendStatusAvatar from '../status-avatar';
-import { useFriendsStore } from '@/stores/friends';
+import { useLiveFriends } from '@/hooks/useLiveFriends';
 import { router } from 'expo-router';
 
 export default function FriendsStatusList() {
-  const { friends, blockedNotifications } = useFriendsStore();
+  const { getFriendsWithLiveStatus } = useLiveFriends();
 
-  // Récupérer les amis en excluant ceux qui ont bloqué les notifications
-  const activeFriends = friends.filter(
-    friend => friend.user_id && !blockedNotifications.includes(friend.user_id)
-  );
+  // Récupérer tous les amis (vrais + fictifs) avec leur statut en direct
+  const allFriends = getFriendsWithLiveStatus();
 
-  const sortedFriends = [...activeFriends].sort(
-    (a, b) => Number(b.isRunning) - Number(a.isRunning)
-  );
+  const sortedFriends = [...allFriends].sort((a, b) => Number(b.isRunning) - Number(a.isRunning));
 
   return (
     <FlatList
@@ -27,18 +23,20 @@ export default function FriendsStatusList() {
       renderItem={({ item, index }) => (
         <View style={[styles.itemWrapper, index === 0 && { marginLeft: 0 }]}>
           <FriendStatusAvatar
-            name={item.firstName}
-            image={item.avatar}
+            image={
+              item.avatar ||
+              `https://ui-avatars.com/api/?name=${encodeURIComponent(item.first_name || 'Ami')}`
+            }
             isRunning={item.isRunning}
             onPress={() => {
               if (item.isRunning) {
                 // TODO: Naviguer vers la page de course en direct de l'ami
-                router.push(`/cheer?friendId=${item.user_id}`);
+                router.push(`/cheer?friendId=${item.id}`);
               }
             }}
           />
           <Text numberOfLines={1} ellipsizeMode='tail' style={styles.name}>
-            {item.firstName}
+            {item.first_name}
           </Text>
           {item.isRunning && (
             <View style={styles.liveIndicator}>

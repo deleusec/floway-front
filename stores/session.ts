@@ -23,7 +23,7 @@ interface RunningSession {
   startTime: number | null;
   locations: LocationPoint[];
   metrics: RunningMetrics;
-  type: 'time' | 'distance';
+  type: 'time' | 'distance' | 'free'; // Ajout du type 'free'
   objective: number;
   title: string;
 }
@@ -34,7 +34,7 @@ interface SessionStore {
   isLoading: boolean;
 
   // Actions simples
-  startSession: (type: 'time' | 'distance', objective: number) => void;
+  startSession: (type: 'time' | 'distance' | 'free', objective: number) => void;
   stopSession: () => void;
   pauseSession: () => void;
   resumeSession: () => void;
@@ -145,8 +145,12 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
       return;
     }
 
+    // Pour les courses libres, on sauvegarde comme 'time' avec objectif 0
+    const sessionTypeForAPI = session.type === 'free' ? 'time' : session.type;
+    const objectiveForAPI = session.type === 'free' ? 0 : session.objective;
+
     const payload = {
-      session_type: session.type,
+      session_type: sessionTypeForAPI,
       user_id: userId,
       title: session.title,
       distance: session.metrics.distance,
@@ -154,8 +158,8 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
       allure: session.metrics.pace,
       time: session.metrics.time,
       tps: session.locations,
-      time_objective: session.type === 'time' ? session.objective : 0,
-      distance_objective: session.type === 'distance' ? session.objective : 0,
+      time_objective: sessionTypeForAPI === 'time' ? objectiveForAPI : 0,
+      distance_objective: sessionTypeForAPI === 'distance' ? objectiveForAPI : 0,
       run_id: 1,
     };
 

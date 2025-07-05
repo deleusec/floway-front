@@ -75,8 +75,17 @@ export default function SessionScreen() {
     }
   }, [session.metrics.distance, session.isActive]);
 
+  // Vérifier si c'est une course libre
+  // Une course libre peut être détectée par un objectif de 0 ou un type spécifique
+  const isFreeRun =
+    session.objective === 0 ||
+    session.type === 'free' ||
+    (!session.type && session.objective === 0);
+
   // Calculs et formatage
   const getProgressPercentage = () => {
+    if (isFreeRun) return 0;
+
     if (session.type === 'time') {
       return Math.min((session.metrics.time / (session.objective * 1000)) * 100, 100);
     } else if (session.type === 'distance') {
@@ -86,12 +95,24 @@ export default function SessionScreen() {
   };
 
   const formatObjective = () => {
+    if (isFreeRun) return '';
+
     if (session.type === 'time') {
       return formatTime(session.objective * 1000);
     } else if (session.type === 'distance') {
       return `${session.objective.toFixed(2)} km`;
     }
     return '';
+  };
+
+  const getSessionTitle = () => {
+    if (isFreeRun) return 'Course libre';
+
+    return session.type === 'time'
+      ? 'Mode minuterie'
+      : session.type === 'distance'
+        ? 'Mission kilomètres'
+        : 'Course libre';
   };
 
   const formattedMetrics = {
@@ -162,26 +183,22 @@ export default function SessionScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header avec titre et barre de progression */}
+      {/* Header avec titre et barre de progression conditionnelle */}
       <View style={styles.header}>
-        <Text style={styles.title}>
-          {session.type === 'time'
-            ? 'Mode minuterie'
-            : session.type === 'distance'
-              ? 'Mission kilomètres'
-              : 'Course libre'}
-        </Text>
+        <Text style={styles.title}>{getSessionTitle()}</Text>
 
-        {/* Barre de progression */}
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${getProgressPercentage()}%` }]} />
+        {/* Barre de progression - seulement si ce n'est pas une course libre */}
+        {!isFreeRun && (
+          <View style={styles.progressContainer}>
+            <View style={styles.progressBar}>
+              <View style={[styles.progressFill, { width: `${getProgressPercentage()}%` }]} />
+            </View>
+            <Text style={styles.progressText}>
+              {session.type === 'time' ? formattedMetrics.time : formattedMetrics.distance} /{' '}
+              {formatObjective()}
+            </Text>
           </View>
-          <Text style={styles.progressText}>
-            {session.type === 'time' ? formattedMetrics.time : formattedMetrics.distance} /{' '}
-            {formatObjective()}
-          </Text>
-        </View>
+        )}
       </View>
 
       {/* Mode carte pur */}

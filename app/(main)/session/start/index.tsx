@@ -11,14 +11,13 @@ import {
 import { useRouter } from 'expo-router';
 import * as Location from 'expo-location';
 import { useRunningSessionStore } from '@/stores/session';
-import { Colors, FontSize, FontFamily, Radius, Spacing } from '@/constants/theme';
 import Button from '@/components/ui/button';
 import ChallengeCard from '@/components/ui/challenge-card';
 import ValueSelector from '@/components/ui/value-selector';
-//import ClockIcon from '@/components/icons/ClockIcon';
 import SvgX from '@/components/icons/X';
 
 type ChallengeType = 'free' | 'time' | 'distance';
+type PickerState = 'selection' | 'hours' | 'minutes' | 'seconds' | 'distance';
 
 // Icônes pour les défis
 const RunnerIcon = ({ size = 32, color }: { size?: number; color: string }) => (
@@ -27,7 +26,6 @@ const RunnerIcon = ({ size = 32, color }: { size?: number; color: string }) => (
 const ClockIcon = ({ size = 32, color }: { size?: number; color: string }) => (
   <Text style={{ fontSize: size, color }}>⏱️</Text>
 );
-
 const CheckeredFlagIcon = ({ size = 32, color }: { size?: number; color: string }) => (
   <Text style={{ fontSize: size, color }}>🏁</Text>
 );
@@ -36,6 +34,7 @@ export default function StartScreen() {
   const router = useRouter();
   const [challengeType, setChallengeType] = useState<ChallengeType>('free');
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const [drawerState, setDrawerState] = useState<PickerState>('selection');
 
   // États pour la minuterie
   const [hours, setHours] = useState(0);
@@ -45,13 +44,10 @@ export default function StartScreen() {
   // État pour la distance
   const [targetDistance, setTargetDistance] = useState(13);
 
-  const { session, startSession, updateLocation } = useRunningSessionStore();
+  // État temporaire pour le picker
+  const [tempValue, setTempValue] = useState(0);
 
-  const [pickerVisible, setPickerVisible] = useState(false);
-  const [pickerType, setPickerType] = useState<'hours' | 'minutes' | 'seconds' | 'distance' | null>(
-    null
-  );
-  const [pickerValue, setPickerValue] = useState(0);
+  const { session, startSession, updateLocation } = useRunningSessionStore();
 
   useEffect(() => {
     let locationSubscription: Location.LocationSubscription | null = null;
@@ -79,21 +75,21 @@ export default function StartScreen() {
   }, [session.isActive]);
 
   const handleChallengeSelect = (type: ChallengeType) => {
-    console.log('Challenge selected:', type); // Debug
     setChallengeType(type);
     if (type !== 'free') {
-      console.log('Opening drawer for:', type); // Debug
+      setDrawerState('selection');
       setDrawerVisible(true);
     } else {
-      // Course libre : lancer directement
       handleStartSession();
     }
   };
 
+  // Dans votre StartScreen, modifiez la fonction handleStartSession :
+
   const handleStartSession = async () => {
     try {
       let objectiveValue = 0;
-      let sessionType: 'time' | 'distance' = 'time';
+      let sessionType: 'time' | 'distance' | 'free' = 'time';
 
       if (challengeType === 'time') {
         objectiveValue = hours * 3600 + minutes * 60 + seconds;
@@ -110,9 +106,9 @@ export default function StartScreen() {
         }
         sessionType = 'distance';
       } else {
-        // Course libre : on utilise un temps très long par défaut
-        sessionType = 'time';
-        objectiveValue = 24 * 3600; // 24 heures
+        // Course libre
+        sessionType = 'free';
+        objectiveValue = 0; // Pas d'objectif pour une course libre
       }
 
       await startSession(sessionType, objectiveValue);
@@ -123,28 +119,155 @@ export default function StartScreen() {
     }
   };
 
-  // Ouvre le picker pour le type donné
-  const openPicker = (type: 'hours' | 'minutes' | 'seconds' | 'distance') => {
-    setPickerType(type);
-    if (type === 'hours') setPickerValue(hours);
-    else if (type === 'minutes') setPickerValue(minutes);
-    else if (type === 'seconds') setPickerValue(seconds);
-    else setPickerValue(targetDistance);
-    setPickerVisible(true);
+  // Ouvre le picker dans le drawer
+  const openInlinePicker = (type: PickerState) => {
+    if (type === 'hours') setTempValue(hours);
+    else if (type === 'minutes') setTempValue(minutes);
+    else if (type === 'seconds') setTempValue(seconds);
+    else if (type === 'distance') setTempValue(targetDistance);
+    setDrawerState(type);
   };
 
-  // Applique la valeur choisie
-  const handlePickerConfirm = (val: number) => {
-    if (pickerType === 'hours') setHours(val);
-    else if (pickerType === 'minutes') setMinutes(val);
-    else if (pickerType === 'seconds') setSeconds(val);
-    else if (pickerType === 'distance') setTargetDistance(val);
-    setPickerVisible(false);
+  // Confirme la valeur et retourne à la sélection
+  const confirmValue = () => {
+    if (drawerState === 'hours') setHours(tempValue);
+    else if (drawerState === 'minutes') setMinutes(tempValue);
+    else if (drawerState === 'seconds') setSeconds(tempValue);
+    else if (drawerState === 'distance') setTargetDistance(tempValue);
+    setDrawerState('selection');
+  };
+
+  // Retourne à la sélection sans sauvegarder
+  const cancelPicker = () => {
+    setDrawerState('selection');
   };
 
   const closeDrawer = () => {
-    console.log('Closing drawer'); // Debug
     setDrawerVisible(false);
+    setDrawerState('selection');
+  };
+
+  // Fonction pour obtenir le label du picker
+  const getPickerLabel = () => {
+    switch (drawerState) {
+      case 'hours':
+        return 'heures';
+      case 'minutes':
+        return 'minutes';
+      case 'seconds':
+        return 'secondes';
+      case 'distance':
+        return 'kilomètres';
+      default:
+        return '';
+    }
+  };
+
+  // Rendu du contenu du drawer selon l'état
+  const renderDrawerContent = () => {
+    if (drawerState === 'selection') {
+      // Vue de sélection normale
+      return (
+        <>
+          <View style={styles.drawerHeader}>
+            <Text style={styles.drawerTitle}>
+              {challengeType === 'time' ? 'Mode minuterie' : 'Mission kilomètres'}
+            </Text>
+          </View>
+
+          <View style={styles.drawerSeparator} />
+
+          <View style={styles.drawerContent}>
+            {challengeType === 'time' ? (
+              <View style={styles.valueSelectorContainer}>
+                <ValueSelector
+                  label='heures'
+                  value={hours}
+                  onPress={() => openInlinePicker('hours')}
+                />
+                <ValueSelector
+                  label='min'
+                  value={minutes}
+                  onPress={() => openInlinePicker('minutes')}
+                />
+                <ValueSelector
+                  label='sec'
+                  value={seconds}
+                  onPress={() => openInlinePicker('seconds')}
+                />
+              </View>
+            ) : (
+              <View style={styles.valueSelectorContainer}>
+                <ValueSelector
+                  label='km'
+                  value={targetDistance}
+                  onPress={() => openInlinePicker('distance')}
+                />
+              </View>
+            )}
+
+            <Button
+              onPress={handleStartSession}
+              title='Commencer'
+              variant='primary'
+              disabled={
+                challengeType === 'time'
+                  ? hours === 0 && minutes === 0 && seconds === 0
+                  : targetDistance <= 0
+              }
+            />
+          </View>
+        </>
+      );
+    } else {
+      // Vue picker intégrée
+      return (
+        <>
+          <View style={styles.drawerHeader}>
+            <Text style={styles.drawerTitle}>
+              {challengeType === 'time' ? 'Mode minuterie' : 'Mission kilomètres'}
+            </Text>
+          </View>
+
+          <View style={styles.drawerSeparator} />
+
+          <View style={styles.drawerContent}>
+            <Text style={styles.pickerLabel}>Choisir les {getPickerLabel()}</Text>
+
+            <View style={styles.inlinePickerContainer}>
+              <TouchableOpacity
+                onPress={() => setTempValue(Math.max(0, tempValue - 1))}
+                style={styles.pickerButton}>
+                <Text style={styles.pickerButtonText}>-</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.pickerValue}>{tempValue}</Text>
+
+              <TouchableOpacity
+                onPress={() => setTempValue(tempValue + 1)}
+                style={styles.pickerButton}>
+                <Text style={styles.pickerButtonText}>+</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.pickerActions}>
+              <Button
+                title='Annuler'
+                variant='outline'
+                onPress={cancelPicker}
+                style={styles.pickerActionButton}
+              />
+              <Button
+                title='Valider'
+                variant='primary'
+                onPress={confirmValue}
+                style={styles.pickerActionButton}
+              />
+            </View>
+          </View>
+        </>
+      );
+    }
   };
 
   return (
@@ -191,7 +314,7 @@ export default function StartScreen() {
         </View>
       </ScrollView>
 
-      {/* Drawer avec Modal pour garantir l'affichage */}
+      {/* Drawer unifié avec picker intégré */}
       <Modal visible={drawerVisible} transparent animationType='slide' onRequestClose={closeDrawer}>
         <View style={styles.drawerBackdrop}>
           <TouchableOpacity
@@ -201,95 +324,7 @@ export default function StartScreen() {
           />
           <View style={styles.drawerContainer}>
             <View style={styles.drawerHandle} />
-
-            <View style={styles.drawerHeader}>
-              <Text style={styles.drawerTitle}>
-                {challengeType === 'time' ? 'Mode minuterie' : 'Mission kilomètres'}
-              </Text>
-              <TouchableOpacity style={styles.closeButton} onPress={closeDrawer}>
-                <SvgX width={24} height={24} color='#6B7280' />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.drawerSeparator} />
-
-            <View style={styles.drawerContent}>
-              {challengeType === 'time' ? (
-                <View style={styles.valueSelectorContainer}>
-                  <ValueSelector label='heures' value={hours} onPress={() => openPicker('hours')} />
-                  <ValueSelector
-                    label='min'
-                    value={minutes}
-                    onPress={() => openPicker('minutes')}
-                  />
-                  <ValueSelector
-                    label='sec'
-                    value={seconds}
-                    onPress={() => openPicker('seconds')}
-                  />
-                </View>
-              ) : (
-                <View style={styles.valueSelectorContainer}>
-                  <ValueSelector
-                    label='km'
-                    value={targetDistance}
-                    onPress={() => openPicker('distance')}
-                  />
-                </View>
-              )}
-
-              <Button
-                onPress={handleStartSession}
-                title='Commencer'
-                variant='primary'
-                disabled={
-                  challengeType === 'time'
-                    ? hours === 0 && minutes === 0 && seconds === 0
-                    : targetDistance <= 0
-                }
-              />
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Picker Modal */}
-      <Modal
-        visible={pickerVisible}
-        transparent
-        animationType='slide'
-        onRequestClose={() => setPickerVisible(false)}>
-        <View style={styles.pickerBackdrop}>
-          <View style={styles.pickerContainer}>
-            <View style={styles.pickerHandle} />
-            <Text style={styles.pickerTitle}>
-              {pickerType === 'hours' || pickerType === 'minutes' || pickerType === 'seconds'
-                ? 'Mode minuterie'
-                : 'Mission kilomètres'}
-            </Text>
-            <View style={styles.pickerSeparator} />
-            <View style={styles.pickerContent}>
-              <View style={styles.pickerValueContainer}>
-                <TouchableOpacity
-                  onPress={() => setPickerValue(Math.max(0, pickerValue - 1))}
-                  style={styles.pickerButton}>
-                  <Text style={styles.pickerButtonText}>-</Text>
-                </TouchableOpacity>
-                <Text style={styles.pickerValue}>{pickerValue}</Text>
-                <TouchableOpacity
-                  onPress={() => setPickerValue(pickerValue + 1)}
-                  style={styles.pickerButton}>
-                  <Text style={styles.pickerButtonText}>+</Text>
-                </TouchableOpacity>
-              </View>
-              <Button title='Valider' onPress={() => handlePickerConfirm(pickerValue)} />
-              <Button
-                title='Annuler'
-                variant='outline'
-                onPress={() => setPickerVisible(false)}
-                style={styles.cancelButton}
-              />
-            </View>
+            {renderDrawerContent()}
           </View>
         </View>
       </Modal>
@@ -341,7 +376,7 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingBottom: 32,
   },
-  // Drawer avec Modal
+  // Drawer unifié
   drawerBackdrop: {
     flex: 1,
     justifyContent: 'flex-end',
@@ -378,9 +413,19 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     color: '#000',
+    flex: 1,
+    textAlign: 'center',
   },
   closeButton: {
     padding: 8,
+  },
+  backButton: {
+    padding: 8,
+  },
+  backButtonText: {
+    fontSize: 16,
+    color: '#6366F1',
+    fontWeight: '600',
   },
   drawerSeparator: {
     height: 1,
@@ -399,71 +444,46 @@ const styles = StyleSheet.create({
     gap: 12,
     marginBottom: 40,
   },
-  // Picker styles
-  pickerBackdrop: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.3)',
-  },
-  pickerContainer: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    paddingBottom: 32,
-    minHeight: 280,
-  },
-  pickerHandle: {
-    alignSelf: 'center',
-    width: 36,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: '#D1D5DB',
-    marginTop: 12,
-    marginBottom: 20,
-  },
-  pickerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
+  // Picker intégré
+  pickerLabel: {
+    fontSize: 18,
+    fontWeight: '600',
     color: '#000',
-    paddingHorizontal: 24,
-    marginBottom: 16,
-  },
-  pickerSeparator: {
-    height: 1,
-    backgroundColor: '#E5E7EB',
+    textAlign: 'center',
     marginBottom: 32,
   },
-  pickerContent: {
-    paddingHorizontal: 24,
-    alignItems: 'center',
-  },
-  pickerValueContainer: {
+  inlinePickerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 24,
-    marginBottom: 32,
+    marginBottom: 40,
   },
   pickerButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: '#F3F4F6',
     justifyContent: 'center',
     alignItems: 'center',
   },
   pickerButtonText: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '600',
     color: '#374151',
   },
   pickerValue: {
-    fontSize: 36,
+    fontSize: 42,
     fontWeight: '700',
     color: '#000',
-    minWidth: 80,
+    minWidth: 100,
     textAlign: 'center',
   },
-  cancelButton: {
-    marginTop: 12,
+  pickerActions: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  pickerActionButton: {
+    flex: 1,
   },
 });

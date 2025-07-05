@@ -378,6 +378,7 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       }
 
       const data = await response.json();
+      console.log('data', data);
       // data est un tableau d'objets { id, user, friend, isNotificationBlock }
       // On extrait les id des amis pour lesquels isNotificationBlock est true
       const blocked = Array.isArray(data)

@@ -70,7 +70,8 @@ export default function FriendsScreen() {
   // Charger les paramètres de notification au montage
   useEffect(() => {
     fetchNotificationSettings();
-  }, [fetchNotificationSettings]);
+    console.log('fetchNotificationSettings');
+  }, []);
 
   // Gérer les erreurs
   useEffect(() => {
@@ -152,6 +153,8 @@ export default function FriendsScreen() {
     );
   }
 
+  const isBlocked = isNotificationBlocked(selectedFriend?.id);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -198,9 +201,19 @@ export default function FriendsScreen() {
                     }
                     isRunning={friend.isRunning}
                   />
-                  <Text style={styles.friendName}>
-                    {friend.first_name} {friend.last_name}
-                  </Text>
+                  <View style={styles.friendInfo}>
+                    <View style={styles.nameRow}>
+                      <Text style={styles.friendName}>
+                        {friend.first_name} {friend.last_name}
+                      </Text>
+                      {isNotificationBlocked(friend.id) && (
+                        <SvgEye width={14} height={14} color={Colors.textSecondary} />
+                      )}
+                    </View>
+                    {isNotificationBlocked(friend.id) && (
+                      <Text style={styles.notificationBlockedText}>Notifications désactivées</Text>
+                    )}
+                  </View>
                   <Pressable
                     onPress={() => {
                       setSelectedFriend(friend);
@@ -288,7 +301,7 @@ export default function FriendsScreen() {
                       <Text style={{ color: Colors.primary, marginRight: 4 }}>Déjà ami</Text>
                       <SvgCheck width={16} height={16} color={Colors.primary} />
                     </View>
-                  ) : user.friend_status === 'waiting' ? (
+                  ) : user.friend_status === 'need_response' ? (
                     <View style={styles.waitingBadge}>
                       <Text style={{ color: '#6C6C6C', marginRight: 4 }}>Demande envoyée</Text>
                       <SvgCheck width={16} height={16} color='#6C6C6C' />
@@ -317,7 +330,6 @@ export default function FriendsScreen() {
           <Text style={{ fontWeight: 'bold', fontSize: 22, marginBottom: 16 }}>
             {selectedFriend?.first_name || 'Ami'}
           </Text>
-
           {/* Bouton Encourager maintenant */}
           <Pressable
             style={[styles.drawerOption, !selectedFriend?.isRunning && { opacity: 0.5 }]}
@@ -331,7 +343,6 @@ export default function FriendsScreen() {
             <SvgRunningShoeIcon size={24} color={Colors.textPrimary} />
             <Text style={styles.drawerOptionText}>Encourager maintenant</Text>
           </Pressable>
-
           {/* Bouton Notifier/Ne pas notifier */}
           <Pressable
             style={styles.drawerOption}
@@ -342,12 +353,9 @@ export default function FriendsScreen() {
             }}>
             <SvgEye width={24} height={24} color={Colors.textPrimary} />
             <Text style={styles.drawerOptionText}>
-              {selectedFriend?.id && isNotificationBlocked(selectedFriend.id)
-                ? 'Notifier de mes courses'
-                : 'Ne pas le notifier de mes courses'}
+              {isBlocked ? 'Notifier de mes courses' : 'Ne pas le notifier de mes courses'}
             </Text>
           </Pressable>
-
           {/* Bouton Supprimer */}
           <Pressable
             style={[styles.drawerOption, styles.dangerOption]}
@@ -406,10 +414,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
   },
-  friendName: {
+  friendInfo: {
     flex: 1,
     marginLeft: 12,
+  },
+  friendName: {
     fontSize: 16,
+    color: Colors.textPrimary,
+    flex: 1,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  notificationBlockedText: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: 2,
   },
   dotsButton: {
     padding: 8,
