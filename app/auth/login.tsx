@@ -14,7 +14,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
-import { Spacing, Colors, FontSize, FontFamily } from '@/constants/theme';
+import {Spacing, Colors, FontSize, FontFamily, Radius} from '@/constants/theme';
 import { useAuth } from '@/stores/auth';
 import InputError from '@/components/ui/input/error';
 import InputLabel from '@/components/ui/input/label';
@@ -83,6 +83,7 @@ export default function LoginScreen() {
                     onChangeText={onChange}
                     keyboardType='email-address'
                     autoCapitalize='none'
+                    placeholder='Ex : john.doe@mail.fr'
                   />
                 )}
               />
@@ -100,6 +101,7 @@ export default function LoginScreen() {
                     onChangeText={onChange}
                     secureTextEntry
                     autoCapitalize='none'
+                    placeholder='Votre mot de passe'
                   />
                 )}
               />
@@ -111,7 +113,8 @@ export default function LoginScreen() {
               onPress={handleSubmit(onSubmit)}
               size='large'
               width='full'
-              rounded='md'
+              rounded='full'
+              style={{ marginTop: Spacing.lg, marginBottom: Spacing.md }}
             />
 
             <Text style={styles.registerText}>
@@ -139,7 +142,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '100%',
-    height: 300,
+    height: 250,
     marginBottom: Spacing.lg,
   },
   title: {
@@ -150,12 +153,12 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   field: {
-    gap: Spacing.xs,
+    gap: Spacing.sm,
   },
   input: {
     borderWidth: 1,
     borderColor: Colors.border,
-    borderRadius: 8,
+    borderRadius: Radius.sm,
     padding: Spacing.md,
     marginBottom: Spacing.sm,
     fontSize: FontSize.md,
@@ -167,14 +170,12 @@ const styles = StyleSheet.create({
     fontSize: FontSize.sm,
   },
   registerText: {
-    fontSize: FontSize.xs,
-    fontFamily: FontFamily.regular,
-    color: Colors.textSecondary,
+    fontSize: FontSize.sm,
+    color: Colors.textPrimary,
     textAlign: 'center',
   },
   registerLink: {
     fontFamily: FontFamily.medium,
     textDecorationLine: 'underline',
-    color: Colors.textPrimary,
   },
 });

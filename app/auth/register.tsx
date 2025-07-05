@@ -7,8 +7,7 @@ import {
   Platform,
   ScrollView,
   SafeAreaView,
-  Text,
-  Image,
+  Text
 } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
@@ -69,13 +68,7 @@ export default function RegisterScreen() {
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scroll}>
-          <Image
-            source={require('@/assets/images/runner-listen-music.png')}
-            style={styles.image}
-            resizeMode='contain'
-          />
-
-          <Title level={3} style={styles.title}>
+          <Title style={styles.title}>
             Créer un compte
           </Title>
 
@@ -86,7 +79,11 @@ export default function RegisterScreen() {
                 control={control}
                 name='first_name'
                 render={({ field: { onChange, value } }) => (
-                  <Input value={value} onChangeText={onChange} />
+                  <Input
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder='Ex: John'
+                  />
                 )}
               />
               <InputError message={errors.first_name?.message} />
@@ -98,7 +95,11 @@ export default function RegisterScreen() {
                 control={control}
                 name='last_name'
                 render={({ field: { onChange, value } }) => (
-                  <Input value={value} onChangeText={onChange} />
+                  <Input
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder='Ex: Doe'
+                  />
                 )}
               />
               <InputError message={errors.last_name?.message} />
@@ -110,7 +111,11 @@ export default function RegisterScreen() {
                 control={control}
                 name='username'
                 render={({ field: { onChange, value } }) => (
-                  <Input value={value} onChangeText={onChange} />
+                  <Input
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder='Ex: john.doe'
+                  />
                 )}
               />
               <InputError message={errors.username?.message} />
@@ -127,6 +132,7 @@ export default function RegisterScreen() {
                     onChangeText={onChange}
                     keyboardType='email-address'
                     autoCapitalize='none'
+                    placeholder='Ex: john.doe@gmail.com'
                   />
                 )}
               />
@@ -144,6 +150,7 @@ export default function RegisterScreen() {
                     onChangeText={onChange}
                     secureTextEntry
                     autoCapitalize='none'
+                    placeholder='Votre mot de passe'
                   />
                 )}
               />
@@ -155,7 +162,8 @@ export default function RegisterScreen() {
               onPress={handleSubmit(onSubmit)}
               size='large'
               width='full'
-              rounded='md'
+              rounded='full'
+              style={{ marginTop: Spacing.lg, marginBottom: Spacing.md }}
             />
 
             <Text style={styles.loginText}>
@@ -189,22 +197,21 @@ const styles = StyleSheet.create({
   title: {
     textAlign: 'center',
     color: Colors.textPrimary,
+    marginBottom: Spacing.lg,
   },
   form: {
     gap: Spacing.md,
   },
   field: {
-    gap: Spacing.xs,
+    gap: Spacing.sm,
   },
   loginText: {
-    fontSize: FontSize.xs,
-    fontFamily: FontFamily.regular,
-    color: Colors.textSecondary,
+    fontSize: FontSize.sm,
+    color: Colors.textPrimary,
     textAlign: 'center',
   },
   loginLink: {
     fontFamily: FontFamily.medium,
     textDecorationLine: 'underline',
-    color: Colors.textPrimary,
   },
 });
