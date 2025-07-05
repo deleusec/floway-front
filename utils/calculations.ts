@@ -32,3 +32,81 @@ export function calculatePace(distance: number, time: number): number {
   // Retourne l'allure en minutes par kilomètre
   return time / 60000 / (distance / 1000);
 }
+
+/**
+ * Calcule la distance de Levenshtein entre deux chaînes
+ * @param str1 Première chaîne
+ * @param str2 Deuxième chaîne
+ * @returns Distance de Levenshtein (0 = identique, plus le nombre est grand, plus c'est différent)
+ */
+export function levenshteinDistance(str1: string, str2: string): number {
+  const matrix = [];
+
+  // Initialiser la première ligne et colonne
+  for (let i = 0; i <= str2.length; i++) {
+    matrix[i] = [i];
+  }
+  for (let j = 0; j <= str1.length; j++) {
+    matrix[0][j] = j;
+  }
+
+  // Remplir la matrice
+  for (let i = 1; i <= str2.length; i++) {
+    for (let j = 1; j <= str1.length; j++) {
+      if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1, // substitution
+          matrix[i][j - 1] + 1, // insertion
+          matrix[i - 1][j] + 1 // suppression
+        );
+      }
+    }
+  }
+
+  return matrix[str2.length][str1.length];
+}
+
+/**
+ * Calcule un score de similarité basé sur la distance de Levenshtein
+ * @param str1 Première chaîne
+ * @param str2 Deuxième chaîne
+ * @returns Score entre 0 et 1 (1 = identique, 0 = complètement différent)
+ */
+export function similarityScore(str1: string, str2: string): number {
+  const distance = levenshteinDistance(str1.toLowerCase(), str2.toLowerCase());
+  const maxLength = Math.max(str1.length, str2.length);
+  return maxLength === 0 ? 1 : (maxLength - distance) / maxLength;
+}
+
+/**
+ * Recherche floue dans une liste d'objets
+ * @param items Liste d'objets à rechercher
+ * @param searchTerm Terme de recherche
+ * @param fieldName Nom du champ à rechercher dans chaque objet
+ * @param threshold Seuil de similarité minimum (0-1, défaut: 0.3)
+ * @returns Liste filtrée et triée par score de similarité
+ */
+export function fuzzySearch<T>(
+  items: T[],
+  searchTerm: string,
+  fieldName: keyof T,
+  threshold: number = 0.3
+): T[] {
+  if (!searchTerm.trim()) {
+    return items;
+  }
+
+  const results = items
+    .map(item => {
+      const fieldValue = String(item[fieldName]);
+      const score = similarityScore(fieldValue, searchTerm);
+      return { item, score };
+    })
+    .filter(result => result.score >= threshold)
+    .sort((a, b) => b.score - a.score)
+    .map(result => result.item);
+
+  return results;
+}

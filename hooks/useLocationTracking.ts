@@ -1,0 +1,168 @@
+import { useState, useEffect, useRef, useCallback } from 'react';
+import * as Location from 'expo-location';
+import { calculateDistance, calculatePace } from '@/utils/calculations';
+
+interface LocationPoint {
+  latitude: number;
+  longitude: number;
+  timestamp: number;
+}
+
+interface RunningMetrics {
+  distance: number;
+  pace: number;
+  steps: number;
+  calories: number;
+  time: number;
+}
+
+interface UseLocationTrackingProps {
+  isActive: boolean;
+  isPaused: boolean;
+  startTime: number | null;
+  onLocationUpdate: (location: LocationPoint) => void;
+  onMetricsUpdate: (metrics: RunningMetrics) => void;
+}
+
+export const useLocationTracking = ({
+  isActive,
+  isPaused,
+  startTime,
+  onLocationUpdate,
+  onMetricsUpdate,
+}: UseLocationTrackingProps) => {
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const locationSubscription = useRef<Location.LocationSubscription | null>(null);
+  const metricsInterval = useRef<NodeJS.Timeout | null>(null);
+  const lastLocation = useRef<LocationPoint | null>(null);
+  const currentMetrics = useRef<RunningMetrics>({
+    distance: 0,
+    pace: 0,
+    steps: 0,
+    calories: 0,
+    time: 0,
+  });
+
+  // Demander les permissions
+  const requestPermissions = useCallback(async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      setHasPermission(status === 'granted');
+      if (status !== 'granted') {
+        setError('Permission de localisation refusée');
+      }
+      return status === 'granted';
+    } catch (err) {
+      setError('Erreur lors de la demande de permission');
+      return false;
+    }
+  }, []);
+
+  // Démarrer le tracking de localisation
+  const startLocationTracking = useCallback(async () => {
+    if (!hasPermission) {
+      const granted = await requestPermissions();
+      if (!granted) return;
+    }
+
+    try {
+      locationSubscription.current = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.BestForNavigation,
+          timeInterval: 1000,
+          distanceInterval: 5,
+        },
+        location => {
+          const newLocation: LocationPoint = {
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+            timestamp: Date.now(),
+          };
+
+          // Calculer la distance depuis le dernier point
+          let distanceIncrement = 0;
+          if (lastLocation.current) {
+            distanceIncrement = calculateDistance(
+              lastLocation.current.latitude,
+              lastLocation.current.longitude,
+              newLocation.latitude,
+              newLocation.longitude
+            );
+          }
+
+          // Mettre à jour les métriques
+          currentMetrics.current.distance += distanceIncrement;
+          lastLocation.current = newLocation;
+
+          // Notifier les changements
+          onLocationUpdate(newLocation);
+        }
+      );
+    } catch (err) {
+      setError('Erreur lors du démarrage du tracking');
+    }
+  }, [hasPermission, requestPermissions, onLocationUpdate]);
+
+  // Démarrer la mise à jour des métriques
+  const startMetricsUpdate = useCallback(() => {
+    if (!startTime) return;
+
+    metricsInterval.current = setInterval(() => {
+      const currentTime = Date.now() - startTime;
+      const newMetrics: RunningMetrics = {
+        ...currentMetrics.current,
+        time: currentTime,
+        pace: calculatePace(currentMetrics.current.distance, currentTime),
+      };
+
+      currentMetrics.current = newMetrics;
+      onMetricsUpdate(newMetrics);
+    }, 1000);
+  }, [startTime, onMetricsUpdate]);
+
+  // Arrêter le tracking
+  const stopTracking = useCallback(() => {
+    if (locationSubscription.current) {
+      locationSubscription.current.remove();
+      locationSubscription.current = null;
+    }
+    if (metricsInterval.current) {
+      clearInterval(metricsInterval.current);
+      metricsInterval.current = null;
+    }
+    lastLocation.current = null;
+    currentMetrics.current = {
+      distance: 0,
+      pace: 0,
+      steps: 0,
+      calories: 0,
+      time: 0,
+    };
+  }, []);
+
+  // Gérer les changements d'état
+  useEffect(() => {
+    if (isActive && !isPaused && hasPermission) {
+      startLocationTracking();
+      startMetricsUpdate();
+    } else {
+      stopTracking();
+    }
+
+    return () => {
+      stopTracking();
+    };
+  }, [isActive, isPaused, hasPermission, startLocationTracking, startMetricsUpdate, stopTracking]);
+
+  // Demander les permissions au montage
+  useEffect(() => {
+    requestPermissions();
+  }, [requestPermissions]);
+
+  return {
+    hasPermission,
+    error,
+    requestPermissions,
+  };
+};

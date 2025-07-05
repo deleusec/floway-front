@@ -4,8 +4,6 @@ import { useCheerStore } from '@/stores/cheer';
 import { Colors, Spacing, FontSize, FontFamily, Radius } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import CheerMicButton from '@/components/ui/button/mic';
-import BackHeader from '@/components/layouts/header/back';
-import BackFooter from '@/components/layouts/footer/back';
 
 function formatTime(sec: number) {
   const m = Math.floor(sec / 60);
@@ -14,16 +12,8 @@ function formatTime(sec: number) {
 }
 
 export default function CheerScreen() {
-  const {
-    friendName,
-    stats,
-    flows,
-    selectedFlowId,
-    selectFlow,
-    audioUri,
-    setAudioUri,
-    reset,
-  } = useCheerStore();
+  const { friendName, stats, flows, selectedFlowId, selectFlow, audioUri, setAudioUri, reset } =
+    useCheerStore();
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -32,14 +22,15 @@ export default function CheerScreen() {
     time: 5340,
     distance: 10200,
     speed: 6.7,
-    mapImageUrl: 'https://static-maps.yandex.ru/1.x/?lang=fr_FR&ll=-3.45,48.78&z=12&l=map&pl=c:FF0000FF,w:5,-3.45,48.78,-3.47,48.80,-3.48,48.81',
+    mapImageUrl:
+      'https://static-maps.yandex.ru/1.x/?lang=fr_FR&ll=-3.45,48.78&z=12&l=map&pl=c:FF0000FF,w:5,-3.45,48.78,-3.47,48.80,-3.48,48.81',
   };
 
   const startRecording = () => {
     setIsRecording(true);
     setRecordingTime(0);
     timerRef.current = setInterval(() => {
-      setRecordingTime((t) => {
+      setRecordingTime(t => {
         if (t >= 30) {
           stopRecording();
           return t;
@@ -65,11 +56,27 @@ export default function CheerScreen() {
     <View style={styles.container}>
       {/* Carte + stats */}
       <View style={styles.mapContainer}>
-        <Image source={{ uri: displayStats.mapImageUrl }} style={styles.mapImg} resizeMode="cover" />
+        <Image
+          source={{ uri: displayStats.mapImageUrl }}
+          style={styles.mapImg}
+          resizeMode='cover'
+        />
         <View style={styles.statsBox}>
-          <View style={styles.statItem}><Ionicons name="time" size={12} color={Colors.textPrimary} /><Text style={styles.statText}>{Math.floor(displayStats.time/60)}h{(displayStats.time%60).toString().padStart(2,'0')}</Text></View>
-          <View style={styles.statItem}><Ionicons name="location" size={12} color={Colors.textPrimary} /><Text style={styles.statText}>{(displayStats.distance/1000).toFixed(1)} km</Text></View>
-          <View style={styles.statItem}><Ionicons name="speedometer" size={12} color={Colors.textPrimary} /><Text style={styles.statText}>{displayStats.speed.toFixed(1)} km/h</Text></View>
+          <View style={styles.statItem}>
+            <Ionicons name='time' size={12} color={Colors.textPrimary} />
+            <Text style={styles.statText}>
+              {Math.floor(displayStats.time / 60)}h
+              {(displayStats.time % 60).toString().padStart(2, '0')}
+            </Text>
+          </View>
+          <View style={styles.statItem}>
+            <Ionicons name='location' size={12} color={Colors.textPrimary} />
+            <Text style={styles.statText}>{(displayStats.distance / 1000).toFixed(1)} km</Text>
+          </View>
+          <View style={styles.statItem}>
+            <Ionicons name='speedometer' size={12} color={Colors.textPrimary} />
+            <Text style={styles.statText}>{displayStats.speed.toFixed(1)} km/h</Text>
+          </View>
         </View>
       </View>
 
@@ -95,9 +102,10 @@ export default function CheerScreen() {
           <TouchableOpacity
             key={flow.id}
             style={[styles.flowBtn, selectedFlowId === flow.id && styles.flowBtnSelected]}
-            onPress={() => selectFlow(flow.id)}
-          >
-            <Text style={[styles.flowText, selectedFlowId === flow.id && styles.flowTextSelected]}>{flow.text}</Text>
+            onPress={() => selectFlow(flow.id)}>
+            <Text style={[styles.flowText, selectedFlowId === flow.id && styles.flowTextSelected]}>
+              {flow.text}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
@@ -135,7 +143,7 @@ const styles = StyleSheet.create({
   },
   statItem: {
     flexDirection: 'row',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   statText: {
     marginLeft: Spacing.xs,

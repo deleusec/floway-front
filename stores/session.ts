@@ -1,8 +1,6 @@
 import { create } from 'zustand';
-import * as Location from 'expo-location';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { calculateDistance, calculatePace } from '../utils/calculations';
 
 interface LocationPoint {
   latitude: number;
@@ -21,27 +19,31 @@ interface RunningMetrics {
 interface RunningSession {
   id?: string;
   isActive: boolean;
+  isPaused: boolean;
   startTime: number | null;
   locations: LocationPoint[];
   metrics: RunningMetrics;
   type: 'time' | 'distance';
   objective: number;
   title: string;
-  intervalId?: NodeJS.Timeout;
 }
 
-interface RunningSessionStore {
+interface SessionStore {
   session: RunningSession;
   userSessions: RunningSession[];
   isLoading: boolean;
-  startSession: (type: 'time' | 'distance', objective: number) => Promise<void>;
+
+  // Actions simples
+  startSession: (type: 'time' | 'distance', objective: number) => void;
   stopSession: () => void;
-  updateLocation: (location: Location.LocationObject) => void;
-  resetSession: () => void;
+  pauseSession: () => void;
+  resumeSession: () => void;
+  updateMetrics: (metrics: RunningMetrics) => void;
+  updateLocation: (location: LocationPoint) => void;
   saveSession: (authToken: string, userId: number) => Promise<void>;
   fetchUserSessions: (authToken: string, userId: number) => Promise<void>;
   updateSessionTitle: (newTitle: string, authToken: string) => Promise<void>;
-  updateMetrics: () => void;
+  resetSession: () => void;
 }
 
 const initialMetrics: RunningMetrics = {
@@ -54,6 +56,7 @@ const initialMetrics: RunningMetrics = {
 
 const initialSession: RunningSession = {
   isActive: false,
+  isPaused: false,
   startTime: null,
   locations: [],
   metrics: initialMetrics,
@@ -62,17 +65,12 @@ const initialSession: RunningSession = {
   title: '',
 };
 
-export const useRunningSessionStore = create<RunningSessionStore>((set, get) => ({
+export const useRunningSessionStore = create<SessionStore>((set, get) => ({
   session: initialSession,
   userSessions: [],
   isLoading: false,
 
-  startSession: async (type, objective) => {
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== 'granted') {
-      throw new Error('Permission to access location was denied');
-    }
-
+  startSession: (type, objective) => {
     const date = new Date();
     const formattedDate = format(date, "dd/MM/yyyy 'à' HH:mm", { locale: fr });
 
@@ -80,6 +78,7 @@ export const useRunningSessionStore = create<RunningSessionStore>((set, get) => 
       session: {
         ...state.session,
         isActive: true,
+        isPaused: false,
         startTime: Date.now(),
         type,
         objective,
@@ -88,102 +87,52 @@ export const useRunningSessionStore = create<RunningSessionStore>((set, get) => 
         title: `Session du ${formattedDate}`,
       },
     }));
-
-    // Démarrer la mise à jour des métriques
-    const intervalId = setInterval(() => {
-      get().updateMetrics();
-    }, 1000);
-
-    set(state => ({
-      session: {
-        ...state.session,
-        intervalId,
-      },
-    }));
   },
 
   stopSession: () => {
-    const { session } = get();
-    if (session.intervalId) {
-      clearInterval(session.intervalId);
-    }
     set(state => ({
       session: {
         ...state.session,
         isActive: false,
-        intervalId: undefined,
+        isPaused: false,
       },
     }));
   },
 
-  updateMetrics: () => {
-    const { session } = get();
-    if (!session.isActive || !session.startTime) return;
-
-    const currentTime = Date.now() - session.startTime;
-    const newMetrics = {
-      ...session.metrics,
-      time: currentTime,
-      pace: calculatePace(session.metrics.distance, currentTime),
-    };
-
+  pauseSession: () => {
     set(state => ({
       session: {
         ...state.session,
-        metrics: newMetrics,
+        isPaused: true,
+      },
+    }));
+  },
+
+  resumeSession: () => {
+    set(state => ({
+      session: {
+        ...state.session,
+        isPaused: false,
+      },
+    }));
+  },
+
+  updateMetrics: metrics => {
+    set(state => ({
+      session: {
+        ...state.session,
+        metrics,
       },
     }));
   },
 
   updateLocation: location => {
-    const { session } = get();
-    if (!session.isActive) return;
-
-    const newLocation: LocationPoint = {
-      latitude: location.coords.latitude,
-      longitude: location.coords.longitude,
-      timestamp: Date.now(),
-    };
-
-    // Calculer la distance depuis le dernier point
-    let distanceIncrement = 0;
-    if (session.locations.length > 0) {
-      const lastLocation = session.locations[session.locations.length - 1];
-      distanceIncrement = calculateDistance(
-        lastLocation.latitude,
-        lastLocation.longitude,
-        newLocation.latitude,
-        newLocation.longitude
-      );
-    }
-
-    // Mettre à jour les métriques
-    const newMetrics = {
-      ...session.metrics,
-      distance: session.metrics.distance + distanceIncrement,
-      time: Date.now() - (session.startTime || Date.now()),
-      pace: calculatePace(
-        session.metrics.distance + distanceIncrement,
-        Date.now() - (session.startTime || Date.now())
-      ),
-    };
-
     set(state => ({
       session: {
         ...state.session,
-        locations: [...state.session.locations, newLocation],
-        metrics: newMetrics,
+        locations: [...state.session.locations, location],
       },
     }));
-
-    // Log toutes les 10 positions pour éviter de surcharger la console
-    if (session.locations.length % 10 === 0) {
-      console.log('📍 Location update:', {
-        totalDistance: newMetrics.distance,
-        currentPace: newMetrics.pace,
-        time: newMetrics.time,
-      });
-    }
   },
 
   resetSession: () => {

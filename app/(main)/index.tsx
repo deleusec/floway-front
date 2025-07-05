@@ -3,10 +3,14 @@ import CardMap from '@/components/ui/map';
 import Title from '@/components/ui/title';
 import { Spacing } from '@/constants/theme';
 import { useAuth } from '@/stores/auth';
+import { useLiveFriends } from '@/hooks/useLiveFriends';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
 export default function MainScreen() {
   const { user } = useAuth();
+
+  // Utiliser le hook pour le polling des amis en direct
+  useLiveFriends();
 
   return (
     <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
@@ -46,8 +50,7 @@ export default function MainScreen() {
           ]}
         />
       </View>
-      <View style={{ padding: Spacing.lg }}>
-    </View>
+      <View style={{ padding: Spacing.lg }}></View>
     </ScrollView>
   );
 }
