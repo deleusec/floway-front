@@ -1,9 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Text, Alert, TouchableOpacity, Platform, Modal } from 'react-native';
+import { View, StyleSheet, Text, Alert, TouchableOpacity, Platform, Animated } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useRunningSessionStore } from '@/stores/session';
 import { useAuth } from '@/stores/auth';
 import { useSpeechManager } from '@/hooks/useSpeechManager';
+import { useLocationTracking } from '@/hooks/useLocationTracking';
+import { useSessionAnimations } from '@/hooks/useSessionAnimations';
+import { formatTime, formatDistance, formatPace } from '@/utils/sessionUtils';
 
 // Import de vos icônes SVG
 import SvgUserTalk from '@/components/icons/UserTalk';
@@ -14,23 +17,38 @@ import SvgStopIcon from '@/components/icons/StopIcon';
 
 export default function SessionScreen() {
   const router = useRouter();
-  const { session, stopSession, saveSession, pauseSession, resumeSession } =
-    useRunningSessionStore();
+  const {
+    session,
+    stopSession,
+    saveSession,
+    pauseSession,
+    resumeSession,
+    updateLocation,
+    updateMetrics,
+  } = useRunningSessionStore();
   const { user, token, getUserAndTokenFromStorage } = useAuth();
   const { speak } = useSpeechManager();
   const lastAnnouncedKm = useRef(0);
 
-  // États
-  const [isPaused, setIsPaused] = useState(false);
+  // États locaux
   const [showMap, setShowMap] = useState(false);
 
-  useEffect(() => {
-    console.log('Session state changed:', { isActive: session.isActive });
+  // Hooks personnalisés
+  const { hasPermission, error: locationError } = useLocationTracking({
+    isActive: session.isActive,
+    isPaused: session.isPaused,
+    startTime: session.startTime,
+    onLocationUpdate: updateLocation,
+    onMetricsUpdate: updateMetrics,
+  });
 
+  const { metricsHeight, mapOpacity, animateToPause, animateToResume } = useSessionAnimations();
+
+  // Effets
+  useEffect(() => {
     if (!session.isActive) {
       router.replace('/session/start');
     } else {
-      console.log('Attempting to speak start message');
       speak({
         type: 'info',
         text: 'Début de la séance',
@@ -43,7 +61,6 @@ export default function SessionScreen() {
     if (!session.isActive) return;
 
     const currentKm = Math.floor(session.metrics.distance / 1000);
-
     if (currentKm > lastAnnouncedKm.current) {
       const paceMinutes = Math.floor(session.metrics.pace / 60);
       const paceSeconds = Math.floor(session.metrics.pace % 60);
@@ -58,30 +75,7 @@ export default function SessionScreen() {
     }
   }, [session.metrics.distance, session.isActive]);
 
-  // Formatage du temps
-  const formatTime = (timeInMs: number) => {
-    const totalSeconds = Math.floor(timeInMs / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  };
-
-  // Formatage de l'allure (min/km)
-  const formatPace = (paceInSeconds: number) => {
-    if (paceInSeconds === 0) return "0'00";
-    const minutes = Math.floor(paceInSeconds / 60);
-    const seconds = Math.floor(paceInSeconds % 60);
-    return `${minutes}'${seconds.toString().padStart(2, '0')}`;
-  };
-
-  // Formatage de la distance
-  const formatDistance = (distanceInMeters: number) => {
-    return (distanceInMeters / 1000).toFixed(2);
-  };
-
-  // Calcul du pourcentage de progression
+  // Calculs et formatage
   const getProgressPercentage = () => {
     if (session.type === 'time') {
       return Math.min((session.metrics.time / (session.objective * 1000)) * 100, 100);
@@ -91,7 +85,6 @@ export default function SessionScreen() {
     return 0;
   };
 
-  // Formatage de l'objectif
   const formatObjective = () => {
     if (session.type === 'time') {
       return formatTime(session.objective * 1000);
@@ -101,37 +94,34 @@ export default function SessionScreen() {
     return '';
   };
 
-  // Gestion de la pause
+  const formattedMetrics = {
+    time: formatTime(session.metrics.time),
+    distance: formatDistance(session.metrics.distance),
+    pace: formatPace(session.metrics.pace),
+  };
+
+  // Gestion des actions
   const togglePause = () => {
-    if (!isPaused) {
-      // Mettre en pause
-      pauseSession?.();
-      setIsPaused(true);
+    if (!session.isPaused) {
+      pauseSession();
+      animateToPause();
     } else {
-      // Reprendre
-      resumeSession?.();
-      setIsPaused(false);
+      resumeSession();
+      animateToResume();
     }
   };
 
-  // Gestion du bouton droit
   const handleRightButtonPress = () => {
-    if (isPaused) {
-      // En pause : arrêter la session
+    if (session.isPaused) {
       handleStopSession();
     } else {
-      // Basculer entre vue métriques et carte
       setShowMap(!showMap);
     }
   };
 
-  // Arrêt de session
   const handleStopSession = () => {
     Alert.alert('Arrêter la course', 'Êtes-vous sûr de vouloir arrêter la course ?', [
-      {
-        text: 'Annuler',
-        style: 'cancel',
-      },
+      { text: 'Annuler', style: 'cancel' },
       {
         text: 'Arrêter',
         style: 'destructive',
@@ -161,6 +151,15 @@ export default function SessionScreen() {
     console.log('Mic button pressed');
   };
 
+  // Affichage des erreurs
+  if (locationError) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>{locationError}</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       {/* Header avec titre et barre de progression */}
@@ -179,129 +178,133 @@ export default function SessionScreen() {
             <View style={[styles.progressFill, { width: `${getProgressPercentage()}%` }]} />
           </View>
           <Text style={styles.progressText}>
-            {session.type === 'time'
-              ? formatTime(session.metrics.time)
-              : formatDistance(session.metrics.distance)}{' '}
-            / {formatObjective()}
+            {session.type === 'time' ? formattedMetrics.time : formattedMetrics.distance} /{' '}
+            {formatObjective()}
           </Text>
         </View>
       </View>
 
-      {!showMap ? (
-        isPaused ? (
-          /* Vue pause - carte + drawer en bas */
-          <View style={styles.pauseContainer}>
-            <View style={styles.pauseMapArea}>
-              <Text style={styles.pauseMapText}>Carte en cours de chargement...</Text>
-            </View>
-
-            {/* Drawer qui englobe métriques + boutons */}
-            <View style={styles.pauseDrawer}>
-              <View style={styles.drawerHandle} />
-
-              <Text style={styles.pauseTitle}>Course en pause</Text>
-
-              {/* Métriques dans le drawer */}
-              <View style={styles.pauseMetricsRow}>
-                <View style={styles.pauseMetricItem}>
-                  <Text style={styles.pauseMetricValue}>{formatTime(session.metrics.time)}</Text>
-                  <Text style={styles.pauseMetricLabel}>Temps</Text>
-                </View>
-                <View style={styles.pauseMetricItem}>
-                  <Text style={styles.pauseMetricValue}>
-                    {formatDistance(session.metrics.distance)} km
-                  </Text>
-                  <Text style={styles.pauseMetricLabel}>Distance</Text>
-                </View>
-                <View style={styles.pauseMetricItem}>
-                  <Text style={styles.pauseMetricValue}>{formatPace(session.metrics.pace)}</Text>
-                  <Text style={styles.pauseMetricLabel}>Allure</Text>
-                </View>
-              </View>
-
-              {/* Boutons dans le même drawer */}
-              <View style={styles.pauseControlsContainer}>
-                <TouchableOpacity
-                  style={[styles.controlButton, styles.secondaryButton]}
-                  onPress={handleMicPress}
-                  activeOpacity={0.8}>
-                  <SvgUserTalk size={24} />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.controlButton, styles.primaryButton]}
-                  onPress={togglePause}
-                  activeOpacity={0.8}>
-                  <SvgPlay width={28} height={28} />
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[styles.controlButton, styles.stopButton]}
-                  onPress={handleRightButtonPress}
-                  activeOpacity={0.8}>
-                  <SvgStopIcon width={24} height={24} />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        ) : (
-          /* Vue métriques normale */
-          <View style={styles.metricsContainer}>
-            <View style={styles.metric}>
-              <Text style={styles.metricLabel}>TEMPS</Text>
-              <Text style={styles.metricValue}>{formatTime(session.metrics.time)}</Text>
-            </View>
-
-            <View style={styles.metric}>
-              <Text style={styles.metricLabel}>ALLURE (min/km)</Text>
-              <Text style={styles.metricValue}>{formatPace(session.metrics.pace)}</Text>
-            </View>
-
-            <View style={styles.metric}>
-              <Text style={styles.metricLabel}>DISTANCE (km)</Text>
-              <Text style={styles.metricValue}>{formatDistance(session.metrics.distance)}</Text>
-            </View>
-          </View>
-        )
-      ) : (
-        /* Vue carte */
-        <View style={styles.mapContainer}>
+      {/* Mode carte pur */}
+      {showMap && !session.isPaused ? (
+        <View style={styles.mapContainerFull}>
           <View style={styles.mapPlaceholder}>
             <Text style={styles.mapText}>Carte en cours de chargement...</Text>
           </View>
-
-          {/* Métriques en bas de la carte */}
-          <View style={styles.mapMetrics}>
-            <View style={styles.mapMetricItem}>
-              <Text style={styles.mapMetricValue}>{formatTime(session.metrics.time)}</Text>
-              <Text style={styles.mapMetricLabel}>Temps</Text>
-            </View>
-            <View style={styles.mapMetricItem}>
-              <Text style={styles.mapMetricValue}>
-                {formatDistance(session.metrics.distance)} km
-              </Text>
-              <Text style={styles.mapMetricLabel}>Distance</Text>
-            </View>
-            <View style={styles.mapMetricItem}>
-              <Text style={styles.mapMetricValue}>{formatPace(session.metrics.pace)}</Text>
-              <Text style={styles.mapMetricLabel}>Allure</Text>
-            </View>
-          </View>
         </View>
+      ) : (
+        /* Animation pause */
+        <>
+          {/* Carte qui descend du haut en mode pause */}
+          <Animated.View
+            style={[
+              styles.pauseMapContainer,
+              {
+                opacity: mapOpacity,
+                flex: metricsHeight.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [1, 0],
+                }),
+              },
+            ]}>
+            <View style={styles.mapPlaceholder}>
+              <Text style={styles.mapText}>Carte en cours de chargement...</Text>
+            </View>
+          </Animated.View>
+
+          {/* Zone métriques qui se transforme */}
+          <Animated.View
+            style={[
+              styles.metricsContainer,
+              {
+                flex: metricsHeight,
+                borderTopLeftRadius: session.isPaused ? 20 : 0,
+                borderTopRightRadius: session.isPaused ? 20 : 0,
+                paddingBottom: session.isPaused ? 24 : 0,
+                backgroundColor: session.isPaused ? '#fff' : '#F5F5F7',
+                shadowOpacity: session.isPaused ? 0.1 : 0,
+                shadowOffset: session.isPaused ? { width: 0, height: -4 } : { width: 0, height: 0 },
+                shadowRadius: session.isPaused ? 12 : 0,
+                elevation: session.isPaused ? 8 : 0,
+                paddingTop: session.isPaused ? 8 : 0,
+              },
+            ]}>
+            {!session.isPaused ? (
+              /* Mode normal : métriques GROSSES et CENTRÉES */
+              <>
+                <View style={styles.metric}>
+                  <Text style={styles.metricLabel}>TEMPS</Text>
+                  <Text style={styles.metricValue}>{formattedMetrics.time}</Text>
+                </View>
+
+                <View style={styles.metric}>
+                  <Text style={styles.metricLabel}>ALLURE (min/km)</Text>
+                  <Text style={styles.metricValue}>{formattedMetrics.pace}</Text>
+                </View>
+
+                <View style={styles.metric}>
+                  <Text style={styles.metricLabel}>DISTANCE (km)</Text>
+                  <Text style={styles.metricValue}>{formattedMetrics.distance}</Text>
+                </View>
+              </>
+            ) : (
+              /* Mode pause : drawer compact */
+              <>
+                <View style={styles.drawerHandle} />
+                <Text style={styles.pauseTitle}>Course en pause</Text>
+
+                <View style={styles.pauseMetricsRow}>
+                  <View style={styles.pauseMetricItem}>
+                    <Text style={styles.pauseMetricValue}>{formattedMetrics.time}</Text>
+                    <Text style={styles.pauseMetricLabel}>Temps</Text>
+                  </View>
+                  <View style={styles.pauseMetricItem}>
+                    <Text style={styles.pauseMetricValue}>{formattedMetrics.distance} km</Text>
+                    <Text style={styles.pauseMetricLabel}>Distance</Text>
+                  </View>
+                  <View style={styles.pauseMetricItem}>
+                    <Text style={styles.pauseMetricValue}>{formattedMetrics.pace}</Text>
+                    <Text style={styles.pauseMetricLabel}>Allure</Text>
+                  </View>
+                </View>
+
+                <View style={styles.pauseControlsContainer}>
+                  <TouchableOpacity
+                    style={[styles.controlButton, styles.secondaryButton]}
+                    onPress={handleMicPress}
+                    activeOpacity={0.8}>
+                    <SvgUserTalk size={24} />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.controlButton, styles.primaryButton]}
+                    onPress={togglePause}
+                    activeOpacity={0.8}>
+                    <SvgPlay width={32} height={32} />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.controlButton, styles.stopButton]}
+                    onPress={handleRightButtonPress}
+                    activeOpacity={0.8}>
+                    <SvgStopIcon width={24} height={24} />
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
+          </Animated.View>
+        </>
       )}
 
       {/* Boutons de contrôle - seulement si pas en pause */}
-      {!isPaused && (
+      {!session.isPaused && (
         <View style={styles.controlsContainer}>
-          {/* Bouton micro */}
           <TouchableOpacity
-            style={[styles.controlButton, showMap ? styles.lightButton : styles.secondaryButton]}
+            style={[styles.controlButton, styles.secondaryButton]}
             onPress={handleMicPress}
             activeOpacity={0.8}>
             <SvgUserTalk size={24} />
           </TouchableOpacity>
 
-          {/* Bouton play/pause central */}
           <TouchableOpacity
             style={[styles.controlButton, styles.primaryButton]}
             onPress={togglePause}
@@ -309,7 +312,6 @@ export default function SessionScreen() {
             <SvgPause size={28} />
           </TouchableOpacity>
 
-          {/* Bouton droit (pin/stop) */}
           <TouchableOpacity
             style={[
               styles.controlButton,
@@ -329,6 +331,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F5F7',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#EF4444',
+    textAlign: 'center',
   },
   header: {
     backgroundColor: '#fff',
@@ -368,40 +381,37 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     fontWeight: '500',
   },
-  // Vue métriques
   metricsContainer: {
-    flex: 1,
-    justifyContent: 'center',
     paddingHorizontal: 24,
-    backgroundColor: '#F5F5F7',
   },
   metric: {
     alignItems: 'center',
-    marginVertical: 24,
+    marginVertical: 28,
   },
   metricLabel: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
     color: '#9CA3AF',
-    marginBottom: 8,
-    letterSpacing: 1,
+    marginBottom: 12,
+    letterSpacing: 1.2,
   },
   metricValue: {
-    fontSize: 48,
-    fontWeight: '800',
+    fontSize: 56,
+    fontWeight: '900',
     color: '#000',
     fontVariant: ['tabular-nums'],
+    textAlign: 'center',
   },
-  // Vue carte
-  mapContainer: {
+  pauseMapContainer: {
+    backgroundColor: '#F5F5F7',
+  },
+  mapContainerFull: {
     flex: 1,
-    position: 'relative',
+    backgroundColor: '#F5F5F7',
   },
   mapPlaceholder: {
     flex: 1,
     backgroundColor: '#E5E7EB',
-    margin: 16,
-    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -410,45 +420,63 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
   },
-  mapMetrics: {
-    position: 'absolute',
-    bottom: 120,
-    left: 20,
-    right: 20,
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 24,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 16,
-    elevation: 8,
+  drawerHandle: {
+    alignSelf: 'center',
+    width: 36,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: '#D1D5DB',
+    marginBottom: 16,
+    marginTop: 8,
   },
-  mapMetricItem: {
-    alignItems: 'center',
-  },
-  mapMetricValue: {
+  pauseTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: '#000',
-    marginBottom: 4,
+    textAlign: 'center',
+    marginBottom: 16,
   },
-  mapMetricLabel: {
-    fontSize: 12,
+  pauseMetricsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: 8,
+    marginBottom: 16,
+  },
+  pauseMetricItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  pauseMetricValue: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#000',
+    marginBottom: 4,
+    fontVariant: ['tabular-nums'],
+  },
+  pauseMetricLabel: {
+    fontSize: 11,
     color: '#6B7280',
     fontWeight: '500',
   },
-  // Boutons de contrôle
+  pauseControlsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+  },
   controlsContainer: {
+    position: 'absolute',
+    bottom: 24,
+    left: 0,
+    right: 0,
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
     paddingHorizontal: 40,
     paddingVertical: 20,
-    backgroundColor: '#fff',
     paddingBottom: Platform.OS === 'ios' ? 40 : 20,
+    backgroundColor: 'transparent',
   },
   controlButton: {
     width: 64,
@@ -475,11 +503,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     elevation: 3,
   },
-  lightButton: {
-    backgroundColor: '#F9FAFB',
-    shadowOpacity: 0.1,
-    elevation: 3,
-  },
   primaryLocationButton: {
     backgroundColor: '#6366F1',
     shadowOpacity: 0.25,
@@ -489,83 +512,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#EF4444',
     shadowOpacity: 0.25,
     elevation: 6,
-  },
-  // Vue pause
-  pauseContainer: {
-    flex: 1,
-    backgroundColor: '#F5F5F7',
-    position: 'relative',
-  },
-  pauseMapArea: {
-    flex: 1,
-    backgroundColor: '#E5E7EB',
-    margin: 16,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  pauseMapText: {
-    color: '#6B7280',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  pauseDrawer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 20,
-    paddingTop: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  drawerHandle: {
-    alignSelf: 'center',
-    width: 36,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: '#D1D5DB',
-    marginBottom: 20,
-  },
-  pauseTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#000',
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  pauseMetricsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingHorizontal: 24,
-    marginBottom: 24,
-  },
-  pauseMetricItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  pauseMetricValue: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#000',
-    marginBottom: 4,
-    fontVariant: ['tabular-nums'],
-  },
-  pauseMetricLabel: {
-    fontSize: 12,
-    color: '#6B7280',
-    fontWeight: '500',
-  },
-  pauseControlsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    paddingHorizontal: 40,
   },
 });

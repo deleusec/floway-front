@@ -15,15 +15,17 @@ import { Colors, FontSize, FontFamily, Radius, Spacing } from '@/constants/theme
 import Button from '@/components/ui/button';
 import ChallengeCard from '@/components/ui/challenge-card';
 import ValueSelector from '@/components/ui/value-selector';
-import ClockIcon from '@/components/icons/ClockIcon';
+//import ClockIcon from '@/components/icons/ClockIcon';
 import SvgX from '@/components/icons/X';
-import Drawer from '@/components/ui/drawer';
 
 type ChallengeType = 'free' | 'time' | 'distance';
 
 // Icônes pour les défis
 const RunnerIcon = ({ size = 32, color }: { size?: number; color: string }) => (
   <Text style={{ fontSize: size, color }}>🏃‍♂️</Text>
+);
+const ClockIcon = ({ size = 32, color }: { size?: number; color: string }) => (
+  <Text style={{ fontSize: size, color }}>⏱️</Text>
 );
 
 const CheckeredFlagIcon = ({ size = 32, color }: { size?: number; color: string }) => (
@@ -77,8 +79,10 @@ export default function StartScreen() {
   }, [session.isActive]);
 
   const handleChallengeSelect = (type: ChallengeType) => {
+    console.log('Challenge selected:', type); // Debug
     setChallengeType(type);
     if (type !== 'free') {
+      console.log('Opening drawer for:', type); // Debug
       setDrawerVisible(true);
     } else {
       // Course libre : lancer directement
@@ -138,66 +142,9 @@ export default function StartScreen() {
     setPickerVisible(false);
   };
 
-  const renderDrawerContent = () => {
-    if (challengeType === 'time') {
-      return (
-        <View style={styles.drawerSheet}>
-          <View style={styles.drawerHandle} />
-          <View style={styles.drawerHeader}>
-            <Text style={styles.drawerTitle}>Mode minuterie</Text>
-            <TouchableOpacity style={styles.closeButton} onPress={() => setDrawerVisible(false)}>
-              <SvgX width={24} height={24} color={Colors.textSecondary} />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.drawerSeparator} />
-          <View style={styles.drawerContent}>
-            <View style={styles.valueSelectorContainer}>
-              <ValueSelector label='heures' value={hours} onPress={() => openPicker('hours')} />
-              <ValueSelector label='min' value={minutes} onPress={() => openPicker('minutes')} />
-              <ValueSelector label='sec' value={seconds} onPress={() => openPicker('seconds')} />
-            </View>
-            <Button
-              onPress={handleStartSession}
-              title='Commencer'
-              variant='primary'
-              disabled={hours === 0 && minutes === 0 && seconds === 0}
-            />
-          </View>
-        </View>
-      );
-    }
-
-    if (challengeType === 'distance') {
-      return (
-        <View style={styles.drawerSheet}>
-          <View style={styles.drawerHandle} />
-          <View style={styles.drawerHeader}>
-            <Text style={styles.drawerTitle}>Mission kilomètres</Text>
-            <TouchableOpacity style={styles.closeButton} onPress={() => setDrawerVisible(false)}>
-              <SvgX width={24} height={24} color={Colors.textSecondary} />
-            </TouchableOpacity>
-          </View>
-          <View style={styles.drawerSeparator} />
-          <View style={styles.drawerContent}>
-            <View style={styles.valueSelectorContainer}>
-              <ValueSelector
-                label='km'
-                value={targetDistance}
-                onPress={() => openPicker('distance')}
-              />
-            </View>
-            <Button
-              onPress={handleStartSession}
-              title='Commencer'
-              variant='primary'
-              disabled={targetDistance <= 0}
-            />
-          </View>
-        </View>
-      );
-    }
-
-    return null;
+  const closeDrawer = () => {
+    console.log('Closing drawer'); // Debug
+    setDrawerVisible(false);
   };
 
   return (
@@ -223,7 +170,7 @@ export default function StartScreen() {
             onPress={() => handleChallengeSelect('free')}
           />
           <ChallengeCard
-            icon={<ClockIcon size={40} color={challengeType === 'time' ? '#6366F1' : '#9CA3AF'} />}
+            icon={<ClockIcon size={38} color={challengeType === 'time' ? '#6366F1' : '#9CA3AF'} />}
             title='Mode minuterie'
             description="Lance un chrono et tiens le rythme jusqu'au bout."
             isSelected={challengeType === 'time'}
@@ -244,14 +191,69 @@ export default function StartScreen() {
         </View>
       </ScrollView>
 
-      <Drawer
-        mode='fixed'
-        height={380}
-        visible={drawerVisible}
-        onClose={() => setDrawerVisible(false)}>
-        {renderDrawerContent()}
-      </Drawer>
+      {/* Drawer avec Modal pour garantir l'affichage */}
+      <Modal visible={drawerVisible} transparent animationType='slide' onRequestClose={closeDrawer}>
+        <View style={styles.drawerBackdrop}>
+          <TouchableOpacity
+            style={styles.backdropTouchable}
+            activeOpacity={1}
+            onPress={closeDrawer}
+          />
+          <View style={styles.drawerContainer}>
+            <View style={styles.drawerHandle} />
 
+            <View style={styles.drawerHeader}>
+              <Text style={styles.drawerTitle}>
+                {challengeType === 'time' ? 'Mode minuterie' : 'Mission kilomètres'}
+              </Text>
+              <TouchableOpacity style={styles.closeButton} onPress={closeDrawer}>
+                <SvgX width={24} height={24} color='#6B7280' />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.drawerSeparator} />
+
+            <View style={styles.drawerContent}>
+              {challengeType === 'time' ? (
+                <View style={styles.valueSelectorContainer}>
+                  <ValueSelector label='heures' value={hours} onPress={() => openPicker('hours')} />
+                  <ValueSelector
+                    label='min'
+                    value={minutes}
+                    onPress={() => openPicker('minutes')}
+                  />
+                  <ValueSelector
+                    label='sec'
+                    value={seconds}
+                    onPress={() => openPicker('seconds')}
+                  />
+                </View>
+              ) : (
+                <View style={styles.valueSelectorContainer}>
+                  <ValueSelector
+                    label='km'
+                    value={targetDistance}
+                    onPress={() => openPicker('distance')}
+                  />
+                </View>
+              )}
+
+              <Button
+                onPress={handleStartSession}
+                title='Commencer'
+                variant='primary'
+                disabled={
+                  challengeType === 'time'
+                    ? hours === 0 && minutes === 0 && seconds === 0
+                    : targetDistance <= 0
+                }
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Picker Modal */}
       <Modal
         visible={pickerVisible}
         transparent
@@ -339,9 +341,22 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingBottom: 32,
   },
-  drawerSheet: {
-    backgroundColor: '#fff',
+  // Drawer avec Modal
+  drawerBackdrop: {
     flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  backdropTouchable: {
+    flex: 1,
+  },
+  drawerContainer: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 20,
+    maxHeight: '80%',
+    minHeight: 350,
   },
   drawerHandle: {
     alignSelf: 'center',
@@ -382,8 +397,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 12,
-    marginTop: 20,
+    marginBottom: 40,
   },
+  // Picker styles
   pickerBackdrop: {
     flex: 1,
     justifyContent: 'flex-end',

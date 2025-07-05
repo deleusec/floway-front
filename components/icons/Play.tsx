@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Svg, { Path, SvgProps } from 'react-native-svg';
 const SvgPlay = (props: SvgProps) => (
-  <Svg width={61} height={61} viewBox='0 0 61 61' fill='none' {...props}>
+  <Svg width={32} height={32} viewBox='10 10 40 40' fill='none' {...props}>
     <Path
       fill='#FAF9F7'
       fillRule='evenodd'
