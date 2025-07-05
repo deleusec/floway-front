@@ -6,11 +6,13 @@ import { Colors, FontFamily, FontSize, Spacing } from '@/constants/theme';
 import SvgHomeIcon from '@/components/icons/HomeIcon';
 import SvgPlayIcon from '@/components/icons/PlayIcon';
 import SvgUsersIcon from '@/components/icons/UsersIcon';
+import SvgUserIcon from "@/components/icons/UserIcon";
 
 const TABS = [
   { label: 'Accueil', href: '/', icon: SvgHomeIcon },
   { label: 'Démarrer', href: '/session/start', icon: SvgPlayIcon },
   { label: 'Amis', href: '/friends', icon: SvgUsersIcon },
+  { label: 'Profil', href: '/profile', icon: SvgUserIcon }
 ];
 
 export default function BottomMenu() {
