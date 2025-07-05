@@ -3,7 +3,7 @@ import { Colors } from '@/constants/theme';
 import { useStore } from '@/stores';
 import { useAuth } from '@/stores/auth';
 import { Redirect, Slot, usePathname } from 'expo-router';
-import { StyleSheet } from 'react-native';
+import {SafeAreaView, StyleSheet} from 'react-native';
 import { View, ActivityIndicator } from 'react-native';
 import { useEffect } from 'react';
 
@@ -30,10 +30,10 @@ export default function MainLayout() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Slot />
       {!store.hideMenu && <BottomMenu />}
-    </View>
+    </SafeAreaView>
   );
 }
 

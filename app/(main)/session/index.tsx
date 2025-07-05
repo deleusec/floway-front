@@ -1,5 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Text, Alert, TouchableOpacity, Platform, Animated } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Text,
+  Alert,
+  TouchableOpacity,
+  Animated,
+  SafeAreaView
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { useRunningSessionStore } from '@/stores/session';
 import { useAuth } from '@/stores/auth';
@@ -14,6 +22,7 @@ import SvgPlay from '@/components/icons/Play';
 import SvgPause from '@/components/icons/Pause';
 import SvgPinMap from '@/components/icons/PinMap';
 import SvgStopIcon from '@/components/icons/StopIcon';
+import {Colors, FontSize, Radius, Spacing} from "@/theme";
 
 export default function SessionScreen() {
   const router = useRouter();
@@ -182,7 +191,7 @@ export default function SessionScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       {/* Header avec titre et barre de progression conditionnelle */}
       <View style={styles.header}>
         <Text style={styles.title}>{getSessionTitle()}</Text>
@@ -237,11 +246,7 @@ export default function SessionScreen() {
                 borderTopLeftRadius: session.isPaused ? 20 : 0,
                 borderTopRightRadius: session.isPaused ? 20 : 0,
                 paddingBottom: session.isPaused ? 24 : 0,
-                backgroundColor: session.isPaused ? '#fff' : '#F5F5F7',
-                shadowOpacity: session.isPaused ? 0.1 : 0,
-                shadowOffset: session.isPaused ? { width: 0, height: -4 } : { width: 0, height: 0 },
-                shadowRadius: session.isPaused ? 12 : 0,
-                elevation: session.isPaused ? 8 : 0,
+                backgroundColor: session.isPaused ? Colors.white : Colors.background,
                 paddingTop: session.isPaused ? 8 : 0,
               },
             ]}>
@@ -267,7 +272,6 @@ export default function SessionScreen() {
               /* Mode pause : drawer compact */
               <>
                 <View style={styles.drawerHandle} />
-                <Text style={styles.pauseTitle}>Course en pause</Text>
 
                 <View style={styles.pauseMetricsRow}>
                   <View style={styles.pauseMetricItem}>
@@ -340,14 +344,14 @@ export default function SessionScreen() {
           </TouchableOpacity>
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F7',
+    backgroundColor: Colors.background,
   },
   errorContainer: {
     flex: 1,
@@ -357,74 +361,69 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
-    color: '#EF4444',
+    color: Colors.error,
     textAlign: 'center',
   },
   header: {
-    backgroundColor: '#fff',
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingHorizontal: 24,
-    paddingBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    backgroundColor: Colors.white,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
   },
   title: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#000',
-    marginBottom: 16,
+    fontSize: FontSize.lg,
+    fontWeight: '600',
+    color: Colors.black,
+    marginBottom: 22,
   },
   progressContainer: {
     alignItems: 'center',
   },
   progressBar: {
     width: '100%',
-    height: 8,
-    backgroundColor: '#E5E7EB',
-    borderRadius: 4,
+    height: 10,
+    backgroundColor: Colors.border,
+    borderRadius: Radius.full,
     overflow: 'hidden',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   progressFill: {
     height: '100%',
-    backgroundColor: '#6366F1',
-    borderRadius: 4,
+    backgroundColor: Colors.primary,
+    borderRadius: Radius.full,
   },
   progressText: {
-    fontSize: 14,
-    color: '#6B7280',
-    fontWeight: '500',
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+    fontWeight: '600',
   },
   metricsContainer: {
-    paddingHorizontal: 24,
+    paddingHorizontal: Spacing.lg,
   },
   metric: {
     alignItems: 'center',
-    marginVertical: 28,
+    marginVertical: 24,
   },
   metricLabel: {
-    fontSize: 16,
+    fontSize: FontSize.lg,
     fontWeight: '600',
-    color: '#9CA3AF',
-    marginBottom: 12,
-    letterSpacing: 1.2,
+    color: Colors.gray["500"],
+    marginBottom: Spacing.md,
+    letterSpacing: 1,
   },
   metricValue: {
-    fontSize: 56,
-    fontWeight: '900',
-    color: '#000',
-    fontVariant: ['tabular-nums'],
+    fontSize: 58,
+    fontWeight: '600',
+    color: Colors.black,
     textAlign: 'center',
   },
   pauseMapContainer: {
-    backgroundColor: '#F5F5F7',
+    backgroundColor: Colors.background,
   },
   mapContainerFull: {
     flex: 1,
-    backgroundColor: '#F5F5F7',
+    backgroundColor: Colors.background,
   },
   mapPlaceholder: {
     flex: 1,
@@ -442,38 +441,31 @@ const styles = StyleSheet.create({
     width: 36,
     height: 5,
     borderRadius: 3,
-    backgroundColor: '#D1D5DB',
-    marginBottom: 16,
+    backgroundColor: '#D9D9D9',
+    marginBottom: 40,
     marginTop: 8,
-  },
-  pauseTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#000',
-    textAlign: 'center',
-    marginBottom: 16,
   },
   pauseMetricsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
     paddingHorizontal: 8,
-    marginBottom: 16,
+    marginBottom: 45,
   },
   pauseMetricItem: {
     alignItems: 'center',
     flex: 1,
   },
   pauseMetricValue: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#000',
-    marginBottom: 4,
+    fontSize: FontSize.xl,
+    fontWeight: '600',
+    color: Colors.black,
+    marginBottom: 8,
     fontVariant: ['tabular-nums'],
   },
   pauseMetricLabel: {
-    fontSize: 11,
-    color: '#6B7280',
-    fontWeight: '500',
+    fontSize: FontSize.sm,
+    color: Colors.gray["500"],
+    fontWeight: '600',
   },
   pauseControlsContainer: {
     flexDirection: 'row',
@@ -490,44 +482,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingHorizontal: 40,
+    paddingHorizontal: Spacing.lg,
     paddingVertical: 20,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 20,
-    backgroundColor: 'transparent',
+    paddingBottom: Spacing.lg
   },
   controlButton: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 62,
+    height: 62,
+    borderRadius: Radius.full,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
   },
   primaryButton: {
-    backgroundColor: '#6366F1',
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    shadowOpacity: 0.25,
-    elevation: 6,
+    backgroundColor: Colors.primary,
+    width: 85,
+    height: 85,
+    borderRadius: Radius.full,
   },
   secondaryButton: {
-    backgroundColor: '#6B7280',
-    shadowOpacity: 0.1,
-    elevation: 3,
+    backgroundColor: Colors.gray["600"],
   },
   primaryLocationButton: {
-    backgroundColor: '#6366F1',
-    shadowOpacity: 0.25,
-    elevation: 6,
+    backgroundColor: Colors.primary,
   },
   stopButton: {
-    backgroundColor: '#EF4444',
-    shadowOpacity: 0.25,
-    elevation: 6,
+    backgroundColor: Colors.error,
   },
 });

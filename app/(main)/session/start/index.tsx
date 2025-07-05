@@ -6,7 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Modal,
-  Platform,
+  SafeAreaView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Location from 'expo-location';
@@ -15,6 +15,7 @@ import Button from '@/components/ui/button';
 import ChallengeCard from '@/components/ui/challenge-card';
 import ValueSelector from '@/components/ui/value-selector';
 import SvgX from '@/components/icons/X';
+import {Colors, FontSize, Radius, Spacing} from "@/theme";
 
 type ChallengeType = 'free' | 'time' | 'distance';
 type PickerState = 'selection' | 'hours' | 'minutes' | 'seconds' | 'distance';
@@ -226,13 +227,15 @@ export default function StartScreen() {
           <View style={styles.drawerHeader}>
             <Text style={styles.drawerTitle}>
               {challengeType === 'time' ? 'Mode minuterie' : 'Mission kilomètres'}
+              {challengeType === 'time' && !!getPickerLabel() && (
+                <Text style={styles.pickerLabel}> ({getPickerLabel()})</Text>
+              )}
             </Text>
           </View>
 
           <View style={styles.drawerSeparator} />
 
           <View style={styles.drawerContent}>
-            <Text style={styles.pickerLabel}>Choisir les {getPickerLabel()}</Text>
 
             <View style={styles.inlinePickerContainer}>
               <TouchableOpacity
@@ -271,12 +274,12 @@ export default function StartScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.headerWrapper}>
         <View style={styles.header}>
           <Text style={styles.title}>Prêt à partir ?</Text>
-          <TouchableOpacity style={styles.headerCloseButton} onPress={() => router.back()}>
-            <SvgX width={24} height={24} color='#000' />
+          <TouchableOpacity onPress={() => router.back()}>
+            <SvgX width={24} height={24} color='#444444' />
           </TouchableOpacity>
         </View>
       </View>
@@ -328,25 +331,20 @@ export default function StartScreen() {
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#F5F5F7',
+    flex: 1
   },
   headerWrapper: {
-    backgroundColor: '#fff',
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingBottom: 20,
-    paddingHorizontal: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    backgroundColor: Colors.white,
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border
   },
   header: {
     flexDirection: 'row',
@@ -354,23 +352,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#000',
-  },
-  headerCloseButton: {
-    padding: 8,
+    fontSize: FontSize.xl,
+    fontWeight: '600',
+    color: Colors.black,
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: Spacing.lg,
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: FontSize.lg,
     fontWeight: '600',
-    color: '#000',
-    marginTop: 32,
-    marginBottom: 24,
+    color: Colors.black,
+    marginTop: 40,
+    marginBottom: Spacing.xl,
   },
   challengeCards: {
     gap: 16,
@@ -386,10 +381,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   drawerContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: Colors.white,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 20,
+    paddingBottom: Spacing.lg,
     maxHeight: '80%',
     minHeight: 350,
   },
@@ -406,15 +403,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    marginBottom: 16,
+    paddingHorizontal: Spacing.lg,
+    marginBottom: 21,
   },
   drawerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#000',
+    fontSize: FontSize.lg,
+    fontWeight: '600',
+    color: Colors.black,
     flex: 1,
-    textAlign: 'center',
   },
   closeButton: {
     padding: 8,
@@ -429,28 +425,26 @@ const styles = StyleSheet.create({
   },
   drawerSeparator: {
     height: 1,
-    backgroundColor: '#E5E7EB',
-    marginBottom: 32,
+    backgroundColor: Colors.border,
+    marginBottom: 37,
   },
   drawerContent: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: Spacing.lg,
     paddingBottom: 32,
     justifyContent: 'space-between',
   },
   valueSelectorContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 12,
+    justifyContent: 'space-between',
     marginBottom: 40,
+    gap: 5
   },
   // Picker intégré
   pickerLabel: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#000',
-    textAlign: 'center',
-    marginBottom: 32,
+    fontSize: FontSize.md,
+    color: Colors.gray[400],
+    fontStyle: 'italic'
   },
   inlinePickerContainer: {
     flexDirection: 'row',
@@ -462,15 +456,17 @@ const styles = StyleSheet.create({
   pickerButton: {
     width: 50,
     height: 50,
-    borderRadius: 25,
-    backgroundColor: '#F3F4F6',
+    borderRadius: Radius.full,
+    backgroundColor: Colors.background,
+    borderWidth: 1,
+    borderColor: Colors.border,
     justifyContent: 'center',
     alignItems: 'center',
   },
   pickerButtonText: {
-    fontSize: 28,
+    fontSize: FontSize.xxl,
     fontWeight: '600',
-    color: '#374151',
+    color: Colors.black,
   },
   pickerValue: {
     fontSize: 42,

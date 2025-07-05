@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, GestureResponderEvent } from 'react-native';
+import { Text, StyleSheet, TouchableOpacity, GestureResponderEvent } from 'react-native';
+import {Colors, FontSize, Radius} from "@/theme";
 
 interface ValueSelectorProps {
   label: string;
@@ -13,36 +14,25 @@ export default function ValueSelector({ label, value, onPress }: ValueSelectorPr
 
   return (
     <TouchableOpacity style={styles.selector} onPress={onPress} activeOpacity={0.7}>
-      <Text style={styles.value}>{formatValue(value)}</Text>
-      <Text style={styles.label}>{label}</Text>
+      <Text style={styles.value}>{formatValue(value)} {label}</Text>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   selector: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: 12,
+    backgroundColor: Colors.background,
+    borderRadius: Radius.md,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-    minWidth: 90,
-    minHeight: 60,
+    borderColor: Colors.border,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: 20,
+    flex: 1
   },
   value: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#111827',
-    textAlign: 'center',
-    marginBottom: 2,
-  },
-  label: {
-    fontSize: 13,
-    fontWeight: '500',
-    color: '#6B7280',
-    textAlign: 'center',
-  },
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+    color: Colors.textSecondary,
+  }
 });

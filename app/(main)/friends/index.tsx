@@ -1,6 +1,6 @@
 import SvgAddFriend from '@/components/icons/AddFriend';
 import Title from '@/components/ui/title';
-import { Spacing } from '@/constants/theme';
+import {FontSize, Radius, Spacing} from '@/constants/theme';
 import {
   ScrollView,
   StyleSheet,
@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   Pressable,
   Alert,
-  ActivityIndicator,
+  ActivityIndicator, SafeAreaView,
 } from 'react-native';
 import { SearchInput } from '@/components/ui/input';
 import React, { useState, useEffect } from 'react';
@@ -156,16 +156,16 @@ export default function FriendsScreen() {
   const isBlocked = isNotificationBlocked(selectedFriend?.id);
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerSection}>
           <Title>Amis</Title>
           <TouchableOpacity onPress={() => setAddFriendModalVisible(true)}>
-            <SvgAddFriend width={32} height={32} />
+            <SvgAddFriend />
           </TouchableOpacity>
         </View>
 
-        <View style={{ paddingHorizontal: Spacing.lg, marginTop: 16 }}>
+        <View style={{ paddingHorizontal: Spacing.lg, marginTop: 26 }}>
           <SearchInput
             value={search}
             onChangeText={setSearch}
@@ -188,7 +188,7 @@ export default function FriendsScreen() {
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <View style={{ marginTop: 24 }}>
             {filteredFriends.length === 0 ? (
-              <Text style={{ textAlign: 'center', color: '#979799', marginTop: 32 }}>
+              <Text style={{ textAlign: 'center', color: Colors.gray["400"], marginTop: 12 }}>
                 {search ? 'Aucun ami trouvé' : "Vous n'avez pas encore d'amis"}
               </Text>
             ) : (
@@ -233,7 +233,7 @@ export default function FriendsScreen() {
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <View style={{ marginTop: 24 }}>
             {filteredRequests.length === 0 && (
-              <Text style={{ textAlign: 'center', color: '#979799' }}>Aucune demande</Text>
+              <Text style={{ textAlign: 'center', color: Colors.gray["400"], marginTop: 12 }}>Aucune demande</Text>
             )}
             {filteredRequests.map((request, index) => (
               <View key={`request-${request.request_id}-${index}`} style={styles.requestItem}>
@@ -249,7 +249,7 @@ export default function FriendsScreen() {
                 <Pressable
                   style={styles.declineButton}
                   onPress={() => handleDeclineRequest(request.request_id)}>
-                  <SvgX width={24} height={24} color={Colors.gray[500]} />
+                  <SvgX width={22} height={22} color={Colors.gray[500]} />
                 </Pressable>
                 <Pressable
                   style={styles.acceptButton}
@@ -269,19 +269,22 @@ export default function FriendsScreen() {
         onClose={() => {
           setAddFriendModalVisible(false);
           setSearchAddFriend('');
+          searchResults.length = 0;
         }}>
-        <View style={{ padding: 24 }}>
-          <Text style={{ fontWeight: 'bold', fontSize: 22, marginBottom: 16 }}>Ajoute un ami</Text>
-          <SearchInput
-            value={searchAddFriend}
-            onChangeText={setSearchAddFriend}
-            placeholder="Nom d'utilisateur…"
-            autoCorrect={false}
-            autoCapitalize='none'
-          />
-          <ScrollView style={{ marginTop: 16 }}>
+        <View>
+          <Text style={styles.addFriendTitle}>Ajoute un ami</Text>
+          <View style={{ paddingHorizontal: Spacing.lg }}>
+            <SearchInput
+              value={searchAddFriend}
+              onChangeText={setSearchAddFriend}
+              placeholder="Nom d'utilisateur…"
+              autoCorrect={false}
+              autoCapitalize='none'
+            />
+          </View>
+          <ScrollView style={{ paddingHorizontal: Spacing.lg }}>
             {searchResults.length === 0 ? (
-              <Text style={{ textAlign: 'center', color: '#979799', marginTop: 32 }}>
+              <Text style={{ textAlign: 'center', color: Colors.gray["400"], marginTop: Spacing.xl }}>
                 {searchAddFriend.trim() === ''
                   ? 'Commencez à taper pour rechercher des utilisateurs'
                   : 'Aucun utilisateur trouvé'}
@@ -370,23 +373,23 @@ export default function FriendsScreen() {
           </Pressable>
         </View>
       </Drawer>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   centerContent: {
     justifyContent: 'center',
     alignItems: 'center',
   },
   header: {
-    paddingTop: 60,
-    paddingBottom: 16,
-    backgroundColor: '#fff',
+    paddingTop: Spacing.md,
+    backgroundColor: Colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border
   },
   headerSection: {
     flexDirection: 'row',
@@ -407,7 +410,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: Spacing.lg,
   },
   searchUserItem: {
     flexDirection: 'row',
@@ -419,22 +422,23 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   friendName: {
-    fontSize: 16,
+    fontSize: FontSize.md,
     color: Colors.textPrimary,
     flex: 1,
+    marginLeft: 12,
   },
   nameRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   notificationBlockedText: {
-    fontSize: 12,
+    fontSize: FontSize.xs,
     color: Colors.textSecondary,
     marginTop: 2,
   },
   dotsButton: {
     padding: 8,
-    borderRadius: 20,
+    borderRadius: Radius.full,
     minWidth: 40,
     minHeight: 40,
     alignItems: 'center',
@@ -443,18 +447,17 @@ const styles = StyleSheet.create({
   declineButton: {
     width: 32,
     height: 32,
-    borderRadius: 24,
+    borderRadius: Radius.full,
     borderWidth: 2,
-    borderColor: Colors.border,
+    borderColor: '#DBDBDB',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
-    backgroundColor: '#fff',
   },
   acceptButton: {
     width: 32,
     height: 32,
-    borderRadius: 24,
+    borderRadius: Radius.full,
     backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
@@ -462,7 +465,7 @@ const styles = StyleSheet.create({
   addButton: {
     width: 32,
     height: 32,
-    borderRadius: 24,
+    borderRadius: Radius.full,
     backgroundColor: Colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
@@ -471,7 +474,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.primary + '20',
-    borderRadius: 20,
+    borderRadius: Radius.full,
     paddingHorizontal: 12,
     paddingVertical: 4,
   },
@@ -479,20 +482,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#E5E5E5',
-    borderRadius: 20,
+    borderRadius: Radius.full,
     paddingHorizontal: 12,
     paddingVertical: 4,
   },
   drawerOption: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: Spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
   drawerOptionText: {
     marginLeft: 12,
-    fontSize: 16,
+    fontSize: FontSize.md,
     color: Colors.textPrimary,
   },
   dangerOption: {
@@ -501,4 +504,13 @@ const styles = StyleSheet.create({
   dangerText: {
     color: Colors.error,
   },
+  addFriendTitle: {
+    fontWeight: '600',
+    fontSize: FontSize.lg,
+    marginBottom: Spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md
+  }
 });

@@ -16,7 +16,7 @@ export default function MainScreen() {
     <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
       {/* Header Section */}
       <View style={styles.headerSection}>
-        <Title>Bonjour {user?.firstName}</Title>
+        <Title>Bonjour {user?.firstName} 👋</Title>
       </View>
 
       {/* Friends Status Section */}
@@ -26,7 +26,7 @@ export default function MainScreen() {
 
       {/* Content Section */}
       <View style={styles.contentSection}>
-        <Title level={2}>Mes courses</Title>
+        <Title style={styles.runsTitle} level={2}>Mes courses</Title>
         <CardMap
           image={require('@/assets/images/map.png')}
           runData={{
@@ -50,7 +50,6 @@ export default function MainScreen() {
           ]}
         />
       </View>
-      <View style={{ padding: Spacing.lg }}></View>
     </ScrollView>
   );
 }
@@ -60,8 +59,8 @@ const styles = StyleSheet.create({
     paddingBottom: 100,
   },
   headerSection: {
-    paddingTop: Spacing.lg,
-    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.md,
+    paddingHorizontal: Spacing.md,
   },
   friendsSection: {
     paddingVertical: Spacing.md,
@@ -69,4 +68,7 @@ const styles = StyleSheet.create({
   contentSection: {
     paddingHorizontal: Spacing.lg,
   },
+  runsTitle: {
+    marginBottom: Spacing.md
+  }
 });

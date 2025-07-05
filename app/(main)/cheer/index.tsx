@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, Image, ScrollView} from 'react-native';
 import { useCheerStore } from '@/stores/cheer';
 import { Colors, Spacing, FontSize, FontFamily, Radius } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
@@ -53,7 +53,7 @@ export default function CheerScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Carte + stats */}
       <View style={styles.mapContainer}>
         <Image
@@ -109,34 +109,34 @@ export default function CheerScreen() {
           </TouchableOpacity>
         ))}
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: Colors.background,
+    flex: 1
   },
   mapContainer: {
     alignItems: 'center',
     paddingTop: Spacing.lg,
     marginBottom: Spacing.lg,
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: Spacing.lg
   },
   mapImg: {
     width: '100%',
     height: 140,
     borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   statsBox: {
     flexDirection: 'row',
     gap: Spacing.md,
-    paddingHorizontal: Spacing.md,
+    padding: Spacing.md,
     backgroundColor: Colors.surface,
     borderRadius: Radius.sm,
     position: 'absolute',
-    height: 40,
     bottom: -20,
     borderWidth: 1,
     borderColor: Colors.border,
@@ -148,24 +148,23 @@ const styles = StyleSheet.create({
   statText: {
     marginLeft: Spacing.xs,
     fontSize: FontSize.sm,
-    color: Colors.textPrimary,
-    fontFamily: FontFamily.medium,
+    color: Colors.textPrimary
   },
   sectionTitle: {
     fontSize: FontSize.md,
     fontFamily: FontFamily.semiBold,
     color: Colors.textPrimary,
     textAlign: 'center',
-    marginTop: Spacing.md,
-    marginBottom: Spacing.sm,
+    marginTop: Spacing.lg,
+    marginBottom: Spacing.lg,
   },
   voiceContainer: {
     alignItems: 'center',
     marginBottom: Spacing.md,
   },
   micBtn: {
-    width: 80,
-    height: 80,
+    width: 100,
+    height: 100,
     borderRadius: 40,
     backgroundColor: Colors.primary,
     alignItems: 'center',
@@ -186,32 +185,32 @@ const styles = StyleSheet.create({
   or: {
     textAlign: 'center',
     color: Colors.textSecondary,
-    fontSize: FontSize.sm,
-    marginBottom: Spacing.sm,
+    fontSize: FontSize.md,
+    fontWeight: '600'
   },
   flowsList: {
     marginHorizontal: Spacing.lg,
     marginBottom: Spacing.lg,
   },
   flowBtn: {
-    borderWidth: 1,
-    borderColor: Colors.primary,
-    borderRadius: Radius.md,
+    borderRadius: Radius.full,
     padding: Spacing.md,
-    marginBottom: Spacing.sm,
-    backgroundColor: Colors.surface,
+    marginBottom: Spacing.md,
+    backgroundColor: '#F1F1F1',
+    borderWidth: 1,
+    borderColor: '#F1F1F1'
   },
   flowBtnSelected: {
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.primary + '1A',
+    borderColor: Colors.primary,
   },
   flowText: {
-    color: Colors.primary,
-    fontFamily: FontFamily.medium,
+    color: Colors.gray["700"],
     fontSize: FontSize.md,
     textAlign: 'center',
   },
   flowTextSelected: {
-    color: Colors.white,
+    color: Colors.textPrimary,
   },
   actions: {
     flexDirection: 'row',

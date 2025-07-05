@@ -75,7 +75,7 @@ export default function RegisterScreen() {
             resizeMode='contain'
           />
 
-          <Title level={2} style={styles.title}>
+          <Title level={3} style={styles.title}>
             Créer un compte
           </Title>
 

@@ -46,11 +46,11 @@ const SearchInput: React.FC<SearchInputProps> = ({
 }) => {
   return (
     <View style={[styles.container, { borderColor, backgroundColor }, containerStyle]}>
-      <SvgSearch size={20} color={iconColor} style={styles.icon} />
+      <SvgSearch size={21} color={iconColor} style={styles.icon} />
       <TextInput
         style={[styles.input, inputStyle]}
         placeholder={placeholder}
-        placeholderTextColor={Colors.gray[400]}
+        placeholderTextColor={Colors.gray[500]}
         {...props}
       />
     </View>
@@ -65,10 +65,9 @@ const styles = StyleSheet.create({
     borderRadius: Radius.full,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.md,
-    backgroundColor: Colors.white,
   },
   icon: {
-    marginRight: Spacing.sm,
+    marginRight: Spacing.md,
   },
   input: {
     flex: 1,

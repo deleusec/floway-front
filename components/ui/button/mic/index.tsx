@@ -96,13 +96,13 @@ export default function CheerMicButton({
         onPress={isRecording ? onStop : onStart}
         activeOpacity={0.8}
       >
-        <Ionicons name={isRecording ? 'stop' : 'mic'} size={40} color={Colors.white} />
+        <Ionicons name={isRecording ? 'stop' : 'mic'} size={50} color={Colors.white} />
       </TouchableOpacity>
     </View>
   );
 }
 
-const BTN_SIZE = 80;
+const BTN_SIZE = 100;
 const BORDER_SIZE = BTN_SIZE + 18; // 6px border + 3px espace autour
 
 const styles = StyleSheet.create({

@@ -11,14 +11,14 @@ type Props = TextProps & {
 
 const fontSizeMap = {
   1: FontSize.xxl, // 28
-  2: FontSize.md, // 16
-  3: FontSize.lg, // 20
+  2: FontSize.lg, // 20
+  3: FontSize.md, // 16
 };
 
 const fontWeightMap = {
   1: FontFamily.semiBold,
   2: FontFamily.semiBold,
-  3: FontFamily.medium,
+  3: FontFamily.semiBold,
 };
 
 const Title: React.FC<Props> = ({

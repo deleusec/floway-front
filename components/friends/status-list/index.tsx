@@ -38,11 +38,6 @@ export default function FriendsStatusList() {
           <Text numberOfLines={1} ellipsizeMode='tail' style={styles.name}>
             {item.first_name}
           </Text>
-          {item.isRunning && (
-            <View style={styles.liveIndicator}>
-              <Text style={styles.liveText}>En direct</Text>
-            </View>
-          )}
         </View>
       )}
     />

@@ -18,7 +18,7 @@ export default function FriendStatusAvatar({ image, isRunning = false, onPress }
           style={[
             styles.border,
             {
-              borderColor: isRunning ? Colors.primary : Colors.border,
+              borderColor: isRunning ? Colors.primary : Colors.borderHigh,
             },
           ]}>
           <Image source={{ uri: image }} style={styles.avatar} />
@@ -53,11 +53,13 @@ const styles = StyleSheet.create({
   runningBadge: {
     position: 'absolute',
     bottom: -5,
-    width: 22,
-    height: 16,
+    width: 26,
+    height: 18,
     backgroundColor: Colors.primary,
     borderRadius: Radius.full,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: Colors.background
   },
 });

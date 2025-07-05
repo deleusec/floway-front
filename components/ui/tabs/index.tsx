@@ -1,6 +1,13 @@
 import React from 'react';
-import { View, Pressable, StyleSheet, ViewStyle, StyleProp, TextStyle } from 'react-native';
-import { Colors, Spacing, FontSize, FontFamily } from '@/constants/theme';
+import {
+  View,
+  Pressable,
+  StyleSheet,
+  ViewStyle,
+  StyleProp,
+  TextStyle,
+} from 'react-native';
+import { Colors, Spacing, FontSize } from '@/constants/theme';
 import Text from '../text';
 
 export interface TabItem {
@@ -38,10 +45,17 @@ const Tabs: React.FC<TabsProps> = ({
             onPress={() => onChange(tab.value)}
           >
             <View style={styles.tabBox}>
-              <Text weight={isActive ? 'bold' : 'regular'}>
+              <Text
+                weight={isActive ? 'semiBold' : 'regular'}
+                style={[
+                  styles.label,
+                  { color: isActive ? Colors.textPrimary : Colors.gray[500] },
+                  labelStyle,
+                ]}
+              >
                 {tab.label}
               </Text>
-              {isActive && <View style={styles.indicator} />}
+              {isActive && <View style={[styles.indicator, indicatorStyle]} />}
             </View>
           </Pressable>
         );
@@ -54,13 +68,12 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.lg,
+    paddingTop: Spacing.xl,
   },
   tab: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-end',
-    paddingBottom: 0,
   },
   tabBox: {
     paddingVertical: Spacing.md,
@@ -70,16 +83,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   label: {
-    fontSize: FontSize.lg,
-    fontFamily: FontFamily.bold,
-  },
-  labelActive: {
-    color: Colors.textPrimary,
-    fontWeight: 'bold',
-  },
-  labelInactive: {
-    color: Colors.gray[400],
-    fontWeight: 'normal',
+    fontSize: FontSize.sm,
   },
   indicator: {
     position: 'absolute',

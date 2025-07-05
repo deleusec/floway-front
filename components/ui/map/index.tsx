@@ -3,7 +3,7 @@ import { View, StyleSheet, ViewProps, ViewStyle, Text, Image } from 'react-nativ
 import SvgClockIcon from '@/components/icons/ClockIcon';
 import SvgPinIcon from '@/components/icons/PinIcon';
 import SvgSpeedIcon from '@/components/icons/SpeedIcon';
-import { Colors, Radius } from '@/constants/theme';
+import {Colors, FontSize, Radius, Spacing} from '@/constants/theme';
 import Card from '../card';
 import { useFriendsStore } from '@/stores/friends';
 
@@ -77,12 +77,6 @@ const CardMap: React.FC<CardMapProps> = ({
             </View>
           </View>
 
-          {/* Session guidée */}
-          {/* <View style={styles.row}>
-            <HeadsetIcon width={12} height={12} />
-            <Text style={styles.guidedText}>Première session guidée</Text>
-          </View> */}
-
           {/* Statistiques */}
           <View style={styles.statsRow}>
             <View style={styles.stat}>
@@ -99,7 +93,14 @@ const CardMap: React.FC<CardMapProps> = ({
             </View>
           </View>
         </View>
-        <View style={styles.trophyContent}></View>
+        <View style={styles.trophyContent}>
+          <Text style={styles.trophyImg}>🏆</Text>
+          <View style={styles.trophyText}>
+            <Text style={styles.trophyTitle}>Record battu !</Text>
+            <Text style={styles.trophySubtitle}>Nouvelle meilleure vitesse atteinte !
+              Garde ce rythme et t’es inarrêtable.</Text>
+          </View>
+        </View>
       </Card>
     </View>
   );
@@ -109,7 +110,6 @@ const styles = StyleSheet.create({
   base: {
     backgroundColor: Colors.surface,
     borderColor: Colors.border,
-    borderWidth: 1,
     overflow: 'hidden',
   },
   mapImage: {
@@ -122,42 +122,34 @@ const styles = StyleSheet.create({
   titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   titleSubRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
+    flexDirection: 'column',
+    gap: 4
   },
   title: {
-    fontWeight: 'bold',
-    fontSize: 14,
+    fontWeight: '600',
+    fontSize: FontSize.md,
   },
   subtitle: {
-    fontSize: 10,
-    marginLeft: 10,
-    color: '#6E6E6E',
+    fontSize: FontSize.xs,
+    color: Colors.gray["500"],
   },
   avatars: {
     flexDirection: 'row-reverse',
   },
   avatar: {
-    width: 20,
-    height: 20,
-    borderRadius: 12,
-    marginLeft: -8,
+    width: 24,
+    height: 24,
+    borderRadius: Radius.full,
     borderWidth: 1,
-    borderColor: '#fff',
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 14,
+    borderColor: Colors.border,
   },
   guidedText: {
-    fontSize: 12,
+    fontSize: FontSize.xs,
     marginLeft: 6,
-    color: '#6E6E6E',
+    color: Colors.gray["500"],
   },
   statsRow: {
     flexDirection: 'row',
@@ -167,20 +159,40 @@ const styles = StyleSheet.create({
   stat: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 2,
   },
   statText: {
-    fontSize: 13,
+    fontSize: FontSize.xs,
+    fontWeight: '600'
   },
   trophyContent: {
     borderWidth: 1,
-    borderColor: '#FFE59B',
-    borderRadius: 12,
-    height: 64,
-    marginTop: 12,
-    marginLeft: 16,
-    marginRight: 16,
-    marginBottom: 12,
-    backgroundColor: '#fff',
+    borderColor: Colors.yellow,
+    borderRadius: Radius.md,
+    marginHorizontal: Spacing.md,
+    marginBottom: Spacing.md,
+    backgroundColor: Colors.yellow + '0D',
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm
+  },
+  trophyImg: {
+    fontSize: 32,
+  },
+  trophyText: {
+    flex: 1,
+    marginLeft: Spacing.sm,
+    justifyContent: 'center',
+    gap: Spacing.xs,
+  },
+  trophyTitle: {
+    fontSize: FontSize.sm,
+    fontWeight: '600',
+  },
+  trophySubtitle: {
+    fontSize: FontSize.xs,
   },
 });
 

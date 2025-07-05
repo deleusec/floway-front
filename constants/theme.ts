@@ -3,8 +3,9 @@ export const Colors = {
   background: '#FAF9F7',
   surface: '#FFFFFF',
   border: '#EAEAEA',
+  borderHigh: '#CCCCCC',
   textPrimary: '#000000',
-  textSecondary: '#666666',
+  textSecondary: '#62615F',
   gray: {
     400: '#979799',
     500: '#6E6E6E',
@@ -15,7 +16,7 @@ export const Colors = {
   yellow: '#FFE59B',
   white: '#FFFFFF',
   black: '#000000',
-  error: '#EF4444',
+  error: '#EB6564',
   overlay: 'rgba(0, 0, 0, 0.4)',
 };
 

@@ -3,14 +3,13 @@ import BackHeader from '@/components/layouts/header/back';
 import { Colors, FontSize } from '@/constants/theme';
 import { useCheerStore } from '@/stores/cheer';
 import { Slot } from 'expo-router';
-import { StyleSheet } from 'react-native';
-import { View } from 'react-native';
+import {SafeAreaView, StyleSheet} from 'react-native';
 
 export default function CheerLayout() {
     const cheerStore = useCheerStore();
     const { friendName, reset } = cheerStore;
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             {/* Header */}
             <BackHeader text={`Encourage ${friendName || 'Edgar'}`} onClose={reset} icon="💪" iconSize={FontSize.xl} iconColor={Colors.textPrimary} />
             {/* Content */}
@@ -30,7 +29,7 @@ export default function CheerLayout() {
                     },
                 ]}
             />
-        </View>
+        </SafeAreaView>
     );
 }
 

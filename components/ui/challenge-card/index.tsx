@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {Colors, FontSize, Radius} from "@/theme";
 
 interface ChallengeCardProps {
   icon: React.ReactNode;
@@ -34,20 +35,15 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
-    borderWidth: 2,
-    borderColor: 'transparent',
+    backgroundColor: Colors.white,
+    borderRadius: Radius.md,
+    paddingHorizontal: 20,
+    paddingVertical: 30,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   selectedCard: {
-    borderColor: '#E0E7FF',
-    backgroundColor: '#FAFBFF',
+    borderColor: Colors.primary,
   },
   iconContainer: {
     marginRight: 16,
@@ -60,16 +56,16 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: 17,
+    fontSize: FontSize.md,
     fontWeight: '600',
-    color: '#6366F1',
+    color: Colors.primary,
     marginBottom: 4,
   },
   selectedTitle: {
-    color: '#6366F1',
+    color: Colors.primary,
   },
   description: {
-    fontSize: 15,
+    fontSize: FontSize.sm,
     fontWeight: '400',
     color: '#6B7280',
     lineHeight: 21,
