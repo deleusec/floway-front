@@ -4,15 +4,12 @@ import Title from '@/components/ui/title';
 import { Spacing } from '@/constants/theme';
 import { useAuth } from '@/stores/auth';
 import { useUserStore } from '@/stores/user';
-import { useLiveFriends } from '@/hooks/useLiveFriends';
 import { ScrollView, StyleSheet, View, ActivityIndicator, Text } from 'react-native';
 import { useEffect } from 'react';
 
 export default function MainScreen() {
   const { user, token } = useAuth();
   const { sessions, isLoadingSessions, error, fetchUserSessions } = useUserStore();
-
-  useLiveFriends();
 
   useEffect(() => {
     if (user?.id && token) {
