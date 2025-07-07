@@ -1,17 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { FlatList, View, StyleSheet, Text } from 'react-native';
 import { Spacing, Colors, FontSize, FontFamily } from '@/constants/theme';
 import FriendStatusAvatar from '../status-avatar';
-import { useLiveFriends } from '@/hooks/useLiveFriends';
+import { useFriendsStore } from '@/stores/friends';
 import { router } from 'expo-router';
 
 export default function FriendsStatusList() {
-  const { getFriendsWithLiveStatus } = useLiveFriends();
+  const { friends, startPolling, stopPolling } = useFriendsStore();
 
-  // Récupérer tous les amis (vrais + fictifs) avec leur statut en direct
-  const allFriends = getFriendsWithLiveStatus();
+  useEffect(() => {
+    startPolling();
 
-  const sortedFriends = [...allFriends].sort((a, b) => Number(b.isRunning) - Number(a.isRunning));
+    return () => {
+      stopPolling();
+    };
+  }, [startPolling, stopPolling]);
+
+  const sortedFriends = [...friends].sort((a, b) => Number(b.isRunning) - Number(a.isRunning));
 
   return (
     <FlatList
@@ -30,7 +35,6 @@ export default function FriendsStatusList() {
             isRunning={item.isRunning}
             onPress={() => {
               if (item.isRunning) {
-                // TODO: Naviguer vers la page de course en direct de l'ami
                 router.push(`/cheer?friendId=${item.id}`);
               }
             }}

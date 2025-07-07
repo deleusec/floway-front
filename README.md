@@ -98,7 +98,6 @@ Lien du projet: [https://github.com/deleusec/floway-front](https://github.com/de
 
 ### Hooks personnalisés
 
-- `useLiveFriends.ts` : Polling des amis en direct
 - `useSpeechManager.ts` : Gestion de la reconnaissance vocale
 - `useStorageState.ts` : Persistance des données
 

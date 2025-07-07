@@ -45,13 +45,13 @@ type FriendsState = {
   requests: FriendRequest[];
   allUsers: FriendRequest[];
   blockedNotifications: number[];
+  searchResults: UserSearchResult[];
   isLoading: boolean;
   error: string | null;
-  searchResults: UserSearchResult[];
   loadingSearch: boolean;
   errorSearch: string | null;
+  isPolling: boolean;
 
-  // Actions
   fetchFriends: () => Promise<void>;
   fetchRequests: () => Promise<void>;
   sendFriendRequest: (friendId: number) => Promise<void>;
@@ -60,9 +60,63 @@ type FriendsState = {
   removeFriend: (friendId: number) => Promise<void>;
   toggleNotificationBlock: (userId: number) => Promise<void>;
   fetchNotificationSettings: () => Promise<void>;
-  fetchLiveFriends: (userIds: number[]) => Promise<LiveFriend[]>;
-  clearError: () => void;
   searchUsers: (query: string) => Promise<void>;
+  startPolling: () => void;
+  stopPolling: () => void;
+  clearError: () => void;
+  fetchLiveFriends: (userIds: number[]) => Promise<LiveFriend[]>;
+};
+
+let pollingInterval: NodeJS.Timeout | null = null;
+
+const getAuthToken = () => {
+  const token = useAuth.getState().token;
+  if (!token) {
+    throw new Error('Pas de token d\'authentification');
+  }
+  return token;
+};
+
+const createDefaultAvatar = (firstName: string, lastName: string) => {
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(`${firstName} ${lastName}`)}`;
+};
+
+const transformFriendData = (friendData: any): Friend => ({
+  id: friendData.id,
+  first_name: friendData.first_name,
+  last_name: friendData.last_name,
+  username: friendData.username,
+  isRunning: friendData.isRunning || false,
+  avatar: friendData.avatar || createDefaultAvatar(friendData.first_name, friendData.last_name),
+});
+
+const transformRequestData = (requestData: any): FriendRequest => ({
+  request_id: requestData.request_id,
+  user_id: requestData.user_id,
+  first_name: requestData.first_name,
+  last_name: requestData.last_name,
+  username: requestData.username,
+  avatar: createDefaultAvatar(requestData.first_name, requestData.last_name),
+});
+
+const apiFetchFriends = async (showLoading = true): Promise<Friend[]> => {
+  const token = getAuthToken();
+
+  const response = await fetch(`${API_URL}/api/friend/list`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Erreur ${response.status}: ${errorText}`);
+  }
+
+  const data = await response.json();
+  return data.map(transformFriendData);
 };
 
 export const useFriendsStore = create<FriendsState>((set, get) => ({
@@ -70,66 +124,29 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
   requests: [],
   allUsers: [],
   blockedNotifications: [],
+  searchResults: [],
   isLoading: false,
   error: null,
-  searchResults: [],
   loadingSearch: false,
   errorSearch: null,
+  isPolling: false,
 
-  // Actions
   fetchFriends: async () => {
-    const token = useAuth.getState().token;
-    if (!token) {
-      return;
-    }
-
-    set({ isLoading: true, error: null });
-
     try {
-      const response = await fetch(`${API_URL}/api/friend/list`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Erreur ${response.status}: ${errorText}`);
-      }
-
-      const data = await response.json();
-
-      // Transformer les données de l'API au format attendu
-      const transformedFriends = data.map((friend: any) => ({
-        id: friend.id,
-        first_name: friend.first_name,
-        last_name: friend.last_name,
-        username: friend.username,
-        isRunning: friend.isRunning || false,
-        avatar:
-          friend.avatar ||
-          `https://ui-avatars.com/api/?name=${encodeURIComponent(
-            `${friend.first_name} ${friend.last_name}`
-          )}`,
-      }));
-
-      set({ friends: transformedFriends, isLoading: false });
+      set({ isLoading: true, error: null });
+      const friends = await apiFetchFriends();
+      set({ friends, isLoading: false });
     } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Erreur inconnue', isLoading: false });
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      set({ error: errorMessage, isLoading: false });
     }
   },
 
   fetchRequests: async () => {
-    const token = useAuth.getState().token;
-    if (!token) {
-      return;
-    }
-
-    set({ isLoading: true, error: null });
-
     try {
+      const token = getAuthToken();
+      set({ isLoading: true, error: null });
+
       const response = await fetch(`${API_URL}/api/friend/list/request`, {
         method: 'GET',
         headers: {
@@ -144,34 +161,20 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       }
 
       const data = await response.json();
+      const requests = data.map(transformRequestData);
 
-      // Transformer les données de l'API au format attendu
-      const transformedRequests = data.map((request: any) => ({
-        request_id: request.request_id,
-        user_id: request.user_id,
-        first_name: request.first_name,
-        last_name: request.last_name,
-        username: request.username,
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
-          `${request.first_name} ${request.last_name}`
-        )}`,
-      }));
-
-      set({ requests: transformedRequests, isLoading: false });
+      set({ requests, isLoading: false });
     } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Erreur inconnue', isLoading: false });
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      set({ error: errorMessage, isLoading: false });
     }
   },
 
   sendFriendRequest: async (userId: number) => {
-    const token = useAuth.getState().token;
-    if (!token) {
-      throw new Error('Pas de token');
-    }
-
-    set({ isLoading: true, error: null });
-
     try {
+      const token = getAuthToken();
+      set({ isLoading: true, error: null });
+
       const response = await fetch(`${API_URL}/api/friend/request`, {
         method: 'POST',
         headers: {
@@ -188,20 +191,17 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
 
       set({ isLoading: false });
     } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Erreur inconnue', isLoading: false });
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      set({ error: errorMessage, isLoading: false });
       throw error;
     }
   },
 
   acceptFriendRequest: async (requestId: number) => {
-    const token = useAuth.getState().token;
-    if (!token) {
-      throw new Error('Pas de token');
-    }
-
-    set({ isLoading: true, error: null });
-
     try {
+      const token = getAuthToken();
+      set({ isLoading: true, error: null });
+
       const response = await fetch(`${API_URL}/api/friend/accept`, {
         method: 'POST',
         headers: {
@@ -220,20 +220,17 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       await get().fetchRequests();
       set({ isLoading: false });
     } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Erreur inconnue', isLoading: false });
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      set({ error: errorMessage, isLoading: false });
       throw error;
     }
   },
 
   declineFriendRequest: async (requestId: number) => {
-    const token = useAuth.getState().token;
-    if (!token) {
-      throw new Error('Pas de token');
-    }
-
-    set({ isLoading: true, error: null });
-
     try {
+      const token = getAuthToken();
+      set({ isLoading: true, error: null });
+
       const response = await fetch(`${API_URL}/api/friend/decline`, {
         method: 'POST',
         headers: {
@@ -251,20 +248,17 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       await get().fetchRequests();
       set({ isLoading: false });
     } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Erreur inconnue', isLoading: false });
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      set({ error: errorMessage, isLoading: false });
       throw error;
     }
   },
 
   removeFriend: async (friendId: number) => {
-    const token = useAuth.getState().token;
-    if (!token) {
-      throw new Error('Pas de token');
-    }
-
-    set({ isLoading: true, error: null });
-
     try {
+      const token = getAuthToken();
+      set({ isLoading: true, error: null });
+
       const response = await fetch(`${API_URL}/api/friend/remove`, {
         method: 'POST',
         headers: {
@@ -282,20 +276,17 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       await get().fetchFriends();
       set({ isLoading: false });
     } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Erreur inconnue', isLoading: false });
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      set({ error: errorMessage, isLoading: false });
       throw error;
     }
   },
 
   toggleNotificationBlock: async (userId: number) => {
-    const token = useAuth.getState().token;
-    if (!token) {
-      throw new Error("Pas de token d'authentification");
-    }
-
-    set({ isLoading: true, error: null });
-
     try {
+      const token = getAuthToken();
+      set({ isLoading: true, error: null });
+
       const response = await fetch(`${API_URL}/api/friend/notification/block/${userId}`, {
         method: 'POST',
         headers: {
@@ -309,24 +300,20 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
         throw new Error(`Erreur ${response.status}: ${errorText}`);
       }
 
-      // Recharger les paramètres de notification pour synchroniser l'état
       await get().fetchNotificationSettings();
       set({ isLoading: false });
     } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Erreur inconnue', isLoading: false });
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      set({ error: errorMessage, isLoading: false });
       throw error;
     }
   },
 
   fetchNotificationSettings: async () => {
-    const token = useAuth.getState().token;
-    if (!token) {
-      return;
-    }
-
-    set({ isLoading: true, error: null });
-
     try {
+      const token = getAuthToken();
+      set({ isLoading: true, error: null });
+
       const response = await fetch(`${API_URL}/api/friend/notification/settings`, {
         method: 'GET',
         headers: {
@@ -334,8 +321,8 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
           Authorization: `Bearer ${token}`,
         },
       });
+
       if (response.status === 404) {
-        // Pas de config trouvée, on considère qu'il n'y a aucun blocage
         set({ blockedNotifications: [], isLoading: false });
         return;
       }
@@ -346,26 +333,91 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       }
 
       const data = await response.json();
-      // data est un tableau d'objets { id, user, friend, isNotificationBlock }
-      // On extrait les id des amis pour lesquels isNotificationBlock est true
       const blocked = Array.isArray(data)
         ? data
-            .filter((item: any) => item.isNotificationBlock && item.friend && item.friend.id)
+            .filter((item: any) => item.isNotificationBlock && item.friend?.id)
             .map((item: any) => item.friend.id)
         : [];
+
       set({ blockedNotifications: blocked, isLoading: false });
     } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Erreur inconnue', isLoading: false });
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      set({ error: errorMessage, isLoading: false });
     }
   },
 
-  fetchLiveFriends: async (userIds: number[]) => {
-    const token = useAuth.getState().token;
-    if (!token) {
-      return [];
+  searchUsers: async (query: string) => {
+    try {
+      const token = getAuthToken();
+      set({ loadingSearch: true, errorSearch: null });
+
+      const response = await fetch(
+        `${API_URL}/api/user/search?query=${encodeURIComponent(query)}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Erreur ${response.status}: ${errorText}`);
+      }
+
+      const data: UserSearchResult[] = await response.json();
+      set({ searchResults: data, loadingSearch: false });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      set({ errorSearch: errorMessage, loadingSearch: false });
+    }
+  },
+
+  startPolling: () => {
+    const state = get();
+
+    if (state.isPolling || pollingInterval) {
+      return;
     }
 
+    set({ isPolling: true });
+
+    state.fetchFriends();
+
+    pollingInterval = setInterval(async () => {
+      const currentState = get();
+      if (!currentState.isPolling) return;
+
+      try {
+        console.log('🔄 Polling - Refetch des amis...', new Date().toLocaleTimeString());
+        const friends = await apiFetchFriends(false);
+        set({ friends });
+        console.log('✅ Polling - Amis mis à jour:', friends.length, 'amis récupérés');
+      } catch (error) {
+        console.warn('❌ Erreur lors du polling des amis:', error);
+      }
+    }, 15000);
+  },
+
+  stopPolling: () => {
+    set({ isPolling: false });
+
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+      pollingInterval = null;
+    }
+  },
+
+  clearError: () => {
+    set({ error: null, errorSearch: null });
+  },
+
+  fetchLiveFriends: async (userIds: number[]) => {
     try {
+      const token = getAuthToken();
+
       const response = await fetch(`${API_URL}/api/friend/live`, {
         method: 'POST',
         headers: {
@@ -380,46 +432,10 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
         throw new Error(`Erreur ${response.status}: ${errorText}`);
       }
 
-      const data = await response.json();
-      return data;
+      return await response.json();
     } catch (error) {
+      console.warn('Erreur lors de la récupération des amis en direct:', error);
       return [];
-    }
-  },
-
-  clearError: () => {
-    set({ error: null });
-  },
-
-  searchUsers: async (query: string) => {
-    const token = useAuth.getState().token;
-    if (!token) {
-      set({ errorSearch: 'Pas de token', loadingSearch: false });
-      return;
-    }
-    set({ loadingSearch: true, errorSearch: null });
-    try {
-      const response = await fetch(
-        `${API_URL}/api/user/search?query=${encodeURIComponent(query)}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Erreur ${response.status}: ${errorText}`);
-      }
-      const data: UserSearchResult[] = await response.json();
-      set({ searchResults: data, loadingSearch: false });
-    } catch (error) {
-      set({
-        errorSearch: error instanceof Error ? error.message : 'Erreur inconnue',
-        loadingSearch: false,
-      });
     }
   },
 }));
