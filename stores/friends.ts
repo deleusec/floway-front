@@ -80,7 +80,6 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
   fetchFriends: async () => {
     const token = useAuth.getState().token;
     if (!token) {
-      console.log('❌ Pas de token');
       return;
     }
 
@@ -101,7 +100,6 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       }
 
       const data = await response.json();
-      console.log('✅ Amis récupérés:', data.length);
 
       // Transformer les données de l'API au format attendu
       const transformedFriends = data.map((friend: any) => ({
@@ -119,7 +117,6 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
 
       set({ friends: transformedFriends, isLoading: false });
     } catch (error) {
-      console.log('❌ Erreur amis:', error instanceof Error ? error.message : 'Erreur inconnue');
       set({ error: error instanceof Error ? error.message : 'Erreur inconnue', isLoading: false });
     }
   },
@@ -127,7 +124,6 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
   fetchRequests: async () => {
     const token = useAuth.getState().token;
     if (!token) {
-      console.log('❌ Pas de token');
       return;
     }
 
@@ -148,7 +144,6 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       }
 
       const data = await response.json();
-      console.log('✅ Demandes récupérées:', data.length);
 
       // Transformer les données de l'API au format attendu
       const transformedRequests = data.map((request: any) => ({
@@ -164,10 +159,6 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
 
       set({ requests: transformedRequests, isLoading: false });
     } catch (error) {
-      console.log(
-        '❌ Erreur demandes:',
-        error instanceof Error ? error.message : 'Erreur inconnue'
-      );
       set({ error: error instanceof Error ? error.message : 'Erreur inconnue', isLoading: false });
     }
   },
@@ -195,10 +186,8 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
         throw new Error(`Erreur ${response.status}: ${errorText}`);
       }
 
-      console.log('✅ Demande envoyée');
       set({ isLoading: false });
     } catch (error) {
-      console.log('❌ Erreur envoi:', error instanceof Error ? error.message : 'Erreur inconnue');
       set({ error: error instanceof Error ? error.message : 'Erreur inconnue', isLoading: false });
       throw error;
     }
@@ -227,15 +216,10 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
         throw new Error(`Erreur ${response.status}: ${errorText}`);
       }
 
-      console.log('✅ Demande acceptée');
       await get().fetchFriends();
       await get().fetchRequests();
       set({ isLoading: false });
     } catch (error) {
-      console.log(
-        '❌ Erreur acceptation:',
-        error instanceof Error ? error.message : 'Erreur inconnue'
-      );
       set({ error: error instanceof Error ? error.message : 'Erreur inconnue', isLoading: false });
       throw error;
     }
@@ -264,11 +248,9 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
         throw new Error(`Erreur ${response.status}: ${errorText}`);
       }
 
-      console.log('✅ Demande refusée');
       await get().fetchRequests();
       set({ isLoading: false });
     } catch (error) {
-      console.log('❌ Erreur refus:', error instanceof Error ? error.message : 'Erreur inconnue');
       set({ error: error instanceof Error ? error.message : 'Erreur inconnue', isLoading: false });
       throw error;
     }
@@ -297,14 +279,9 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
         throw new Error(`Erreur ${response.status}: ${errorText}`);
       }
 
-      console.log('✅ Ami supprimé');
       await get().fetchFriends();
       set({ isLoading: false });
     } catch (error) {
-      console.log(
-        '❌ Erreur suppression:',
-        error instanceof Error ? error.message : 'Erreur inconnue'
-      );
       set({ error: error instanceof Error ? error.message : 'Erreur inconnue', isLoading: false });
       throw error;
     }
@@ -313,7 +290,6 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
   toggleNotificationBlock: async (userId: number) => {
     const token = useAuth.getState().token;
     if (!token) {
-      console.log("🔴 toggleNotificationBlock: Pas de token d'authentification");
       throw new Error("Pas de token d'authentification");
     }
 
@@ -333,16 +309,10 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
         throw new Error(`Erreur ${response.status}: ${errorText}`);
       }
 
-      console.log('✅ Paramètre de notification mis à jour');
-
       // Recharger les paramètres de notification pour synchroniser l'état
       await get().fetchNotificationSettings();
       set({ isLoading: false });
     } catch (error) {
-      console.log(
-        '❌ Erreur toggle notification:',
-        error instanceof Error ? error.message : 'Erreur inconnue'
-      );
       set({ error: error instanceof Error ? error.message : 'Erreur inconnue', isLoading: false });
       throw error;
     }
@@ -364,9 +334,7 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log('message erreur', response.status);
       if (response.status === 404) {
-        console.log('🔴 fetchNotificationSettings: Pas de config trouvée');
         // Pas de config trouvée, on considère qu'il n'y a aucun blocage
         set({ blockedNotifications: [], isLoading: false });
         return;
@@ -378,7 +346,6 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       }
 
       const data = await response.json();
-      console.log('data', data);
       // data est un tableau d'objets { id, user, friend, isNotificationBlock }
       // On extrait les id des amis pour lesquels isNotificationBlock est true
       const blocked = Array.isArray(data)
@@ -395,15 +362,10 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
   fetchLiveFriends: async (userIds: number[]) => {
     const token = useAuth.getState().token;
     if (!token) {
-      console.log("🔴 fetchLiveFriends: Pas de token d'authentification");
       return [];
     }
 
-    console.log('🟡 fetchLiveFriends: Début de la requête pour userIds:', userIds);
-
     try {
-      console.log('🟡 fetchLiveFriends: URL:', `${API_URL}/api/friend/live`);
-
       const response = await fetch(`${API_URL}/api/friend/live`, {
         method: 'POST',
         headers: {
@@ -413,19 +375,14 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
         body: JSON.stringify({ userIds }),
       });
 
-      console.log('🟡 fetchLiveFriends: Status:', response.status);
-
       if (!response.ok) {
         const errorText = await response.text();
-        console.log('🔴 fetchLiveFriends: Erreur response:', errorText);
         throw new Error(`Erreur ${response.status}: ${errorText}`);
       }
 
       const data = await response.json();
-      console.log('🟢 fetchLiveFriends: Données reçues:', data);
       return data;
     } catch (error) {
-      console.log('🔴 fetchLiveFriends: Erreur catch:', error);
       return [];
     }
   },
@@ -457,7 +414,6 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
         throw new Error(`Erreur ${response.status}: ${errorText}`);
       }
       const data: UserSearchResult[] = await response.json();
-      console.log('Résultat API /api/user/search:', data);
       set({ searchResults: data, loadingSearch: false });
     } catch (error) {
       set({
