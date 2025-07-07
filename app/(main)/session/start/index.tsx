@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Modal,
   SafeAreaView,
+  Animated,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Location from 'expo-location';
@@ -37,13 +38,17 @@ export default function StartScreen() {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [drawerState, setDrawerState] = useState<PickerState>('selection');
 
+  // Animation refs
+  const slideAnim = useRef(new Animated.Value(500)).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+
   // États pour la minuterie
   const [hours, setHours] = useState(0);
-  const [minutes, setMinutes] = useState(30);
+  const [minutes, setMinutes] = useState(0);
   const [seconds, setSeconds] = useState(0);
 
   // État pour la distance
-  const [targetDistance, setTargetDistance] = useState(13);
+  const [targetDistance, setTargetDistance] = useState(0);
 
   // État temporaire pour le picker
   const [tempValue, setTempValue] = useState(0);
@@ -61,7 +66,10 @@ export default function StartScreen() {
           distanceInterval: 1,
         },
         location => {
-          updateLocation(location);
+          updateLocation({
+            ...location.coords,
+            timestamp: location.timestamp
+          });
         }
       ).then(subscription => {
         locationSubscription = subscription;
@@ -79,13 +87,33 @@ export default function StartScreen() {
     setChallengeType(type);
     if (type !== 'free') {
       setDrawerState('selection');
-      setDrawerVisible(true);
-    } else {
-      handleStartSession();
+      openDrawer();
     }
   };
 
-  // Dans votre StartScreen, modifiez la fonction handleStartSession :
+  const openDrawer = () => {
+    // Réinitialiser les valeurs d'animation
+    slideAnim.setValue(500);
+    fadeAnim.setValue(0);
+
+    setDrawerVisible(true);
+
+    // Démarrer les animations après que le modal soit visible
+    requestAnimationFrame(() => {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    });
+  };
 
   const handleStartSession = async () => {
     try {
@@ -95,21 +123,20 @@ export default function StartScreen() {
       if (challengeType === 'time') {
         objectiveValue = hours * 3600 + minutes * 60 + seconds;
         if (objectiveValue <= 0) {
-          alert('Veuillez définir un temps valide');
+          alert('Veuillez configurer votre temps dans Mode minuterie');
           return;
         }
         sessionType = 'time';
       } else if (challengeType === 'distance') {
         objectiveValue = targetDistance;
         if (objectiveValue <= 0) {
-          alert('Veuillez définir une distance valide');
+          alert('Veuillez configurer votre distance dans Mission kilomètres');
           return;
         }
         sessionType = 'distance';
       } else {
-        // Course libre
         sessionType = 'free';
-        objectiveValue = 0; // Pas d'objectif pour une course libre
+        objectiveValue = 0;
       }
 
       await startSession(sessionType, objectiveValue);
@@ -120,7 +147,6 @@ export default function StartScreen() {
     }
   };
 
-  // Ouvre le picker dans le drawer
   const openInlinePicker = (type: PickerState) => {
     if (type === 'hours') setTempValue(hours);
     else if (type === 'minutes') setTempValue(minutes);
@@ -144,8 +170,33 @@ export default function StartScreen() {
   };
 
   const closeDrawer = () => {
-    setDrawerVisible(false);
-    setDrawerState('selection');
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 500,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setDrawerVisible(false);
+      setDrawerState('selection');
+    });
+  };
+
+  // Vérifier si on peut démarrer la session
+  const canStartSession = () => {
+    if (challengeType === 'free') return true;
+    if (challengeType === 'time') {
+      return hours > 0 || minutes > 0 || seconds > 0;
+    }
+    if (challengeType === 'distance') {
+      return targetDistance > 0;
+    }
+    return false;
   };
 
   // Fonction pour obtenir le label du picker
@@ -208,8 +259,8 @@ export default function StartScreen() {
             )}
 
             <Button
-              onPress={handleStartSession}
-              title='Commencer'
+              onPress={closeDrawer}
+              title='Valider'
               variant='primary'
               disabled={
                 challengeType === 'time'
@@ -317,18 +368,31 @@ export default function StartScreen() {
         </View>
       </ScrollView>
 
+      {/* Bouton Commencer en bas de page */}
+      <View style={styles.bottomButtonContainer}>
+        <Button
+          onPress={handleStartSession}
+          title='Commencer'
+          variant='primary'
+          disabled={!canStartSession()}
+          style={styles.startButton}
+        />
+      </View>
+
       {/* Drawer unifié avec picker intégré */}
-      <Modal visible={drawerVisible} transparent animationType='slide' onRequestClose={closeDrawer}>
-        <View style={styles.drawerBackdrop}>
-          <TouchableOpacity
-            style={styles.backdropTouchable}
-            activeOpacity={1}
-            onPress={closeDrawer}
-          />
-          <View style={styles.drawerContainer}>
+      <Modal visible={drawerVisible} transparent animationType='none' onRequestClose={closeDrawer}>
+        <View style={styles.modalContainer}>
+          <Animated.View style={[styles.drawerBackdrop, { opacity: fadeAnim }]}>
+            <TouchableOpacity
+              style={styles.backdropTouchable}
+              activeOpacity={1}
+              onPress={closeDrawer}
+            />
+          </Animated.View>
+          <Animated.View style={[styles.drawerContainer, { transform: [{ translateY: slideAnim }] }]}>
             <View style={styles.drawerHandle} />
             {renderDrawerContent()}
-          </View>
+          </Animated.View>
         </View>
       </Modal>
     </SafeAreaView>
@@ -371,14 +435,24 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingBottom: 32,
   },
-  // Drawer unifié
-  drawerBackdrop: {
+  modalContainer: {
     flex: 1,
-    justifyContent: 'flex-end',
+    position: 'relative',
+  },
+  drawerBackdrop: {
     backgroundColor: 'rgba(0,0,0,0.4)',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   backdropTouchable: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   drawerContainer: {
     backgroundColor: Colors.white,
@@ -389,6 +463,10 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.lg,
     maxHeight: '80%',
     minHeight: 350,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
   drawerHandle: {
     alignSelf: 'center',
@@ -440,7 +518,6 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     gap: 5
   },
-  // Picker intégré
   pickerLabel: {
     fontSize: FontSize.md,
     color: Colors.gray[400],
@@ -481,5 +558,13 @@ const styles = StyleSheet.create({
   },
   pickerActionButton: {
     flex: 1,
+  },
+  bottomButtonContainer: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
+    paddingBottom: Spacing.xl,
+  },
+  startButton: {
+    width: '100%',
   },
 });
