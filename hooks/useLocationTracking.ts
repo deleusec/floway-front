@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import * as Location from 'expo-location';
 import { calculateDistance, calculatePace } from '@/utils/calculations';
+import { useRunningSessionStore } from '@/stores/session';
 
 interface LocationPoint {
   latitude: number;
@@ -20,19 +21,17 @@ interface UseLocationTrackingProps {
   isActive: boolean;
   isPaused: boolean;
   startTime: number | null;
-  onLocationUpdate: (location: LocationPoint) => void;
-  onMetricsUpdate: (metrics: RunningMetrics) => void;
 }
 
 export const useLocationTracking = ({
   isActive,
   isPaused,
   startTime,
-  onLocationUpdate,
-  onMetricsUpdate,
 }: UseLocationTrackingProps) => {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [mapRegion, setMapRegion] = useState(null);
+
   const locationSubscription = useRef<Location.LocationSubscription | null>(null);
   const metricsInterval = useRef<NodeJS.Timeout | null>(null);
   const lastLocation = useRef<LocationPoint | null>(null);
@@ -43,6 +42,9 @@ export const useLocationTracking = ({
     calories: 0,
     time: 0,
   });
+
+  // Actions du store
+  const { updateLocation, updateMetrics } = useRunningSessionStore();
 
   // Demander les permissions
   const requestPermissions = useCallback(async () => {
@@ -91,18 +93,27 @@ export const useLocationTracking = ({
             );
           }
 
-          // Mettre à jour les métriques
+          // Mettre à jour les métriques locales
           currentMetrics.current.distance += distanceIncrement;
           lastLocation.current = newLocation;
 
-          // Notifier les changements
-          onLocationUpdate(newLocation);
+          // Mettre à jour la région de la carte
+          const newRegion = {
+            latitude: newLocation.latitude,
+            longitude: newLocation.longitude,
+            latitudeDelta: 0.005,
+            longitudeDelta: 0.005,
+          };
+          setMapRegion(newRegion);
+
+          // Notifier le store
+          updateLocation(newLocation);
         }
       );
     } catch (err) {
       setError('Erreur lors du démarrage du tracking');
     }
-  }, [hasPermission, requestPermissions, onLocationUpdate]);
+  }, [hasPermission, requestPermissions, updateLocation]);
 
   // Démarrer la mise à jour des métriques
   const startMetricsUpdate = useCallback(() => {
@@ -117,9 +128,9 @@ export const useLocationTracking = ({
       };
 
       currentMetrics.current = newMetrics;
-      onMetricsUpdate(newMetrics);
+      updateMetrics(newMetrics);
     }, 1000);
-  }, [startTime, onMetricsUpdate]);
+  }, [startTime, updateMetrics]);
 
   // Arrêter le tracking
   const stopTracking = useCallback(() => {
@@ -146,6 +157,16 @@ export const useLocationTracking = ({
     if (isActive && !isPaused && hasPermission) {
       startLocationTracking();
       startMetricsUpdate();
+    } else if (isPaused) {
+      // En pause : arrêter le tracking mais garder les métriques
+      if (locationSubscription.current) {
+        locationSubscription.current.remove();
+        locationSubscription.current = null;
+      }
+      if (metricsInterval.current) {
+        clearInterval(metricsInterval.current);
+        metricsInterval.current = null;
+      }
     } else {
       stopTracking();
     }
@@ -163,6 +184,7 @@ export const useLocationTracking = ({
   return {
     hasPermission,
     error,
+    mapRegion,
     requestPermissions,
   };
 };

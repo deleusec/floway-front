@@ -6,7 +6,7 @@ import {
   Alert,
   TouchableOpacity,
   Animated,
-  SafeAreaView
+  SafeAreaView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useRunningSessionStore } from '@/stores/session';
@@ -14,6 +14,7 @@ import { useAuth } from '@/stores/auth';
 import { useSpeechManager } from '@/hooks/useSpeechManager';
 import { useLocationTracking } from '@/hooks/useLocationTracking';
 import { useSessionAnimations } from '@/hooks/useSessionAnimations';
+import { FreeMap } from '@/components/ui/map/session-map/index';
 import { formatTime, formatDistance, formatPace } from '@/utils/sessionUtils';
 
 // Import de vos icônes SVG
@@ -22,19 +23,12 @@ import SvgPlay from '@/components/icons/Play';
 import SvgPause from '@/components/icons/Pause';
 import SvgPinMap from '@/components/icons/PinMap';
 import SvgStopIcon from '@/components/icons/StopIcon';
-import {Colors, FontSize, Radius, Spacing} from "@/theme";
+import { Colors, FontSize, Radius, Spacing } from '@/theme';
 
 export default function SessionScreen() {
   const router = useRouter();
-  const {
-    session,
-    stopSession,
-    saveSession,
-    pauseSession,
-    resumeSession,
-    updateLocation,
-    updateMetrics,
-  } = useRunningSessionStore();
+  const { session, stopSession, saveSession, pauseSession, resumeSession } =
+    useRunningSessionStore();
   const { user, token, getUserAndTokenFromStorage } = useAuth();
   const { speak } = useSpeechManager();
   const lastAnnouncedKm = useRef(0);
@@ -42,18 +36,20 @@ export default function SessionScreen() {
   // États locaux
   const [showMap, setShowMap] = useState(false);
 
-  // Hooks personnalisés
-  const { hasPermission, error: locationError } = useLocationTracking({
+  // Hooks personnalisés - logique métier séparée
+  const {
+    hasPermission,
+    error: locationError,
+    mapRegion,
+  } = useLocationTracking({
     isActive: session.isActive,
     isPaused: session.isPaused,
     startTime: session.startTime,
-    onLocationUpdate: updateLocation,
-    onMetricsUpdate: updateMetrics,
   });
 
   const { metricsHeight, mapOpacity, animateToPause, animateToResume } = useSessionAnimations();
 
-  // Effets
+  // Effets pour la logique business
   useEffect(() => {
     if (!session.isActive) {
       router.replace('/session/start');
@@ -66,6 +62,7 @@ export default function SessionScreen() {
     }
   }, [session.isActive]);
 
+  // Annonces vocales des kilomètres
   useEffect(() => {
     if (!session.isActive) return;
 
@@ -84,14 +81,9 @@ export default function SessionScreen() {
     }
   }, [session.metrics.distance, session.isActive]);
 
-  // Vérifier si c'est une course libre
-  // Une course libre peut être détectée par un objectif de 0 ou un type spécifique
-  const isFreeRun =
-    session.objective === 0 ||
-    session.type === 'free' ||
-    (!session.type && session.objective === 0);
+  // Logique métier - calculs et formatage
+  const isFreeRun = session.type === 'free';
 
-  // Calculs et formatage
   const getProgressPercentage = () => {
     if (isFreeRun) return 0;
 
@@ -130,7 +122,7 @@ export default function SessionScreen() {
     pace: formatPace(session.metrics.pace),
   };
 
-  // Gestion des actions
+  // Gestionnaires d'événements
   const togglePause = () => {
     if (!session.isPaused) {
       pauseSession();
@@ -181,7 +173,11 @@ export default function SessionScreen() {
     console.log('Mic button pressed');
   };
 
-  // Affichage des erreurs
+  // Déterminer quel mode d'affichage utiliser
+  const shouldShowFullMap = showMap && !session.isPaused;
+  const shouldShowPauseMap = session.isPaused;
+
+  // Gestion des erreurs
   if (locationError) {
     return (
       <View style={styles.errorContainer}>
@@ -210,39 +206,396 @@ export default function SessionScreen() {
         )}
       </View>
 
-      {/* Mode carte pur */}
-      {showMap && !session.isPaused ? (
-        <View style={styles.mapContainerFull}>
-          <View style={styles.mapPlaceholder}>
-            <Text style={styles.mapText}>Carte en cours de chargement...</Text>
-          </View>
-        </View>
+      {/* Mode carte pur - UNE SEULE INSTANCE */}
+      {shouldShowFullMap ? (
+        <FreeMap
+          locations={session.locations}
+          mapRegion={mapRegion}
+          style={styles.mapContainerFull}
+          isVisible={true}
+        />
       ) : (
-        /* Animation pause */
+        /* Mode normal avec métriques et carte optionnelle en pause */
         <>
-          {/* Carte qui descend du haut en mode pause */}
-          <Animated.View
-            style={[
-              styles.pauseMapContainer,
-              {
-                opacity: mapOpacity,
-                flex: metricsHeight.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [1, 0],
-                }),
-              },
-            ]}>
-            <View style={styles.mapPlaceholder}>
-              <Text style={styles.mapText}>Carte en cours de chargement...</Text>
-            </View>
-          </Animated.View>
+          {/* Carte qui descend du haut en mode pause - CONDITIONNELLE */}
+          {shouldShowPauseMap && (
+            <Animated.View
+              style={[
+                styles.pauseMapContainer,
+                {
+                  opacity: mapOpacity,
+                  flex: metricsHeight.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 0],
+                  }),
+                },
+              ]}>
+              <FreeMap
+                locations={session.locations}
+                mapRegion={mapRegion}
+                style={styles.pauseMapContent}
+                isVisible={true}
+              />
+            </Animated.View>
+          )}
 
           {/* Zone métriques qui se transforme */}
           <Animated.View
             style={[
               styles.metricsContainer,
               {
-                flex: metricsHeight,
+                flex: shouldShowPauseMap ? metricsHeight : 1,
+                borderTopLeftRadius: session.isPaused ? 20 : 0,
+                borderTopRightRadius: session.isPaused ? 20 : 0,
+                paddingBottom: session.isPaused ? 24 : 0,
+                backgroundColor: session.isPaused ? Colors.white : Colors.background,
+                paddingTop: session.isPaused ? 8 : 0,
+              },
+            ]}>
+            {!session.isPaused ? (
+              /* Mode normal : métriques GROSSES et CENTRÉES */
+              <>
+                <View style={styles.metric}>
+                  <Text style={styles.metricLabel}>TEMPS</Text>
+                  <Text style={styles.metricValue}>{formattedMetrics.time}</Text>
+                </View>
+
+                <View style={styles.metric}>
+                  <Text style={styles.metricLabel}>ALLURE (min/km)</Text>
+                  <Text style={styles.metricValue}>{formattedMetrics.pace}</Text>
+                </View>
+
+                <View style={styles.metric}>
+                  <Text style={styles.metricLabel}>DISTANCE (km)</Text>
+                  <Text style={styles.metricValue}>{formattedMetrics.distance}</Text>
+                </View>
+              </>
+            ) : (
+              /* Mode pause : drawer compact */
+              <>
+                <View style={styles.drawerHandle} />
+
+                <View style={styles.pauseMetricsRow}>
+                  <View style={styles.pauseMetricItem}>
+                    <Text style={styles.pauseMetricValue}>{formattedMetrics.time}</Text>
+                    <Text style={styles.pauseMetricLabel}>Temps</Text>
+                  </View>
+                  <View style={styles.pauseMetricItem}>
+                    <Text style={styles.pauseMetricValue}>{formattedMetrics.distance} km</Text>
+                    <Text style={styles.pauseMetricLabel}>Distance</Text>
+                  </View>
+                  <View style={styles.pauseMetricItem}>
+                    <Text style={styles.pauseMetricValue}>{formattedMetrics.pace}</Text>
+                    <Text style={styles.pauseMetricLabel}>Allure</Text>
+                  </View>
+                </View>
+
+                <View style={styles.pauseControlsContainer}>
+                  <TouchableOpacity
+                    style={[styles.controlButton, styles.secondaryButton]}
+                    onPress={handleMicPress}
+                    activeOpacity={0.8}>
+                    <SvgUserTalk size={24} />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.controlButton, styles.primaryButton]}
+                    onPress={togglePause}
+                    activeOpacity={0.8}>
+                    <SvgPlay width={32} height={32} />
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.controlButton, styles.stopButton]}
+                    onPress={handleRightButtonPress}
+                    activeOpacity={0.8}>
+                    <SvgStopIcon width={24} height={24} />
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
+          </Animated.View>
+        </>
+      )}
+
+      {/* Boutons de contrôle - seulement si pas en pause */}
+      {!session.isPaused && (
+        <View style={styles.controlsContainer}>
+          <TouchableOpacity
+            style={[styles.controlButton, styles.secondaryButton]}
+            onPress={handleMicPress}
+            activeOpacity={0.8}>
+            <SvgUserTalk size={24} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.controlButton, styles.primaryButton]}
+            onPress={togglePause}
+            activeOpacity={0.8}>
+            <SvgPause size={28} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.controlButton,
+              showMap ? styles.primaryLocationButton : styles.secondaryButton,
+            ]}
+            onPress={handleRightButtonPress}
+            activeOpacity={0.8}>
+            <SvgPinMap size={24} />
+          </TouchableOpacity>
+        </View>
+      )}
+    </SafeAreaView>
+  );
+}
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  View,
+  StyleSheet,
+  Text,
+  Alert,
+  TouchableOpacity,
+  Animated,
+  SafeAreaView,
+} from 'react-native';
+import { useRouter } from 'expo-router';
+import { useRunningSessionStore } from '@/stores/session';
+import { useAuth } from '@/stores/auth';
+import { useSpeechManager } from '@/hooks/useSpeechManager';
+import { useLocationTracking } from '@/hooks/useLocationTracking';
+import { useSessionAnimations } from '@/hooks/useSessionAnimations';
+import { FreeMap } from '@/components/ui/map/session-map/index';
+import { formatTime, formatDistance, formatPace } from '@/utils/sessionUtils';
+
+// Import de vos icônes SVG
+import SvgUserTalk from '@/components/icons/UserTalk';
+import SvgPlay from '@/components/icons/Play';
+import SvgPause from '@/components/icons/Pause';
+import SvgPinMap from '@/components/icons/PinMap';
+import SvgStopIcon from '@/components/icons/StopIcon';
+import { Colors, FontSize, Radius, Spacing } from '@/theme';
+
+export default function SessionScreen() {
+  const router = useRouter();
+  const { session, stopSession, saveSession, pauseSession, resumeSession } =
+    useRunningSessionStore();
+  const { user, token, getUserAndTokenFromStorage } = useAuth();
+  const { speak } = useSpeechManager();
+  const lastAnnouncedKm = useRef(0);
+
+  // États locaux
+  const [showMap, setShowMap] = useState(false);
+
+  // Hooks personnalisés - logique métier séparée
+  const {
+    hasPermission,
+    error: locationError,
+    mapRegion,
+  } = useLocationTracking({
+    isActive: session.isActive,
+    isPaused: session.isPaused,
+    startTime: session.startTime,
+  });
+
+  const { metricsHeight, mapOpacity, animateToPause, animateToResume } = useSessionAnimations();
+
+  // Effets pour la logique business
+  useEffect(() => {
+    if (!session.isActive) {
+      router.replace('/session/start');
+    } else {
+      speak({
+        type: 'info',
+        text: 'Début de la séance',
+        priority: 1,
+      });
+    }
+  }, [session.isActive]);
+
+  // Annonces vocales des kilomètres
+  useEffect(() => {
+    if (!session.isActive) return;
+
+    const currentKm = Math.floor(session.metrics.distance / 1000);
+    if (currentKm > lastAnnouncedKm.current) {
+      const paceMinutes = Math.floor(session.metrics.pace / 60);
+      const paceSeconds = Math.floor(session.metrics.pace % 60);
+
+      speak({
+        type: 'info',
+        text: `${currentKm} kilomètres parcourus. Allure moyenne : ${paceMinutes} minutes et ${paceSeconds} secondes au kilomètre.`,
+        priority: 2,
+      });
+
+      lastAnnouncedKm.current = currentKm;
+    }
+  }, [session.metrics.distance, session.isActive]);
+
+  // Logique métier - calculs et formatage
+  const isFreeRun = session.type === 'free';
+
+  const getProgressPercentage = () => {
+    if (isFreeRun) return 0;
+
+    if (session.type === 'time') {
+      return Math.min((session.metrics.time / (session.objective * 1000)) * 100, 100);
+    } else if (session.type === 'distance') {
+      return Math.min((session.metrics.distance / (session.objective * 1000)) * 100, 100);
+    }
+    return 0;
+  };
+
+  const formatObjective = () => {
+    if (isFreeRun) return '';
+
+    if (session.type === 'time') {
+      return formatTime(session.objective * 1000);
+    } else if (session.type === 'distance') {
+      return `${session.objective.toFixed(2)} km`;
+    }
+    return '';
+  };
+
+  const getSessionTitle = () => {
+    if (isFreeRun) return 'Course libre';
+
+    return session.type === 'time'
+      ? 'Mode minuterie'
+      : session.type === 'distance'
+        ? 'Mission kilomètres'
+        : 'Course libre';
+  };
+
+  const formattedMetrics = {
+    time: formatTime(session.metrics.time),
+    distance: formatDistance(session.metrics.distance),
+    pace: formatPace(session.metrics.pace),
+  };
+
+  // Gestionnaires d'événements
+  const togglePause = () => {
+    if (!session.isPaused) {
+      pauseSession();
+      animateToPause();
+    } else {
+      resumeSession();
+      animateToResume();
+    }
+  };
+
+  const handleRightButtonPress = () => {
+    if (session.isPaused) {
+      handleStopSession();
+    } else {
+      setShowMap(!showMap);
+    }
+  };
+
+  const handleStopSession = () => {
+    Alert.alert('Arrêter la course', 'Êtes-vous sûr de vouloir arrêter la course ?', [
+      { text: 'Annuler', style: 'cancel' },
+      {
+        text: 'Arrêter',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            let currentUser = user;
+            let currentToken = token;
+            if (!currentUser || !currentToken) {
+              const { user: storedUser, token: storedToken } = await getUserAndTokenFromStorage();
+              currentUser = storedUser;
+              currentToken = storedToken;
+            }
+            if (currentUser && currentToken) {
+              await saveSession(currentToken, currentUser.id);
+            }
+            stopSession();
+            router.replace('/session/start');
+          } catch (error) {
+            Alert.alert('Erreur', 'Impossible de sauvegarder la session');
+          }
+        },
+      },
+    ]);
+  };
+
+  const handleMicPress = () => {
+    console.log('Mic button pressed');
+  };
+
+  // Déterminer quel mode d'affichage utiliser
+  const shouldShowFullMap = showMap && !session.isPaused;
+  const shouldShowPauseMap = session.isPaused;
+
+  // Gestion des erreurs
+  if (locationError) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>{locationError}</Text>
+      </View>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      {/* Header avec titre et barre de progression conditionnelle */}
+      <View style={styles.header}>
+        <Text style={styles.title}>{getSessionTitle()}</Text>
+
+        {/* Barre de progression - seulement si ce n'est pas une course libre */}
+        {!isFreeRun && (
+          <View style={styles.progressContainer}>
+            <View style={styles.progressBar}>
+              <View style={[styles.progressFill, { width: `${getProgressPercentage()}%` }]} />
+            </View>
+            <Text style={styles.progressText}>
+              {session.type === 'time' ? formattedMetrics.time : formattedMetrics.distance} /{' '}
+              {formatObjective()}
+            </Text>
+          </View>
+        )}
+      </View>
+
+      {/* Mode carte pur - UNE SEULE INSTANCE */}
+      {shouldShowFullMap ? (
+        <FreeMap
+          locations={session.locations}
+          mapRegion={mapRegion}
+          style={styles.mapContainerFull}
+          isVisible={true}
+        />
+      ) : (
+        /* Mode normal avec métriques et carte optionnelle en pause */
+        <>
+          {/* Carte qui descend du haut en mode pause - CONDITIONNELLE */}
+          {shouldShowPauseMap && (
+            <Animated.View
+              style={[
+                styles.pauseMapContainer,
+                {
+                  opacity: mapOpacity,
+                  flex: metricsHeight.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [1, 0],
+                  }),
+                },
+              ]}>
+              <FreeMap
+                locations={session.locations}
+                mapRegion={mapRegion}
+                style={styles.pauseMapContent}
+                isVisible={true}
+              />
+            </Animated.View>
+          )}
+
+          {/* Zone métriques qui se transforme */}
+          <Animated.View
+            style={[
+              styles.metricsContainer,
+              {
+                flex: shouldShowPauseMap ? metricsHeight : 1,
                 borderTopLeftRadius: session.isPaused ? 20 : 0,
                 borderTopRightRadius: session.isPaused ? 20 : 0,
                 paddingBottom: session.isPaused ? 24 : 0,
@@ -408,7 +761,7 @@ const styles = StyleSheet.create({
   metricLabel: {
     fontSize: FontSize.lg,
     fontWeight: '600',
-    color: Colors.gray["500"],
+    color: Colors.gray['500'],
     marginBottom: Spacing.md,
     letterSpacing: 1,
   },
@@ -421,20 +774,11 @@ const styles = StyleSheet.create({
   pauseMapContainer: {
     backgroundColor: Colors.background,
   },
+  pauseMapContent: {
+    flex: 1,
+  },
   mapContainerFull: {
     flex: 1,
-    backgroundColor: Colors.background,
-  },
-  mapPlaceholder: {
-    flex: 1,
-    backgroundColor: '#E5E7EB',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  mapText: {
-    color: '#6B7280',
-    fontSize: 16,
-    fontWeight: '500',
   },
   drawerHandle: {
     alignSelf: 'center',
@@ -464,7 +808,7 @@ const styles = StyleSheet.create({
   },
   pauseMetricLabel: {
     fontSize: FontSize.sm,
-    color: Colors.gray["500"],
+    color: Colors.gray['500'],
     fontWeight: '600',
   },
   pauseControlsContainer: {
@@ -484,7 +828,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: Spacing.lg,
     paddingVertical: 20,
-    paddingBottom: Spacing.lg
+    paddingBottom: Spacing.lg,
   },
   controlButton: {
     width: 62,
@@ -500,7 +844,7 @@ const styles = StyleSheet.create({
     borderRadius: Radius.full,
   },
   secondaryButton: {
-    backgroundColor: Colors.gray["600"],
+    backgroundColor: Colors.gray['600'],
   },
   primaryLocationButton: {
     backgroundColor: Colors.primary,
