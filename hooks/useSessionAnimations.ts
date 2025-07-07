@@ -11,7 +11,7 @@ export const useSessionAnimations = () => {
     Animated.parallel([
       // Réduction de la zone métrique
       Animated.timing(metricsHeight, {
-        toValue: 0,
+        toValue: 0.7,
         duration: 400,
         useNativeDriver: false,
       }),
