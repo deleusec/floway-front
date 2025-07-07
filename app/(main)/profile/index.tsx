@@ -16,7 +16,7 @@ import { API_URL } from '@/constants/env';
 
 export default function ProfileScreen() {
   const logout = useAuth(state => state.logout);
-  const { user } = useAuth();
+  const { user, token } = useAuth();
 
   const [imageError, setImageError] = useState(false);
 
@@ -43,7 +43,7 @@ export default function ProfileScreen() {
     );
   };
 
-  const profilePictureUrl = `${API_URL}/api/user/picture/${user?.id}`;
+  const profilePictureUrl = `${API_URL}/api/user/picture/${user?.id}?bearer=${token}`;
 
   return (
     <SafeAreaView style={styles.container}>

@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: Spacing.lg,
   },
   requestItem: {
     flexDirection: 'row',
