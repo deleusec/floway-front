@@ -79,26 +79,28 @@ export default function MainScreen() {
         )}
 
         {/* Sessions List */}
-        {!isLoadingSessions && !error && sessions.length > 0 && (
-          <>
-            {sessions.map((session, index) => {
-              return (
-                <CardMap
-                  key={session._id}
-                  image={require('@/assets/images/map.png')}
-                  runData={{
-                    title: session.title,
-                    date: formatDate(session.reference_day),
-                    duration: formatTime(session.time),
-                    distance: `${session.distance} km`,
-                    speed: formatSpeed(session.allure),
-                  }}
-                  participants={[]}
-                />
-              );
-            })}
-          </>
-        )}
+        <View style={styles.sessionsList}>
+          {!isLoadingSessions && !error && sessions.length > 0 && (
+            <>
+              {sessions.map((session, index) => {
+                return (
+                  <CardMap
+                    key={session._id}
+                    image={require('@/assets/images/map.png')}
+                    runData={{
+                      title: session.title,
+                      date: formatDate(session.reference_day),
+                      duration: formatTime(session.time),
+                      distance: `${session.distance} km`,
+                      speed: formatSpeed(session.allure),
+                    }}
+                    participants={[]}
+                  />
+                );
+              })}
+            </>
+          )}
+        </View>
       </View>
     </ScrollView>
   );
@@ -152,5 +154,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
+  },
+  sessionsList: {
+    gap: Spacing.md,
   },
 });

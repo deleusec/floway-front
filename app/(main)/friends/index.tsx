@@ -55,25 +55,29 @@ export default function FriendsScreen() {
     blockedNotifications,
     toggleNotificationBlock,
     fetchNotificationSettings,
+    startPolling,
+    stopPolling,
   } = useFriendsStore();
 
   const router = useRouter();
 
-  // Charger les données au montage du composant
   useEffect(() => {
     if (isAuthenticated) {
       fetchFriends();
       fetchRequests();
+      startPolling();
     }
-  }, [isAuthenticated]);
 
-  // Charger les paramètres de notification au montage
+    return () => {
+      stopPolling();
+    };
+  }, [isAuthenticated, fetchFriends, fetchRequests, startPolling, stopPolling]);
+
   useEffect(() => {
     fetchNotificationSettings();
     console.log('fetchNotificationSettings');
   }, []);
 
-  // Gérer les erreurs
   useEffect(() => {
     if (error) {
       Alert.alert('Erreur', error, [{ text: 'OK', onPress: clearError }]);
@@ -85,7 +89,7 @@ export default function FriendsScreen() {
       await acceptFriendRequest(requestId);
       Alert.alert('Succès', "Demande d'ami acceptée !");
     } catch (error) {
-      // L'erreur est déjà gérée dans le store
+      console.log(error);
     }
   };
 
@@ -94,7 +98,7 @@ export default function FriendsScreen() {
       await declineFriendRequest(requestId);
       Alert.alert('Succès', "Demande d'ami refusée");
     } catch (error) {
-      // L'erreur est déjà gérée dans le store
+      console.log(error);
     }
   };
 
@@ -109,7 +113,7 @@ export default function FriendsScreen() {
             await removeFriend(friendId);
             Alert.alert('Succès', 'Ami supprimé');
           } catch (error) {
-            // L'erreur est déjà gérée dans le store
+            console.log(error);
           }
         },
       },
@@ -121,14 +125,13 @@ export default function FriendsScreen() {
       await sendFriendRequest(userId);
       Alert.alert('Succès', "Demande d'ami envoyée !");
     } catch (error) {
-      // L'erreur est déjà gérée dans le store
+      console.log(error);
     }
   };
 
   const filteredFriends = fuzzySearch(friends, search, 'first_name', 0.3);
   const filteredRequests = fuzzySearch(requests, search, 'first_name', 0.3);
 
-  // Debounce la recherche d'amis dans le Drawer
   useEffect(() => {
     const handler = setTimeout(() => {
       if (addFriendModalVisible && searchAddFriend.trim()) {
