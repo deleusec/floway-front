@@ -1,16 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, Image, StyleSheet, View } from 'react-native';
 import { Colors, Radius } from '@/constants/theme';
 import SvgRunningShoeIcon from '@/components/icons/RunningShoeIcon';
 
 type Props = {
-  image: string;
+  image: string; // URL vers l’image backend
   isRunning?: boolean;
   onPress?: () => void;
-  name?: string;
+  name?: string; // utilisé pour générer le fallback
 };
 
-export default function FriendStatusAvatar({ image, isRunning = false, onPress }: Props) {
+export default function FriendStatusAvatar({ image, isRunning = false, onPress, name }: Props) {
+  const [error, setError] = useState(false);
+
+  const fallbackImage = name
+    ? `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}`
+    : undefined;
+
   return (
     <Pressable onPress={onPress}>
       <View style={styles.wrapper}>
@@ -21,7 +27,11 @@ export default function FriendStatusAvatar({ image, isRunning = false, onPress }
               borderColor: isRunning ? Colors.primary : Colors.borderHigh,
             },
           ]}>
-          <Image source={{ uri: image }} style={styles.avatar} />
+          <Image
+            source={{ uri: error && fallbackImage ? fallbackImage : image }}
+            style={styles.avatar}
+            onError={() => setError(true)}
+          />
         </View>
 
         {isRunning && (

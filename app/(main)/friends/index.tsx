@@ -29,6 +29,7 @@ import { useAuth } from '@/stores/auth';
 import { fuzzySearch } from '@/utils/calculations';
 import { useRouter } from 'expo-router';
 import type { Friend } from '@/stores/friends';
+import {API_URL} from "@/constants/env";
 
 export default function FriendsScreen() {
   const [search, setSearch] = useState('');
@@ -198,10 +199,8 @@ export default function FriendsScreen() {
               filteredFriends.map((friend, index) => (
                 <View key={`friend-${friend.id}-${index}`} style={styles.friendItem}>
                   <FriendStatusAvatar
-                    image={
-                      friend.avatar ||
-                      `https://ui-avatars.com/api/?name=${encodeURIComponent(friend.first_name + ' ' + friend.last_name)}`
-                    }
+                    image={`${API_URL}/api/user/picture/${friend.id}?bearer=${useAuth.getState().token}`}
+                    name={`${friend.first_name} ${friend.last_name}`}
                     isRunning={friend.isRunning}
                   />
                   <View style={styles.friendInfo}>

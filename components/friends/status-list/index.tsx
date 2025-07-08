@@ -4,9 +4,12 @@ import { Spacing, Colors, FontSize, FontFamily } from '@/constants/theme';
 import FriendStatusAvatar from '../status-avatar';
 import { useFriendsStore } from '@/stores/friends';
 import { router } from 'expo-router';
+import { useAuth } from '@/stores/auth';
+import { API_URL } from '@/constants/env';
 
 export default function FriendsStatusList() {
   const { friends, startPolling, stopPolling } = useFriendsStore();
+  const { token } = useAuth();
 
   useEffect(() => {
     startPolling();
@@ -28,10 +31,8 @@ export default function FriendsStatusList() {
       renderItem={({ item, index }) => (
         <View style={[styles.itemWrapper, index === 0 && { marginLeft: 0 }]}>
           <FriendStatusAvatar
-            image={
-              item.avatar ||
-              `https://ui-avatars.com/api/?name=${encodeURIComponent(item.first_name || 'Ami')}`
-            }
+            image={`${API_URL}/api/user/picture/${item.id}?bearer=${token}`}
+            name={`${item.first_name} ${item.last_name}`}
             isRunning={item.isRunning}
             onPress={() => {
               if (item.isRunning) {
