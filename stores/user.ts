@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { API_URL, NODE_URL } from '@/constants/env';
+import { useAuth } from "@/stores/auth";
 
 interface Session {
   _id: string;
@@ -108,6 +109,11 @@ export const useUserStore = create<UserStore>((set, get) => ({
         console.log('❌ Update profile failed, error text:', errorText);
         throw new Error(`Failed to update profile: ${response.status} - ${errorText}`);
       }
+
+      const updatedUser = await response.json();
+
+      const setAuthUser = useAuth.getState().setUser;
+      setAuthUser(updatedUser);
 
       set({ isUpdatingProfile: false });
       return true;

@@ -26,6 +26,7 @@ type AuthState = {
   logout: () => void;
   restoreSession: () => Promise<void>;
   getUserAndTokenFromStorage: () => Promise<{ user: User | null; token: string | null }>;
+  setUser: (user: User) => void;
 };
 
 export const useAuth = create<AuthState>(set => ({
@@ -135,5 +136,10 @@ export const useAuth = create<AuthState>(set => ({
     } finally {
       set({ isLoading: false });
     }
+  },
+
+  setUser: (user) => {
+    set({ user });
+    SecureStore.setItemAsync('user', JSON.stringify(user));
   },
 }));
