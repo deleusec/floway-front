@@ -32,7 +32,9 @@ interface SessionStore {
   session: RunningSession;
   userSessions: RunningSession[];
   isLoading: boolean;
-
+  pendingLocations: LocationPoint[];
+  intervalId: NodeJS.Timeout | null;
+  isAutoSaving: boolean;
   // Actions simples
   startSession: (type: 'time' | 'distance' | 'free', objective: number) => void;
   stopSession: () => void;
@@ -44,6 +46,9 @@ interface SessionStore {
   fetchUserSessions: (authToken: string, userId: number) => Promise<void>;
   updateSessionTitle: (newTitle: string, authToken: string) => Promise<void>;
   resetSession: () => void;
+  startAutoSaveSession: (authToken: string, userId: number) => void;
+  stopAutoSaveSession: () => void;
+  _makeSessionPayload: (session: RunningSession, userId: number, tps: LocationPoint[]) => any;
 }
 
 const initialMetrics: RunningMetrics = {
@@ -69,6 +74,9 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
   session: initialSession,
   userSessions: [],
   isLoading: false,
+  pendingLocations: [],
+  intervalId: null,
+  isAutoSaving: false,
 
   startSession: (type, objective) => {
     const date = new Date();
@@ -127,28 +135,36 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
   },
 
   updateLocation: location => {
-    set(state => ({
-      session: {
-        ...state.session,
-        locations: [...state.session.locations, location],
-      },
-    }));
+    console.log('🚨 [APPEL] updateLocation appelé avec:', location.timestamp);
+    console.log('🗺️ [Store Session] Point ajouté à pendingLocations:', {
+      latitude: location.latitude,
+      longitude: location.longitude,
+      timestamp: location.timestamp,
+      timestampEnSecondes: Math.floor(location.timestamp / 1000),
+    });
+
+    set(state => {
+      // Protection contre les doublons - vérifier si le même timestamp existe déjà
+      const lastLocation = state.pendingLocations[state.pendingLocations.length - 1];
+      if (lastLocation && Math.abs(lastLocation.timestamp - location.timestamp) < 100) {
+        console.log('⚠️ [Protection] Point ignoré - trop proche du précédent');
+        return state; // Ne rien changer si le point est trop proche temporellement
+      }
+
+      return {
+        session: {
+          ...state.session,
+          locations: [...state.session.locations, location],
+        },
+        pendingLocations: [...state.pendingLocations, location],
+      };
+    });
   },
 
-  resetSession: () => {
-    set({ session: initialSession });
-  },
-
-  saveSession: async (authToken: string, userId: number) => {
-    const { session } = get();
-    if (!session) {
-      return;
-    }
-
-    // Pour les courses libres, on sauvegarde comme 'time' avec objectif 0
+  // Factorisation de la création du payload pour éviter la duplication
+  _makeSessionPayload: (session: RunningSession, userId: number, tps: LocationPoint[]) => {
     const sessionTypeForAPI = session.type === 'free' ? 'time' : session.type;
     const objectiveForAPI = session.type === 'free' ? 0 : session.objective;
-
     const payload = {
       session_type: sessionTypeForAPI,
       user_id: userId,
@@ -157,12 +173,31 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
       calories: session.metrics.calories,
       allure: session.metrics.pace,
       time: session.metrics.time,
-      tps: session.locations,
+      tps: tps.map(point => [point.latitude, point.longitude, Math.floor(point.timestamp / 1000)]),
       time_objective: sessionTypeForAPI === 'time' ? objectiveForAPI : 0,
       distance_objective: sessionTypeForAPI === 'distance' ? objectiveForAPI : 0,
       run_id: 1,
     };
 
+    console.log('📦 [Payload] Données envoyées au backend:', {
+      ...payload,
+      tps: payload.tps.slice(0, 3), // Affiche seulement les 3 premiers points pour éviter trop de logs
+      totalPoints: payload.tps.length,
+    });
+
+    return payload;
+  },
+
+  resetSession: () => {
+    set({ session: initialSession });
+  },
+
+  saveSession: async (authToken: string, userId: number) => {
+    const { session, _makeSessionPayload } = get();
+    if (!session) {
+      return;
+    }
+    const payload = _makeSessionPayload(session, userId, session.locations);
     try {
       const response = await fetch('https://node.floway.edgar-lecomte.fr/session', {
         method: 'POST',
@@ -172,17 +207,13 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
         },
         body: JSON.stringify(payload),
       });
-
       const responseData = await response.json();
-
       if (!response.ok) {
         throw new Error(`Failed to save session: ${responseData?.message || 'Unknown error'}`);
       }
-
       if (!responseData.data?.insertedId) {
         throw new Error('No session ID received from server');
       }
-
       set(state => ({
         session: {
           ...state.session,
@@ -252,5 +283,50 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
     } catch (error) {
       throw error;
     }
+  },
+
+  startAutoSaveSession: (authToken: string, userId: number) => {
+    if (get().intervalId || get().isAutoSaving) return;
+    set({ isAutoSaving: true });
+    const interval = setInterval(async () => {
+      const { pendingLocations, session, _makeSessionPayload } = get();
+      if (pendingLocations.length === 0) return;
+
+      console.log('⏰ [AutoSave] Envoi automatique toutes les 15s:', {
+        nombreDePoints: pendingLocations.length,
+        premiereTimestamp: pendingLocations[0]?.timestamp,
+        derniereTimestamp: pendingLocations[pendingLocations.length - 1]?.timestamp,
+        pointsTransformes: pendingLocations.map(p => [
+          p.latitude,
+          p.longitude,
+          Math.floor(p.timestamp / 1000),
+        ]),
+      });
+
+      const payload = _makeSessionPayload(session, userId, pendingLocations);
+      try {
+        const response = await fetch('https://node.floway.edgar-lecomte.fr/session', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${authToken}`,
+          },
+          body: JSON.stringify(payload),
+        });
+        await response.json();
+        set({ pendingLocations: [] });
+      } catch (error) {
+        // Optionnel : gestion d'erreur
+      }
+    }, 15000);
+    set({ intervalId: interval });
+  },
+  stopAutoSaveSession: () => {
+    const { intervalId } = get();
+    if (intervalId) {
+      clearInterval(intervalId);
+      set({ intervalId: null, isAutoSaving: false });
+    }
+    set({ pendingLocations: [] });
   },
 }));

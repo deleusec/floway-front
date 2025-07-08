@@ -27,8 +27,15 @@ import { Colors, FontSize, Radius, Spacing } from '@/theme';
 
 export default function SessionScreen() {
   const router = useRouter();
-  const { session, stopSession, saveSession, pauseSession, resumeSession } =
-    useRunningSessionStore();
+  const {
+    session,
+    stopSession,
+    saveSession,
+    pauseSession,
+    resumeSession,
+    startAutoSaveSession,
+    stopAutoSaveSession,
+  } = useRunningSessionStore();
   const { user, token, getUserAndTokenFromStorage } = useAuth();
   const { speak } = useSpeechManager();
   const lastAnnouncedKm = useRef(0);
@@ -61,6 +68,17 @@ export default function SessionScreen() {
       });
     }
   }, [session.isActive]);
+
+  useEffect(() => {
+    if (session.isActive && user && token) {
+      startAutoSaveSession(token, user.id);
+    } else {
+      stopAutoSaveSession();
+    }
+    return () => {
+      stopAutoSaveSession();
+    };
+  }, [session.isActive, user, token]);
 
   // Annonces vocales des kilomètres
   useEffect(() => {
@@ -149,6 +167,7 @@ export default function SessionScreen() {
         style: 'destructive',
         onPress: async () => {
           try {
+            stopAutoSaveSession(); // Ajouté ici
             let currentUser = user;
             let currentToken = token;
             if (!currentUser || !currentToken) {

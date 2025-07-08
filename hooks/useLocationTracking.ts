@@ -30,7 +30,7 @@ export const useLocationTracking = ({
 }: UseLocationTrackingProps) => {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [mapRegion, setMapRegion] = useState(null);
+  const [mapRegion, setMapRegion] = useState<any>(null);
 
   const locationSubscription = useRef<Location.LocationSubscription | null>(null);
   const metricsInterval = useRef<NodeJS.Timeout | null>(null);
@@ -76,11 +76,21 @@ export const useLocationTracking = ({
           distanceInterval: 5,
         },
         location => {
+          const currentTime = Date.now();
           const newLocation: LocationPoint = {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
-            timestamp: Date.now(),
+            timestamp: startTime ? currentTime - startTime : currentTime,
           };
+
+          console.log('📍 [useLocationTracking] Nouveau point GPS:', {
+            latitude: newLocation.latitude,
+            longitude: newLocation.longitude,
+            timestampAbsolu: currentTime,
+            timestampRelatif: newLocation.timestamp,
+            startTime: startTime,
+            tempsEcoule: startTime ? `${Math.floor(newLocation.timestamp / 1000)}s` : 'N/A',
+          });
 
           // Calculer la distance depuis le dernier point
           let distanceIncrement = 0;
@@ -106,14 +116,14 @@ export const useLocationTracking = ({
           };
           setMapRegion(newRegion);
 
-          // Notifier le store
+          // Notifier le store (sans setLocations)
           updateLocation(newLocation);
         }
       );
     } catch (err) {
       setError('Erreur lors du démarrage du tracking');
     }
-  }, [hasPermission, requestPermissions, updateLocation]);
+  }, [hasPermission, requestPermissions, updateLocation, startTime]);
 
   // Démarrer la mise à jour des métriques
   const startMetricsUpdate = useCallback(() => {
@@ -174,7 +184,7 @@ export const useLocationTracking = ({
     return () => {
       stopTracking();
     };
-  }, [isActive, isPaused, hasPermission, startLocationTracking, startMetricsUpdate, stopTracking]);
+  }, [isActive, isPaused, hasPermission]);
 
   // Demander les permissions au montage
   useEffect(() => {
