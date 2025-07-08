@@ -17,6 +17,7 @@ interface Session {
   time_objective: number | null;
   distance_objective: number | null;
   run_id: number;
+  last_tps_unix: number;
 }
 
 interface UpdateProfileData {

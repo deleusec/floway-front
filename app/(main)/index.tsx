@@ -24,6 +24,18 @@ export default function MainScreen() {
     return getSessionAchievements(sessions);
   }, [sessions]);
 
+    // Sort sessions by actual end time (most recent first for display)
+  const sortedSessions = useMemo(() => {
+    return [...sessions].sort((a, b) => {
+      // Use last_tps_unix for precise timestamp sorting
+      const timestampA = a.last_tps_unix || 0;
+      const timestampB = b.last_tps_unix || 0;
+
+      // Most recent sessions first (higher timestamp = more recent)
+      return timestampB - timestampA;
+    });
+  }, [sessions]);
+
   // Calculate weekly statistics
   const weeklyStats = useMemo(() => {
     const now = new Date();
@@ -31,7 +43,7 @@ export default function MainScreen() {
     startOfWeek.setDate(now.getDate() - now.getDay()); // Start of current week (Sunday)
     startOfWeek.setHours(0, 0, 0, 0);
 
-    const weekSessions = sessions.filter(session => {
+    const weekSessions = sortedSessions.filter(session => {
       const sessionDate = new Date(session.reference_day);
       return sessionDate >= startOfWeek;
     });
@@ -49,7 +61,7 @@ export default function MainScreen() {
       sessionCount,
       avgSpeed
     };
-  }, [sessions]);
+  }, [sortedSessions]);
 
   const formatTime = (timeInSeconds: number) => {
     const hours = Math.floor(timeInSeconds / 3600);
@@ -93,7 +105,7 @@ export default function MainScreen() {
       <View style={styles.contentSection}>
         <Title style={styles.runsTitle} level={2}>Mes courses</Title>
         {/* Weekly Summary Section */}
-        {!isLoadingSessions && sessions.length > 0 && (
+        {!isLoadingSessions && sortedSessions.length > 0 && (
           <View style={styles.weeklySummarySection}>
             <Card style={styles.weeklyCard}>
               <View style={styles.weeklyContent}>
@@ -142,7 +154,7 @@ export default function MainScreen() {
         )}
 
         {/* Empty State */}
-        {!isLoadingSessions && !error && sessions.length === 0 && (
+        {!isLoadingSessions && !error && sortedSessions.length === 0 && (
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>Aucune session trouvée</Text>
           </View>
@@ -150,9 +162,9 @@ export default function MainScreen() {
 
         {/* Sessions List */}
         <View style={styles.sessionsList}>
-          {!isLoadingSessions && !error && sessions.length > 0 && (
+          {!isLoadingSessions && !error && sortedSessions.length > 0 && (
             <>
-              {sessions.map((session, index) => {
+              {sortedSessions.map((session, index) => {
                 const achievement = getSessionAchievement(session, sessionAchievements) || undefined;
 
                 return (

@@ -55,20 +55,57 @@ export const getSessionAchievements = (sessions: any[]): Map<string, Achievement
   const availableTypes: AchievementType[] = ['speed_record', 'distance_record', 'time_record', 'first_run', 'streak', 'personal_best'];
   const usedTypes = new Set<AchievementType>();
 
-  const sortedSessions = [...sessions].sort((a, b) => new Date(a.reference_day).getTime() - new Date(b.reference_day).getTime());
+    // Sort sessions by actual end time (most recent first) to match display order
+  const sortedSessions = [...sessions].sort((a, b) => {
+    // Use last_tps_unix for precise timestamp sorting
+    const timestampA = a.last_tps_unix || 0;
+    const timestampB = b.last_tps_unix || 0;
 
+    // Most recent sessions first (higher timestamp = more recent)
+    return timestampB - timestampA;
+  });
+
+  // Assign achievements to sessions based on their characteristics
   sortedSessions.forEach((session, index) => {
-    const sessionHash = session._id ? session._id.slice(-1) : index.toString();
-    const hashNumber = parseInt(sessionHash, 16) || index;
+    // Calculate if this session deserves an achievement
+    let achievementType: AchievementType | null = null;
 
-    if (hashNumber % 3 === 0 && usedTypes.size < availableTypes.length) {
-      const availableAchievements = availableTypes.filter(type => !usedTypes.has(type));
+    // First session ever
+    if (index === sortedSessions.length - 1) {
+      achievementType = 'first_run';
+    }
+    // Check for records compared to previous sessions (going backwards in time)
+    else {
+      const laterSessions = sortedSessions.slice(0, index); // Sessions that happened after this one
 
-      if (availableAchievements.length > 0) {
-        const selectedType = availableAchievements[hashNumber % availableAchievements.length];
-        usedTypes.add(selectedType);
-        sessionAchievements.set(session._id, createAchievement(selectedType));
+      // Speed record
+      if (laterSessions.every(s => session.allure > s.allure) && !usedTypes.has('speed_record')) {
+        achievementType = 'speed_record';
       }
+      // Distance record
+      else if (laterSessions.every(s => session.distance > s.distance) && !usedTypes.has('distance_record')) {
+        achievementType = 'distance_record';
+      }
+      // Time record
+      else if (laterSessions.every(s => session.time > s.time) && !usedTypes.has('time_record')) {
+        achievementType = 'time_record';
+      }
+      // Personal best (combination of good metrics)
+      else if (!usedTypes.has('personal_best') &&
+               laterSessions.length > 2 &&
+               laterSessions.filter(s => session.allure >= s.allure).length >= laterSessions.length * 0.8) {
+        achievementType = 'personal_best';
+      }
+      // Streak (every 5th session)
+      else if (!usedTypes.has('streak') && (sortedSessions.length - index) % 5 === 0 && index < sortedSessions.length - 1) {
+        achievementType = 'streak';
+      }
+    }
+
+    // Assign achievement if one was determined
+    if (achievementType && !usedTypes.has(achievementType)) {
+      usedTypes.add(achievementType);
+      sessionAchievements.set(session._id, createAchievement(achievementType));
     }
   });
 
