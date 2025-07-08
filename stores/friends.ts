@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { API_URL } from '@/constants/env';
+import { API_URL, NODE_URL } from '@/constants/env';
 import { useAuth } from './auth';
 
 export type Friend = {
@@ -71,9 +71,7 @@ let pollingInterval: NodeJS.Timeout | null = null;
 
 const getAuthToken = () => {
   const token = useAuth.getState().token;
-  if (!token) {
-    throw new Error('Pas de token d\'authentification');
-  }
+  if (!token) throw new Error('Pas de token d\'authentification');
   return token;
 };
 
@@ -99,9 +97,8 @@ const transformRequestData = (requestData: any): FriendRequest => ({
   avatar: createDefaultAvatar(requestData.first_name, requestData.last_name),
 });
 
-const apiFetchFriends = async (showLoading = true): Promise<Friend[]> => {
+const apiFetchFriends = async (): Promise<Friend[]> => {
   const token = getAuthToken();
-
   const response = await fetch(`${API_URL}/api/friend/list`, {
     method: 'GET',
     headers: {
@@ -117,6 +114,36 @@ const apiFetchFriends = async (showLoading = true): Promise<Friend[]> => {
 
   const data = await response.json();
   return data.map(transformFriendData);
+};
+
+const apiFetchRunningSessions = async (): Promise<number[]> => {
+  const token = getAuthToken();
+  const response = await fetch(`${NODE_URL}/auth/friend/session`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Erreur ${response.status}: ${errorText}`);
+  }
+
+  const data = await response.json();
+
+  if (Array.isArray(data)) {
+    const runningUserIds = data
+      .filter(item => item.user_id)
+      .map(item => item.user_id);
+
+    console.log('📊 Sessions actives trouvées:', runningUserIds);
+    return runningUserIds;
+  }
+
+  console.log('⚠️ Format de données inattendu pour les sessions:', data);
+  return [];
 };
 
 export const useFriendsStore = create<FriendsState>((set, get) => ({
@@ -136,6 +163,21 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       set({ isLoading: true, error: null });
       const friends = await apiFetchFriends();
       set({ friends, isLoading: false });
+
+      try {
+        console.log('🔄 Mise à jour immédiate des statuts de course...');
+        const runningUserIds = await apiFetchRunningSessions();
+
+        const updatedFriends = friends.map(friend => ({
+          ...friend,
+          isRunning: runningUserIds.includes(friend.id)
+        }));
+
+        set({ friends: updatedFriends });
+        console.log('✅ Statuts de course initialisés:', runningUserIds.length, 'amis en course');
+      } catch (sessionError) {
+        console.warn('⚠️ Erreur lors de la mise à jour des statuts de course:', sessionError);
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
       set({ error: errorMessage, isLoading: false });
@@ -162,7 +204,6 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
 
       const data = await response.json();
       const requests = data.map(transformRequestData);
-
       set({ requests, isLoading: false });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
@@ -378,12 +419,9 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
   startPolling: () => {
     const state = get();
 
-    if (state.isPolling || pollingInterval) {
-      return;
-    }
+    if (state.isPolling || pollingInterval) return;
 
     set({ isPolling: true });
-
     state.fetchFriends();
 
     pollingInterval = setInterval(async () => {
@@ -391,19 +429,36 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       if (!currentState.isPolling) return;
 
       try {
-        console.log('🔄 Polling - Refetch des amis...', new Date().toLocaleTimeString());
-        const friends = await apiFetchFriends(false);
-        set({ friends });
-        console.log('✅ Polling - Amis mis à jour:', friends.length, 'amis récupérés');
+        console.log('🔄 Polling - Vérification des sessions actives...', new Date().toLocaleTimeString());
+
+        const runningUserIds = await apiFetchRunningSessions();
+
+        const currentlyRunning = currentState.friends.filter(friend => friend.isRunning).map(friend => friend.id);
+        const newlyRunning = runningUserIds.filter(id => !currentlyRunning.includes(id));
+        const stoppedRunning = currentlyRunning.filter(id => !runningUserIds.includes(id));
+
+        if (newlyRunning.length > 0) {
+          console.log('🏃‍♀️ Nouveaux coureurs:', newlyRunning);
+        }
+        if (stoppedRunning.length > 0) {
+          console.log('🛑 Arrêt de course:', stoppedRunning);
+        }
+
+        const updatedFriends = currentState.friends.map(friend => ({
+          ...friend,
+          isRunning: runningUserIds.includes(friend.id)
+        }));
+
+        set({ friends: updatedFriends });
+        console.log('✅ Polling - Statuts mis à jour:', runningUserIds.length, 'amis en course sur', currentState.friends.length, 'amis total');
       } catch (error) {
-        console.warn('❌ Erreur lors du polling des amis:', error);
+        console.warn('❌ Erreur lors du polling des sessions:', error);
       }
     }, 15000);
   },
 
   stopPolling: () => {
     set({ isPolling: false });
-
     if (pollingInterval) {
       clearInterval(pollingInterval);
       pollingInterval = null;

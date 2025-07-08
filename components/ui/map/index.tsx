@@ -6,6 +6,7 @@ import SvgSpeedIcon from '@/components/icons/SpeedIcon';
 import {Colors, FontSize, Radius, Spacing} from '@/constants/theme';
 import Card from '../card';
 import { useFriendsStore } from '@/stores/friends';
+import { Achievement } from '@/utils/achievements';
 
 type BorderRadiusSize = 'sm' | 'md' | 'lg';
 
@@ -25,6 +26,7 @@ interface CardMapProps extends ViewProps {
     avatar: string;
     firstName: string;
   }>;
+  achievement?: Achievement;
 }
 
 const radiusMap = {
@@ -39,9 +41,11 @@ const CardMap: React.FC<CardMapProps> = ({
   image,
   runData,
   participants,
+  achievement,
   ...rest
 }) => {
   const friends = useFriendsStore(state => state.friends);
+
   return (
     <View style={[styles.base, { borderRadius: radiusMap[radius] }, style]} {...rest}>
       <Card>
@@ -93,14 +97,17 @@ const CardMap: React.FC<CardMapProps> = ({
             </View>
           </View>
         </View>
-        <View style={styles.trophyContent}>
-          <Text style={styles.trophyImg}>🏆</Text>
-          <View style={styles.trophyText}>
-            <Text style={styles.trophyTitle}>Record battu !</Text>
-            <Text style={styles.trophySubtitle}>Nouvelle meilleure vitesse atteinte !
-              Garde ce rythme et t’es inarrêtable.</Text>
+
+        {/* Section d'accomplissement conditionnelle */}
+        {achievement && (
+          <View style={styles.achievementContent}>
+            <Text style={styles.achievementEmoji}>{achievement.emoji}</Text>
+            <View style={styles.achievementText}>
+              <Text style={styles.achievementTitle}>{achievement.title}</Text>
+              <Text style={styles.achievementSubtitle}>{achievement.subtitle}</Text>
+            </View>
           </View>
-        </View>
+        )}
       </Card>
     </View>
   );
@@ -165,7 +172,7 @@ const styles = StyleSheet.create({
     fontSize: FontSize.xs,
     fontWeight: '600'
   },
-  trophyContent: {
+  achievementContent: {
     borderWidth: 1,
     borderColor: Colors.yellow,
     borderRadius: Radius.md,
@@ -178,20 +185,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.sm
   },
-  trophyImg: {
+  achievementEmoji: {
     fontSize: 32,
   },
-  trophyText: {
+  achievementText: {
     flex: 1,
     marginLeft: Spacing.sm,
     justifyContent: 'center',
     gap: Spacing.xs,
   },
-  trophyTitle: {
+  achievementTitle: {
     fontSize: FontSize.sm,
     fontWeight: '600',
   },
-  trophySubtitle: {
+  achievementSubtitle: {
     fontSize: FontSize.xs,
   },
 });

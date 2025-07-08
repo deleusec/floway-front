@@ -4,8 +4,9 @@ import Title from '@/components/ui/title';
 import { Spacing } from '@/constants/theme';
 import { useAuth } from '@/stores/auth';
 import { useUserStore } from '@/stores/user';
+import { getSessionAchievements, getSessionAchievement } from '@/utils/achievements';
 import { ScrollView, StyleSheet, View, ActivityIndicator, Text } from 'react-native';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 export default function MainScreen() {
   const { user, token } = useAuth();
@@ -16,6 +17,10 @@ export default function MainScreen() {
       fetchUserSessions(user.id, token);
     }
   }, [user?.id, token, fetchUserSessions]);
+
+  const sessionAchievements = useMemo(() => {
+    return getSessionAchievements(sessions);
+  }, [sessions]);
 
   const formatTime = (timeInSeconds: number) => {
     const hours = Math.floor(timeInSeconds / 3600);
@@ -34,6 +39,10 @@ export default function MainScreen() {
       month: '2-digit',
       year: 'numeric'
     });
+  };
+
+  const formatDistance = (distance: number) => {
+    return `${distance.toFixed(1)} km`;
   };
 
   const formatSpeed = (allure: number) => {
@@ -83,6 +92,8 @@ export default function MainScreen() {
           {!isLoadingSessions && !error && sessions.length > 0 && (
             <>
               {sessions.map((session, index) => {
+                const achievement = getSessionAchievement(session, sessionAchievements) || undefined;
+
                 return (
                   <CardMap
                     key={session._id}
@@ -91,10 +102,11 @@ export default function MainScreen() {
                       title: session.title,
                       date: formatDate(session.reference_day),
                       duration: formatTime(session.time),
-                      distance: `${session.distance} km`,
+                      distance: formatDistance(session.distance),
                       speed: formatSpeed(session.allure),
                     }}
                     participants={[]}
+                    achievement={achievement}
                   />
                 );
               })}
