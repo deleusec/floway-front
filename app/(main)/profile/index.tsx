@@ -8,11 +8,12 @@ import {
   SafeAreaView,
   Alert,
 } from 'react-native';
-import { Colors } from "@/theme";
+import {Colors, Radius} from "@/theme";
 import SvgEditIcon from "@/components/icons/EditIcon";
 import SvgLogoutIcon from "@/components/icons/LogoutIcon";
 import { useAuth } from "@/stores/auth";
 import { API_URL } from '@/constants/env';
+import {router} from "expo-router";
 
 export default function ProfileScreen() {
   const logout = useAuth(state => state.logout);
@@ -21,7 +22,7 @@ export default function ProfileScreen() {
   const [imageError, setImageError] = useState(false);
 
   const handleEditProfile = () => {
-    console.log('Modifier le profil');
+    router.push('(main)/profile/edit' as any);
   };
 
   const confirmLogout = () => {
@@ -82,16 +83,14 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
-    paddingTop: 60,
-    paddingHorizontal: 20,
+    backgroundColor: Colors.background
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 29,
     paddingHorizontal: 34,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.white,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
@@ -122,16 +121,16 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     flexDirection: 'row',
-    borderColor: '#EB6564',
+    borderColor: Colors.error,
     borderWidth: 1,
     paddingVertical: 10,
     paddingHorizontal: 39,
-    borderRadius: 99,
+    borderRadius: Radius.full,
     alignItems: 'center',
     gap: 8,
   },
   logoutText: {
-    color: '#EB6564',
+    color: Colors.error,
     fontWeight: '500',
   }
 });

@@ -15,6 +15,9 @@ type ButtonSize = 'small' | 'medium' | 'large';
 type ButtonState = 'default' | 'disabled' | 'loading';
 type ButtonWidth = 'full' | 'fit';
 type ButtonRounded = keyof typeof Radius;
+const disabledBackgroundColor = Colors.border;
+const disabledTextColor = Colors.gray["500"];
+
 
 interface ButtonProps extends TouchableOpacityProps {
   title: string;
@@ -36,18 +39,25 @@ const Button: React.FC<ButtonProps> = ({
   ...rest
 }) => {
   const isLoading = state === 'loading';
-  const isDisabled = state === 'disabled' || isLoading;
+  const isDisabled = state === 'disabled' || isLoading || rest.disabled;
 
   const backgroundColor =
-    variant === 'primary'
-      ? Colors.primary
-      : variant === 'outline'
-        ? Colors.white
-        : variant === 'error'
-          ? Colors.error
-          : 'transparent';
+    isDisabled
+      ? disabledBackgroundColor
+      : variant === 'primary'
+        ? Colors.primary
+        : variant === 'outline'
+          ? Colors.white
+          : variant === 'error'
+            ? Colors.error
+            : 'transparent';
 
-  const textColor = variant === 'primary' ? Colors.white : Colors.textPrimary;
+  const textColor =
+    isDisabled
+      ? disabledTextColor
+      : variant === 'primary'
+        ? Colors.white
+        : Colors.textPrimary;
 
   const borderStyle = variant === 'outline' ? { borderWidth: 1, borderColor: Colors.border } : {};
 
@@ -55,7 +65,6 @@ const Button: React.FC<ButtonProps> = ({
 
   const heightStyle = sizeStyles[size];
   const borderRadius = { borderRadius: Radius[rounded] };
-  const opacityStyle = isDisabled ? { opacity: 0.5 } : {};
 
   const ButtonContent = () => (
     <View style={isLoading ? styles.loadingContainer : undefined}>
@@ -74,7 +83,6 @@ const Button: React.FC<ButtonProps> = ({
         borderRadius,
         { backgroundColor },
         borderStyle,
-        opacityStyle,
         style,
       ]}
       {...rest}>
@@ -90,7 +98,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
   },
   text: {
-    fontSize: FontSize.md,
+    fontSize: FontSize.sm,
     fontFamily: FontFamily.medium,
   },
   loadingContainer: {

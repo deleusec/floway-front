@@ -48,7 +48,10 @@
         "NSLocationWhenInUseUsageDescription": "Floway needs access to location when open to track your running sessions.",
         "NSLocationAlwaysAndWhenInUseUsageDescription": "Floway needs access to location to track your running sessions even when the app is in background.",
         "NSMicrophoneUsageDescription": "Floway needs access to your microphone to record guided run sessions.",
-        "NSLocationAlwaysUsageDescription": "Floway needs access to your location at all times to track your running sessions."
+        "NSLocationAlwaysUsageDescription": "Floway needs access to your location at all times to track your running sessions.",
+        "NSCameraUsageDescription": "Floway needs access to your camera to take a profile picture.",
+        "NSPhotoLibraryUsageDescription": "Floway needs access to your library to choose a profile picture.",
+        "NSPhotoLibraryAddUsageDescription": "Floway needs to save photos to your library."
       }
     },
     "android": {
@@ -63,7 +66,8 @@
         "ACCESS_BACKGROUND_LOCATION",
         "FOREGROUND_SERVICE",
         "RECORD_AUDIO",
-        "WRITE_EXTERNAL_STORAGE"
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_EXTERNAL_STORAGE"
       ]
     },
     "web": {
