@@ -71,3 +71,11 @@ export const formatPace = (paceInSeconds: number): string => {
   const seconds = Math.floor(paceInSeconds % 60);
   return `${minutes}'${seconds.toString().padStart(2, '0')}`;
 };
+
+/**
+ * Formater la vitesse (km/h)
+ */
+export const formatSpeed = (speedInKmh: number): string => {
+  if (speedInKmh === 0) return "0.0";
+  return speedInKmh.toFixed(1);
+};

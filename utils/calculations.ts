@@ -22,15 +22,26 @@ export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2
 }
 
 /**
- * Calcule l'allure en minutes par kilomètre
+ * Calcule l'allure en secondes par kilomètre
  * @param distance Distance en mètres
  * @param time Temps en millisecondes
- * @returns Allure en minutes par kilomètre
+ * @returns Allure en secondes par kilomètre
  */
 export function calculatePace(distance: number, time: number): number {
   if (distance === 0 || time === 0) return 0;
-  // Retourne l'allure en minutes par kilomètre
-  return time / 60000 / (distance / 1000);
+  // Retourne l'allure en secondes par kilomètre
+  return time / 1000 / (distance / 1000);
+}
+
+/**
+ * Convertit l'allure (s/km) en vitesse (km/h)
+ * @param paceInSeconds Allure en secondes par kilomètre
+ * @returns Vitesse en kilomètres par heure
+ */
+export function paceToSpeed(paceInSeconds: number): number {
+  if (paceInSeconds === 0) return 0;
+  // Vitesse = 3600 / allure_en_secondes
+  return 3600 / paceInSeconds;
 }
 
 /**

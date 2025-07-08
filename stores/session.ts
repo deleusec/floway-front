@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { paceToSpeed } from '@/utils/calculations';
 
 interface LocationPoint {
   latitude: number;
@@ -23,7 +24,7 @@ interface RunningSession {
   startTime: number | null;
   locations: LocationPoint[];
   metrics: RunningMetrics;
-  type: 'time' | 'distance' | 'free'; // Ajout du type 'free'
+  type: 'time' | 'distance' | 'free';
   objective: number;
   title: string;
 }
@@ -135,20 +136,10 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
   },
 
   updateLocation: location => {
-    console.log('🚨 [APPEL] updateLocation appelé avec:', location.timestamp);
-    console.log('🗺️ [Store Session] Point ajouté à pendingLocations:', {
-      latitude: location.latitude,
-      longitude: location.longitude,
-      timestamp: location.timestamp,
-      timestampEnSecondes: Math.floor(location.timestamp / 1000),
-    });
-
     set(state => {
-      // Protection contre les doublons - vérifier si le même timestamp existe déjà
       const lastLocation = state.pendingLocations[state.pendingLocations.length - 1];
       if (lastLocation && Math.abs(lastLocation.timestamp - location.timestamp) < 100) {
-        console.log('⚠️ [Protection] Point ignoré - trop proche du précédent');
-        return state; // Ne rien changer si le point est trop proche temporellement
+        return state;
       }
 
       return {
@@ -169,21 +160,15 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
       session_type: sessionTypeForAPI,
       user_id: userId,
       title: session.title,
-      distance: session.metrics.distance,
+      distance: session.metrics.distance / 1000,
       calories: session.metrics.calories,
-      allure: session.metrics.pace,
-      time: session.metrics.time,
+      allure: paceToSpeed(session.metrics.pace),
+      time: Math.floor(session.metrics.time / 1000),
       tps: tps.map(point => [point.latitude, point.longitude, Math.floor(point.timestamp / 1000)]),
       time_objective: sessionTypeForAPI === 'time' ? objectiveForAPI : 0,
       distance_objective: sessionTypeForAPI === 'distance' ? objectiveForAPI : 0,
       run_id: 1,
     };
-
-    console.log('📦 [Payload] Données envoyées au backend:', {
-      ...payload,
-      tps: payload.tps.slice(0, 3), // Affiche seulement les 3 premiers points pour éviter trop de logs
-      totalPoints: payload.tps.length,
-    });
 
     return payload;
   },

@@ -31,7 +31,7 @@ export const RunningMetrics = () => {
 
   const getProgress = () => {
     if (session.type === 'time') {
-      return Math.min((session.metrics.time / (session.objective * 60 * 1000)) * 100, 100);
+      return Math.min((session.metrics.time / (session.objective * 1000)) * 100, 100);
     }
     return Math.min((session.metrics.distance / (session.objective * 1000)) * 100, 100);
   };
@@ -44,7 +44,7 @@ export const RunningMetrics = () => {
         </View>
         <Text style={styles.progressText}>
           {session.type === 'time'
-            ? `${formatTime(session.metrics.time)} / ${formatTime(session.objective * 60 * 1000)}`
+            ? `${formatTime(session.metrics.time)} / ${formatTime(session.objective * 1000)}`
             : `${formatDistance(session.metrics.distance)} / ${session.objective} km`}
         </Text>
       </View>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, ViewProps, ViewStyle, Text, Image } from 'react-native';
+import MapView, { Polyline, Marker } from 'react-native-maps';
 import SvgClockIcon from '@/components/icons/ClockIcon';
 import SvgPinIcon from '@/components/icons/PinIcon';
 import SvgSpeedIcon from '@/components/icons/SpeedIcon';
@@ -13,7 +14,7 @@ type BorderRadiusSize = 'sm' | 'md' | 'lg';
 interface CardMapProps extends ViewProps {
   radius?: BorderRadiusSize;
   style?: ViewStyle | ViewStyle[];
-  image: { uri: string } | number;
+  image?: { uri: string } | number; // Made optional for backward compatibility
   runData?: {
     title: string;
     date: string;
@@ -27,7 +28,121 @@ interface CardMapProps extends ViewProps {
     firstName: string;
   }>;
   achievement?: Achievement;
+  sessionTps?: number[][]; // GPS coordinates from session [latitude, longitude, timestamp]
 }
+
+// Mini map component for displaying GPS tracks in cards
+const MiniMap: React.FC<{
+  sessionTps: number[][],
+  radius: BorderRadiusSize
+}> = ({ sessionTps, radius }) => {
+  // Filter out invalid coordinates and convert to proper format
+  const validCoordinates = sessionTps
+    .filter(point =>
+      Array.isArray(point) &&
+      point.length >= 2 &&
+      typeof point[0] === 'number' &&
+      typeof point[1] === 'number' &&
+      point[0] !== 0 &&
+      point[1] !== 0
+    )
+    .map(point => ({
+      latitude: point[0],
+      longitude: point[1],
+    }));
+
+  if (validCoordinates.length === 0) {
+    return (
+      <View style={[styles.mapContainer, styles.mapPlaceholder]}>
+        <Text style={styles.placeholderText}>📍 Pas de données GPS</Text>
+      </View>
+    );
+  }
+
+  // Calculate region to fit all coordinates
+  const latitudes = validCoordinates.map(coord => coord.latitude);
+  const longitudes = validCoordinates.map(coord => coord.longitude);
+
+  const minLat = Math.min(...latitudes);
+  const maxLat = Math.max(...latitudes);
+  const minLng = Math.min(...longitudes);
+  const maxLng = Math.max(...longitudes);
+
+  const centerLat = (minLat + maxLat) / 2;
+  const centerLng = (minLng + maxLng) / 2;
+  const deltaLat = Math.max(maxLat - minLat, 0.01) * 1.2; // Add 20% padding
+  const deltaLng = Math.max(maxLng - minLng, 0.01) * 1.2;
+
+  const mapRegion = {
+    latitude: centerLat,
+    longitude: centerLng,
+    latitudeDelta: deltaLat,
+    longitudeDelta: deltaLng,
+  };
+
+  const radiusMap = {
+    sm: Radius.sm,
+    md: Radius.md,
+    lg: Radius.lg,
+  };
+
+  return (
+    <MapView
+      style={[
+        styles.mapContainer,
+        {
+          borderTopLeftRadius: radiusMap[radius],
+          borderTopRightRadius: radiusMap[radius],
+        },
+      ]}
+      region={mapRegion}
+      scrollEnabled={false}
+      zoomEnabled={false}
+      rotateEnabled={false}
+      pitchEnabled={false}
+      showsUserLocation={false}
+      showsMyLocationButton={false}
+      showsCompass={false}
+      showsScale={false}
+      mapType='standard'
+    >
+      {/* Route polyline */}
+      {validCoordinates.length > 1 && (
+        <Polyline
+          coordinates={validCoordinates}
+          strokeColor={Colors.primary}
+          strokeWidth={3}
+          lineJoin='round'
+          lineCap='round'
+        />
+      )}
+
+      {/* Start marker */}
+      {validCoordinates.length > 0 && (
+        <Marker
+          coordinate={validCoordinates[0]}
+          anchor={{ x: 0.5, y: 0.5 }}
+        >
+          <View style={styles.startMarker}>
+            <Text style={styles.startMarkerText}>🏁</Text>
+          </View>
+        </Marker>
+      )}
+
+      {/* End marker */}
+      {validCoordinates.length > 1 && (
+        <Marker
+          coordinate={validCoordinates[validCoordinates.length - 1]}
+          anchor={{ x: 0.5, y: 0.5 }}
+        >
+          <View style={styles.endMarker}>
+            <Text style={styles.endMarkerText}>🏃‍♂️</Text>
+          </View>
+        </Marker>
+      )}
+    </MapView>
+  );
+};
 
 const radiusMap = {
   sm: Radius.sm,
@@ -42,6 +157,7 @@ const CardMap: React.FC<CardMapProps> = ({
   runData,
   participants,
   achievement,
+  sessionTps,
   ...rest
 }) => {
   const friends = useFriendsStore(state => state.friends);
@@ -49,19 +165,28 @@ const CardMap: React.FC<CardMapProps> = ({
   return (
     <View style={[styles.base, { borderRadius: radiusMap[radius] }, style]} {...rest}>
       <Card>
-        <Image
-          source={image}
-          style={[
-            styles.mapImage,
-            {
-              borderTopLeftRadius: radiusMap[radius],
-              borderTopRightRadius: radiusMap[radius],
-            },
-          ]}
-          resizeMethod='resize'
-          resizeMode='cover'
-          alt='Carte de la course'
-        />
+        {/* Show map if GPS data available, otherwise fallback to image */}
+        {sessionTps && sessionTps.length > 0 ? (
+          <MiniMap sessionTps={sessionTps} radius={radius} />
+        ) : image ? (
+          <Image
+            source={image}
+            style={[
+              styles.mapContainer,
+              {
+                borderTopLeftRadius: radiusMap[radius],
+                borderTopRightRadius: radiusMap[radius],
+              },
+            ]}
+            resizeMethod='resize'
+            resizeMode='cover'
+            alt='Carte de la course'
+          />
+        ) : (
+          <View style={[styles.mapContainer, styles.mapPlaceholder]}>
+            <Text style={styles.placeholderText}>📍 Pas de données</Text>
+          </View>
+        )}
 
         <View style={styles.content}>
           <View style={styles.titleRow}>
@@ -119,9 +244,51 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     overflow: 'hidden',
   },
-  mapImage: {
+  mapContainer: {
     width: '100%',
     height: 107,
+  },
+  mapPlaceholder: {
+    backgroundColor: '#E5E7EB',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderText: {
+    color: '#6B7280',
+    fontSize: FontSize.sm,
+    fontWeight: '500',
+  },
+  startMarker: {
+    backgroundColor: 'white',
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  startMarkerText: {
+    fontSize: 12,
+  },
+  endMarker: {
+    backgroundColor: 'white',
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  endMarkerText: {
+    fontSize: 12,
   },
   content: {
     padding: 16,
