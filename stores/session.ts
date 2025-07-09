@@ -45,6 +45,8 @@ interface SessionStore {
   updateLocation: (location: LocationPoint) => void;
   saveSession: (authToken: string, userId: number) => Promise<void>;
   fetchUserSessions: (authToken: string, userId: number) => Promise<void>;
+  fetchLastUserSession: (authToken: string, userId: number) => Promise<RunningSession | null>;
+  deleteSession: (authToken: string, sessionId: number) => Promise<void>;
   updateSessionTitle: (newTitle: string, authToken: string) => Promise<void>;
   resetSession: () => void;
   startAutoSaveSession: (authToken: string, userId: number) => void;
@@ -236,6 +238,71 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
       set({ userSessions: [] });
     } finally {
       set({ isLoading: false });
+    }
+  },
+
+  fetchLastUserSession: async (authToken: string, userId: number) => {
+    console.log('🔍 [fetchLastUserSession] Début de la requête:', {
+      authToken: authToken ? 'présent' : 'absent',
+      userId,
+    });
+
+    try {
+      const url = `https://node.floway.edgar-lecomte.fr/last/user/session/${userId}`;
+      console.log('🌐 [fetchLastUserSession] URL:', url);
+
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      console.log('📡 [fetchLastUserSession] Réponse reçue:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ [fetchLastUserSession] Erreur HTTP:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorText,
+        });
+        throw new Error(`Failed to fetch last session: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ [fetchLastUserSession] Données reçues:', data);
+
+      return data || null;
+    } catch (error) {
+      console.error('💥 [fetchLastUserSession] Erreur complète:', error);
+      return null;
+    }
+  },
+
+  deleteSession: async (authToken: string, sessionId: number) => {
+    try {
+      const response = await fetch(`https://node.floway.edgar-lecomte.fr/session/${sessionId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete session');
+      }
+
+      // Optionally, update the UI to remove the deleted session from the list
+      set(state => ({
+        userSessions: state.userSessions.filter(session => Number(session.id) !== sessionId),
+      }));
+    } catch (error) {
+      console.error('Error deleting session:', error);
+      throw error;
     }
   },
 

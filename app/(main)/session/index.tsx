@@ -167,21 +167,12 @@ export default function SessionScreen() {
         style: 'destructive',
         onPress: async () => {
           try {
-            stopAutoSaveSession(); // Ajouté ici
-            let currentUser = user;
-            let currentToken = token;
-            if (!currentUser || !currentToken) {
-              const { user: storedUser, token: storedToken } = await getUserAndTokenFromStorage();
-              currentUser = storedUser;
-              currentToken = storedToken;
-            }
-            if (currentUser && currentToken) {
-              await saveSession(currentToken, currentUser.id);
-            }
+            stopAutoSaveSession();
             stopSession();
-            router.replace('/session/start');
+            // Rediriger vers la page de résumé au lieu de /session/start
+            router.push('/session/summary');
           } catch (error) {
-            Alert.alert('Erreur', 'Impossible de sauvegarder la session');
+            Alert.alert('Erreur', "Impossible d'arrêter la session");
           }
         },
       },
