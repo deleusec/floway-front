@@ -1,5 +1,4 @@
 import BottomMenu from '@/components/layouts/menu';
-import { Colors } from '@/constants/theme';
 import { useStore } from '@/stores';
 import { useAuth } from '@/stores/auth';
 import { Redirect, Slot, usePathname } from 'expo-router';
@@ -14,7 +13,7 @@ export default function MainLayout() {
 
   useEffect(() => {
     // Cacher le menu uniquement sur la page session
-    store.setHideMenu(pathname === '/session' || pathname === '/cheer');
+    store.setHideMenu(pathname === '/session' || pathname === '/cheer' || pathname === '/session/recap');
   }, [pathname]);
 
   if (isLoading) {
@@ -30,7 +29,7 @@ export default function MainLayout() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: store.backgroundColor }]}>
       <Slot />
       {!store.hideMenu && <BottomMenu />}
     </SafeAreaView>
@@ -40,7 +39,6 @@ export default function MainLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
   },
   scrollContent: {
     flexGrow: 1,

@@ -6,11 +6,13 @@ import { Spacing, Colors, FontFamily, FontSize, Radius } from '@/constants/theme
 import { useAuth } from '@/stores/auth';
 import { useUserStore } from '@/stores/user';
 import { getSessionAchievements, getSessionAchievement } from '@/utils/achievements';
-import { ScrollView, StyleSheet, View, ActivityIndicator, Text } from 'react-native';
+import { ScrollView, StyleSheet, View, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
 import { useEffect, useMemo } from 'react';
 import { formatSpeed } from '@/utils/sessionUtils';
+import { useRouter } from 'expo-router';
 
 export default function MainScreen() {
+  const router = useRouter();
   const { user, token } = useAuth();
   const { sessions, isLoadingSessions, error, fetchUserSessions } = useUserStore();
 
@@ -168,19 +170,32 @@ export default function MainScreen() {
                 const achievement = getSessionAchievement(session, sessionAchievements) || undefined;
 
                 return (
-                  <CardMap
+                  <TouchableOpacity
                     key={session._id}
-                    sessionTps={session.tps}
-                    runData={{
-                      title: session.title,
-                      date: formatDate(session.reference_day),
-                      duration: formatTime(session.time),
-                      distance: formatDistance(session.distance),
-                      speed: `${formatSpeed(session.allure)} km/h`,
+                    onPress={() => {
+                      // Passer toutes les données de session vers le récapitulatif
+                      router.push({
+                        pathname: '/session/recap',
+                        params: {
+                          sessionData: JSON.stringify(session)
+                        }
+                      });
                     }}
-                    participants={[]}
-                    achievement={achievement}
-                  />
+                    activeOpacity={0.8}
+                  >
+                    <CardMap
+                      sessionTps={session.tps}
+                      runData={{
+                        title: session.title,
+                        date: formatDate(session.reference_day),
+                        duration: formatTime(session.time),
+                        distance: formatDistance(session.distance),
+                        speed: `${formatSpeed(session.allure)} km/h`,
+                      }}
+                      participants={[]}
+                      achievement={achievement}
+                    />
+                  </TouchableOpacity>
                 );
               })}
             </>

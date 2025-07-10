@@ -24,9 +24,11 @@ import SvgPause from '@/components/icons/Pause';
 import SvgPinMap from '@/components/icons/PinMap';
 import SvgStopIcon from '@/components/icons/StopIcon';
 import { Colors, FontSize, Radius, Spacing } from '@/theme';
+import { useStore } from '@/stores';
 
 export default function SessionScreen() {
   const router = useRouter();
+  const store = useStore();
   const {
     session,
     stopSession,
@@ -56,7 +58,14 @@ export default function SessionScreen() {
 
   const { metricsHeight, mapOpacity, animateToPause, animateToResume } = useSessionAnimations();
 
-  // Effets pour la logique business
+  useEffect(() => {
+    store.setBackgroundColor(Colors.white);
+
+    return () => {
+      store.setBackgroundColor(Colors.background);
+    };
+  }, []);
+
   useEffect(() => {
     if (!session.isActive) {
       router.replace('/session/start');

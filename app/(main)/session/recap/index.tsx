@@ -10,7 +10,7 @@ import {
   StatusBar,
   Platform,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useRunningSessionStore } from '@/stores/session';
 import { useAuth } from '@/stores/auth';
 import MapView, { Polyline, Marker } from 'react-native-maps';
@@ -23,6 +23,7 @@ import SvgSpeedIcon from '@/components/icons/SpeedIcon';
 
 const SessionSummaryScreen = () => {
   const router = useRouter();
+  const { sessionData } = useLocalSearchParams<{ sessionData?: string }>();
   const { user, token } = useAuth();
   const {
     session,
@@ -34,15 +35,24 @@ const SessionSummaryScreen = () => {
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
-  const [lastSession, setLastSession] = useState(null);
+  const [lastSession, setLastSession] = useState<any>(null);
 
-  // Charger la dernière session
   useEffect(() => {
     const loadData = async () => {
-      if (user && token) {
+      if (sessionData) {
+        try {
+          const parsedSessionData = JSON.parse(sessionData);
+          console.log('✅ [SessionSummary] Session depuis paramètres:', parsedSessionData);
+          setLastSession(parsedSessionData);
+          setEditedTitle(parsedSessionData.title || session.title);
+        } catch (error) {
+          console.error('❌ Erreur parsing session data:', error);
+          setEditedTitle(session.title);
+        }
+      } else if (user && token) {
         try {
           const data = await fetchLastUserSession(token, user.id);
-          console.log('✅ [SessionSummary] Données:', data);
+          console.log('✅ [SessionSummary] Dernière session:', data);
           setLastSession(data);
           setEditedTitle(data?.title || session.title);
         } catch (error) {
@@ -52,9 +62,8 @@ const SessionSummaryScreen = () => {
       }
     };
     loadData();
-  }, [user, token]);
+  }, [user, token, sessionData]);
 
-  // Formatage des données
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -87,7 +96,6 @@ const SessionSummaryScreen = () => {
     return title || '';
   };
 
-  // Actions
   const handleSaveTitle = async () => {
     if (!token || !editedTitle || editedTitle === (lastSession?.title || session.title)) {
       setIsEditingTitle(false);
@@ -117,9 +125,12 @@ const SessionSummaryScreen = () => {
         style: 'destructive',
         onPress: async () => {
           try {
-            if (token && lastSession?.id) {
-              await deleteSession(token, Number(lastSession.id));
-              router.replace('/');
+            if (token && lastSession) {
+              const sessionIdToDelete = lastSession.id;
+              if (sessionIdToDelete) {
+                await deleteSession(token, sessionIdToDelete);
+                router.replace('/');
+              }
             }
           } catch (error) {
             Alert.alert('Erreur', 'Impossible de supprimer');
@@ -129,7 +140,6 @@ const SessionSummaryScreen = () => {
     ]);
   };
 
-  // Données à afficher (priorité à lastSession)
   const displayData = lastSession || {
     title: session.title,
     distance: session.metrics.distance / 1000,
@@ -138,7 +148,6 @@ const SessionSummaryScreen = () => {
     tps: session.locations.map(loc => [loc.latitude, loc.longitude, loc.timestamp]),
   };
 
-  // Préparer les coordonnées GPS
   const coordinates = (displayData.tps || [])
     .filter(point => Array.isArray(point) && point.length >= 2 && point[0] !== 0 && point[1] !== 0)
     .map(point => ({
@@ -146,7 +155,6 @@ const SessionSummaryScreen = () => {
       longitude: point[1],
     }));
 
-  // Région de la carte
   let mapRegion = null;
   if (coordinates.length > 0) {
     const lats = coordinates.map(c => c.latitude);
@@ -292,17 +300,27 @@ const SessionSummaryScreen = () => {
 
         {/* Boutons */}
         <View style={styles.buttons}>
-          <TouchableOpacity style={styles.deleteBtn} onPress={handleDeleteSession}>
-            <Text style={styles.deleteBtnText}>Supprimer</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.saveBtn, isLoading && styles.saveBtnDisabled]}
-            onPress={handleSaveSession}
-            disabled={isLoading}>
-            <Text style={styles.saveBtnText}>
-              {isLoading ? 'Enregistrement...' : 'Enregistrer'}
-            </Text>
-          </TouchableOpacity>
+          {sessionData ? (
+            // Mode historique : seulement le bouton supprimer
+            <TouchableOpacity style={[styles.deleteBtn, styles.fullWidthBtn]} onPress={handleDeleteSession}>
+              <Text style={styles.deleteBtnText}>Supprimer cette session</Text>
+            </TouchableOpacity>
+          ) : (
+            // Mode fin de session : supprimer et enregistrer
+            <>
+              <TouchableOpacity style={styles.deleteBtn} onPress={handleDeleteSession}>
+                <Text style={styles.deleteBtnText}>Supprimer</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.saveBtn, isLoading && styles.saveBtnDisabled]}
+                onPress={handleSaveSession}
+                disabled={isLoading}>
+                <Text style={styles.saveBtnText}>
+                  {isLoading ? 'Enregistrement...' : 'Enregistrer'}
+                </Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       </ScrollView>
     </View>
@@ -553,6 +571,10 @@ const styles = StyleSheet.create({
   },
   endMarkerText: {
     fontSize: 12,
+  },
+  fullWidthBtn: {
+    flex: 1,
+    marginLeft: 0,
   },
 });
 
