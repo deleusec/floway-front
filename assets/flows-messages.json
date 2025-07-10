@@ -1,0 +1,64 @@
+{
+    "messages": [
+        {
+            "id": "1",
+            "text": "Allez, tu peux le faire !"
+        },
+        {
+            "id": "2",
+            "text": "T'es en train de faire un truc génial, continue comme ça !"
+        },
+        {
+            "id": "3",
+            "text": "Allez, bouge un peu ! Ton canapé commence à s'inquiéter"
+        },
+        {
+            "id": "4",
+            "text": "Même les pigeons ont peur de ta vitesse...."
+        },
+        {
+            "id": "5",
+            "text": "Tu cours tellement vite que tu pourrais battre un escargot... en marche arrière !"
+        },
+        {
+            "id": "6",
+            "text": "Ton cardio est plus fort que mon café du matin !"
+        },
+        {
+            "id": "7",
+            "text": "Continue comme ça, même les arbres applaudissent !"
+        },
+        {
+            "id": "8",
+            "text": "Tu cours tellement bien que les voitures te klaxonnent de respect !"
+        },
+        {
+            "id": "9",
+            "text": "Ton rythme est si régulier que même les métronomes sont jaloux !"
+        },
+        {
+            "id": "10",
+            "text": "Allez, encore un effort ! Les frites attendront !"
+        },
+        {
+            "id": "11",
+            "text": "Tu cours tellement vite que tu pourrais livrer le Père Noël !"
+        },
+        {
+            "id": "12",
+            "text": "Continue comme ça, même les marathoniens prennent des notes !"
+        },
+        {
+            "id": "13",
+            "text": "Ton endurance est plus longue que ma liste de courses !"
+        },
+        {
+            "id": "14",
+            "text": "Tu cours tellement bien que les oiseaux te demandent des conseils !"
+        },
+        {
+            "id": "15",
+            "text": "Allez, encore un peu ! Les chips ne courent pas après toi !"
+        }
+    ]
+}

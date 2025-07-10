@@ -10,27 +10,83 @@
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#624AF6"
     },
+    "plugins": [
+      [
+        "expo-document-picker",
+        {
+          "iCloudContainerEnvironment": "Production"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Floway to access your location to track your running sessions.",
+          "locationAlwaysPermission": "Allow Floway to access your location in the background for accurate session tracking.",
+          "locationWhenInUsePermission": "Allow Floway to access your location during active sessions.",
+          "isIosBackgroundLocationEnabled": true,
+          "isAndroidBackgroundLocationEnabled": true
+        }
+      ],
+      "expo-router",
+      [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": true,
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID for secure authentication.",
+          "fingerprintPermission": "Allow $(PRODUCT_NAME) to access your fingerprint for secure authentication."
+        }
+      ]
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.floway.flowayapp",
+      "infoPlist": {
+        "UIBackgroundModes": ["location", "fetch", "audio"],
+        "NSLocationUsageDescription": "Floway needs access to location when open to track your running sessions.",
+        "NSLocationWhenInUseUsageDescription": "Floway needs access to location when open to track your running sessions.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Floway needs access to location to track your running sessions even when the app is in background.",
+        "NSMicrophoneUsageDescription": "Floway needs access to your microphone to record guided run sessions.",
+        "NSLocationAlwaysUsageDescription": "Floway needs access to your location at all times to track your running sessions.",
+        "NSCameraUsageDescription": "Floway needs access to your camera to take a profile picture.",
+        "NSPhotoLibraryUsageDescription": "Floway needs access to your library to choose a profile picture.",
+        "NSPhotoLibraryAddUsageDescription": "Floway needs to save photos to your library."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "backgroundColor": "#1C1F26"
+      },
+      "package": "com.floway.flowayapp",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
+        "RECORD_AUDIO",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": [
-      "expo-router"
-    ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "newArchEnabled": true,
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "322043eb-a978-4c6d-a7d7-f504a68dddef"
+      }
+    },
+    "owner": "floway"
   }
 }

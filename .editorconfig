@@ -1,0 +1,38 @@
+# EditorConfig est un fichier de configuration pour maintenir un style de code cohérent.
+# Place ce fichier à la racine de ton projet.
+
+root = true
+
+# Règles générales applicables à tous les fichiers
+[*]
+charset = utf-8                  # Encodage des fichiers en UTF-8
+end_of_line = lf                 # Utilisation de LF pour les fins de ligne (Unix)
+insert_final_newline = true      # Ajoute une nouvelle ligne à la fin du fichier
+trim_trailing_whitespace = true  # Supprime les espaces en fin de ligne
+
+# Règles spécifiques aux fichiers JavaScript, TypeScript et JSX
+[*.{js,jsx,ts,tsx}]
+indent_style = space             # Utilise des espaces pour l'indentation
+indent_size = 2                  # 2 espaces pour les fichiers JavaScript et TypeScript
+quote_type = single              # Utilise des guillemets simples
+max_line_length = 100           # Longueur maximale de ligne
+
+# Règles spécifiques aux fichiers JSON
+[*.json]
+indent_style = space             # Utilise des espaces pour l'indentation
+indent_size = 2                  # 2 espaces pour les fichiers JSON
+
+# Règles spécifiques aux fichiers CSS, SCSS et HTML
+[*.{css,scss,html}]
+indent_style = space             # Utilise des espaces pour l'indentation
+indent_size = 2                  # 2 espaces pour les fichiers CSS et HTML
+
+# Règles spécifiques aux fichiers Markdown
+[*.md]
+trim_trailing_whitespace = false # Autorise les espaces en fin de ligne pour Markdown
+max_line_length = off           # Pas de limite de longueur pour Markdown
+
+# Règles spécifiques aux fichiers YAML et YAML-like (yml, etc.)
+[*.{yml,yaml}]
+indent_style = space             # Utilise des espaces pour l'indentation
+indent_size = 2                  # 2 espaces pour les fichiers YAML

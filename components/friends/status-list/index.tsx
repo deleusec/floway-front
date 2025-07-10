@@ -1,0 +1,82 @@
+import React, { useEffect } from 'react';
+import { FlatList, View, StyleSheet, Text } from 'react-native';
+import { Spacing, Colors, FontSize, FontFamily } from '@/constants/theme';
+import FriendStatusAvatar from '../status-avatar';
+import { useFriendsStore } from '@/stores/friends';
+import { router } from 'expo-router';
+import { useAuth } from '@/stores/auth';
+import { API_URL } from '@/constants/env';
+
+export default function FriendsStatusList() {
+  const { friends, startPolling, stopPolling } = useFriendsStore();
+  const { token } = useAuth();
+
+  useEffect(() => {
+    startPolling();
+
+    return () => {
+      stopPolling();
+    };
+  }, [startPolling, stopPolling]);
+
+  const sortedFriends = [...friends].sort((a, b) => Number(b.isRunning) - Number(a.isRunning));
+
+  return (
+    <FlatList
+      data={sortedFriends}
+      keyExtractor={item => item.id.toString()}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.listContainer}
+      renderItem={({ item, index }) => (
+        <View style={[styles.itemWrapper, index === 0 && { marginLeft: 0 }]}>
+          <FriendStatusAvatar
+            image={`${API_URL}/api/user/picture/${item.id}?bearer=${token}`}
+            name={`${item.first_name} ${item.last_name}`}
+            isRunning={item.isRunning}
+            onPress={() => {
+              if (item.isRunning) {
+                router.push(`/cheer?friendId=${item.id}`);
+              }
+            }}
+          />
+          <Text numberOfLines={1} ellipsizeMode='tail' style={styles.name}>
+            {item.first_name}
+          </Text>
+        </View>
+      )}
+    />
+  );
+}
+
+const styles = StyleSheet.create({
+  listContainer: {
+    paddingVertical: Spacing.xs,
+    paddingHorizontal: Spacing.lg,
+  },
+  itemWrapper: {
+    marginLeft: Spacing.md,
+    alignItems: 'center',
+    width: 56,
+  },
+  name: {
+    marginTop: 8,
+    fontSize: FontSize.xs,
+    color: Colors.textSecondary,
+    fontFamily: FontFamily.regular,
+    maxWidth: 56,
+    textAlign: 'center',
+  },
+  liveIndicator: {
+    marginTop: 4,
+    backgroundColor: Colors.primary,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  liveText: {
+    fontSize: FontSize.xs - 2,
+    color: Colors.white,
+    fontFamily: FontFamily.medium,
+  },
+});
