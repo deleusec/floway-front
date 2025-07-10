@@ -72,7 +72,7 @@ export const useLocationTracking = ({
       locationSubscription.current = await Location.watchPositionAsync(
         {
           accuracy: Location.Accuracy.BestForNavigation,
-          timeInterval: 1000,
+          timeInterval: 5000,
           distanceInterval: 5,
         },
         location => {
@@ -80,7 +80,7 @@ export const useLocationTracking = ({
           const newLocation: LocationPoint = {
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
-            timestamp: startTime ? currentTime - startTime : currentTime,
+            timestamp: currentTime,
           };
 
           console.log('📍 [useLocationTracking] Nouveau point GPS:', {

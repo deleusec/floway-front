@@ -16,7 +16,7 @@ import Button from '@/components/ui/button';
 import ChallengeCard from '@/components/ui/challenge-card';
 import ValueSelector from '@/components/ui/value-selector';
 import SvgX from '@/components/icons/X';
-import {Colors, FontSize, Radius, Spacing} from "@/theme";
+import { Colors, FontSize, Radius, Spacing } from '@/theme';
 
 type ChallengeType = 'free' | 'time' | 'distance';
 type PickerState = 'selection' | 'hours' | 'minutes' | 'seconds' | 'distance';
@@ -54,34 +54,6 @@ export default function StartScreen() {
   const [tempValue, setTempValue] = useState(0);
 
   const { session, startSession, updateLocation } = useRunningSessionStore();
-
-  useEffect(() => {
-    let locationSubscription: Location.LocationSubscription | null = null;
-
-    if (session.isActive) {
-      Location.watchPositionAsync(
-        {
-          accuracy: Location.Accuracy.BestForNavigation,
-          timeInterval: 1000,
-          distanceInterval: 1,
-        },
-        location => {
-          updateLocation({
-            ...location.coords,
-            timestamp: location.timestamp
-          });
-        }
-      ).then(subscription => {
-        locationSubscription = subscription;
-      });
-    }
-
-    return () => {
-      if (locationSubscription) {
-        locationSubscription.remove();
-      }
-    };
-  }, [session.isActive]);
 
   const handleChallengeSelect = (type: ChallengeType) => {
     setChallengeType(type);
@@ -287,7 +259,6 @@ export default function StartScreen() {
           <View style={styles.drawerSeparator} />
 
           <View style={styles.drawerContent}>
-
             <View style={styles.inlinePickerContainer}>
               <TouchableOpacity
                 onPress={() => setTempValue(Math.max(0, tempValue - 1))}
@@ -389,7 +360,8 @@ export default function StartScreen() {
               onPress={closeDrawer}
             />
           </Animated.View>
-          <Animated.View style={[styles.drawerContainer, { transform: [{ translateY: slideAnim }] }]}>
+          <Animated.View
+            style={[styles.drawerContainer, { transform: [{ translateY: slideAnim }] }]}>
             <View style={styles.drawerHandle} />
             {renderDrawerContent()}
           </Animated.View>
@@ -401,14 +373,14 @@ export default function StartScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
   },
   headerWrapper: {
     backgroundColor: Colors.white,
     paddingVertical: Spacing.lg,
     paddingHorizontal: Spacing.lg,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border
+    borderBottomColor: Colors.border,
   },
   header: {
     flexDirection: 'row',
@@ -516,12 +488,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 40,
-    gap: 5
+    gap: 5,
   },
   pickerLabel: {
     fontSize: FontSize.md,
     color: Colors.gray[400],
-    fontStyle: 'italic'
+    fontStyle: 'italic',
   },
   inlinePickerContainer: {
     flexDirection: 'row',
