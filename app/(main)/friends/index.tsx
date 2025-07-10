@@ -30,6 +30,7 @@ import { fuzzySearch } from '@/utils/calculations';
 import { useRouter } from 'expo-router';
 import type { Friend } from '@/stores/friends';
 import {API_URL} from "@/constants/env";
+import {useStore} from "@/stores";
 
 export default function FriendsScreen() {
   const [search, setSearch] = useState('');
@@ -61,6 +62,11 @@ export default function FriendsScreen() {
   } = useFriendsStore();
 
   const router = useRouter();
+  const { setBackgroundColor } = useStore()
+
+  useEffect(() => {
+    setBackgroundColor(Colors.white)
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -382,6 +388,7 @@ export default function FriendsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background,
   },
   centerContent: {
     justifyContent: 'center',

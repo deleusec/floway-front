@@ -10,13 +10,13 @@ import {
   Animated,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import * as Location from 'expo-location';
 import { useRunningSessionStore } from '@/stores/session';
 import Button from '@/components/ui/button';
 import ChallengeCard from '@/components/ui/challenge-card';
 import ValueSelector from '@/components/ui/value-selector';
 import SvgX from '@/components/icons/X';
 import { Colors, FontSize, Radius, Spacing } from '@/theme';
+import {useStore} from "@/stores";
 
 type ChallengeType = 'free' | 'time' | 'distance';
 type PickerState = 'selection' | 'hours' | 'minutes' | 'seconds' | 'distance';
@@ -37,6 +37,7 @@ export default function StartScreen() {
   const [challengeType, setChallengeType] = useState<ChallengeType>('free');
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [drawerState, setDrawerState] = useState<PickerState>('selection');
+  const { setBackgroundColor } = useStore()
 
   // Animation refs
   const slideAnim = useRef(new Animated.Value(500)).current;
@@ -53,7 +54,11 @@ export default function StartScreen() {
   // État temporaire pour le picker
   const [tempValue, setTempValue] = useState(0);
 
-  const { session, startSession, updateLocation } = useRunningSessionStore();
+  const { startSession } = useRunningSessionStore();
+
+  useEffect(() => {
+    setBackgroundColor(Colors.white)
+  }, []);
 
   const handleChallengeSelect = (type: ChallengeType) => {
     setChallengeType(type);
@@ -89,7 +94,7 @@ export default function StartScreen() {
 
   const handleStartSession = async () => {
     try {
-      let objectiveValue = 0;
+      let objectiveValue;
       let sessionType: 'time' | 'distance' | 'free' = 'time';
 
       if (challengeType === 'time') {
@@ -374,6 +379,7 @@ export default function StartScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background
   },
   headerWrapper: {
     backgroundColor: Colors.white,

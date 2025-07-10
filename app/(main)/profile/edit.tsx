@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import {
   View,
@@ -18,6 +18,7 @@ import {API_URL} from "@/constants/env";
 import SvgPencilIcon from "@/components/icons/PencilIcon";
 import Input from "@/components/ui/input";
 import InputLabel from "@/components/ui/input/label";
+import {useStore} from "@/stores";
 
 export default function EditProfileScreen() {
   const { user, token } = useAuth();
@@ -31,6 +32,12 @@ export default function EditProfileScreen() {
   const [hasImageChanged, setHasImageChanged] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [newImage, setNewImage] = useState<string | null>(null);
+  const { setBackgroundColor } = useStore()
+
+  useEffect(() => {
+    setBackgroundColor(Colors.white)
+  }, []);
+
 
   const handleSave = async () => {
     if (!token) {
@@ -145,6 +152,7 @@ export default function EditProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background,
   },
   header: {
     flexDirection: 'row',

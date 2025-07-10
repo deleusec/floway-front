@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import {View, Text, StyleSheet, Pressable, SafeAreaView} from 'react-native';
 import { Link, usePathname } from 'expo-router';
 import { Colors, FontFamily, FontSize, Spacing } from '@/constants/theme';
 
@@ -19,21 +19,23 @@ export default function BottomMenu() {
   const pathname = usePathname();
 
   return (
-    <View style={styles.container}>
-      {TABS.map(({ label, href, icon: Icon }) => {
-        const isActive = pathname === href;
-        const color = isActive ? Colors.textPrimary : Colors.gray[400];
+    <SafeAreaView>
+      <View style={styles.container}>
+        {TABS.map(({ label, href, icon: Icon }) => {
+          const isActive = pathname === href;
+          const color = isActive ? Colors.textPrimary : Colors.gray[400];
 
-        return (
-          <Link href={href as any} asChild key={href}>
-            <Pressable style={styles.tab}>
-              <Icon size={22} color={color} />
-              <Text style={[styles.label, { color }]}>{label}</Text>
-            </Pressable>
-          </Link>
-        );
-      })}
-    </View>
+          return (
+            <Link href={href as any} asChild key={href}>
+              <Pressable style={styles.tab}>
+                <Icon size={22} color={color} />
+                <Text style={[styles.label, { color }]}>{label}</Text>
+              </Pressable>
+            </Link>
+          );
+        })}
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -45,8 +47,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
-    paddingTop: Spacing.md,
-    paddingBottom: Spacing.lg,
+    paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.md,
   },
   tab: {

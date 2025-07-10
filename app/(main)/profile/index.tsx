@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -14,11 +14,16 @@ import SvgLogoutIcon from "@/components/icons/LogoutIcon";
 import { useAuth } from "@/stores/auth";
 import { API_URL } from '@/constants/env';
 import {router} from "expo-router";
+import {useStore} from "@/stores";
 
 export default function ProfileScreen() {
   const logout = useAuth(state => state.logout);
   const { user, token } = useAuth();
+  const { setBackgroundColor } = useStore()
 
+  useEffect(() => {
+    setBackgroundColor(Colors.white)
+  }, []);
   const [imageError, setImageError] = useState(false);
 
   const handleEditProfile = () => {

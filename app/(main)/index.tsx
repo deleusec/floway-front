@@ -2,7 +2,7 @@ import FriendsStatusList from '@/components/friends/status-list';
 import CardMap from '@/components/ui/map';
 import Card from '@/components/ui/card';
 import Title from '@/components/ui/title';
-import { Spacing, Colors, FontFamily, FontSize, Radius } from '@/constants/theme';
+import { Spacing, Colors, FontFamily, FontSize } from '@/constants/theme';
 import { useAuth } from '@/stores/auth';
 import { useUserStore } from '@/stores/user';
 import { getSessionAchievements, getSessionAchievement } from '@/utils/achievements';
@@ -10,11 +10,17 @@ import { ScrollView, StyleSheet, View, ActivityIndicator, Text, TouchableOpacity
 import { useEffect, useMemo } from 'react';
 import { formatSpeed } from '@/utils/sessionUtils';
 import { useRouter } from 'expo-router';
+import {useStore} from "@/stores";
 
 export default function MainScreen() {
   const router = useRouter();
   const { user, token } = useAuth();
   const { sessions, isLoadingSessions, error, fetchUserSessions } = useUserStore();
+  const { setBackgroundColor } = useStore()
+
+  useEffect(() => {
+    setBackgroundColor(Colors.background)
+  }, []);
 
   useEffect(() => {
     if (user?.id && token) {
@@ -166,7 +172,7 @@ export default function MainScreen() {
         <View style={styles.sessionsList}>
           {!isLoadingSessions && !error && sortedSessions.length > 0 && (
             <>
-              {sortedSessions.map((session, index) => {
+              {sortedSessions.map((session) => {
                 const achievement = getSessionAchievement(session, sessionAchievements) || undefined;
 
                 return (

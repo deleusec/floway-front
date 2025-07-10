@@ -14,7 +14,7 @@ import { useAuth } from '@/stores/auth';
 import { useSpeechManager } from '@/hooks/useSpeechManager';
 import { useLocationTracking } from '@/hooks/useLocationTracking';
 import { useSessionAnimations } from '@/hooks/useSessionAnimations';
-import { FreeMap } from '@/components/ui/map/session-map/index';
+import { FreeMap } from '@/components/ui/map/session-map';
 import { formatTime, formatDistance, formatPace } from '@/utils/sessionUtils';
 
 // Import de vos icônes SVG
@@ -28,17 +28,15 @@ import { useStore } from '@/stores';
 
 export default function SessionScreen() {
   const router = useRouter();
-  const store = useStore();
   const {
     session,
     stopSession,
-    saveSession,
     pauseSession,
     resumeSession,
     startAutoSaveSession,
     stopAutoSaveSession,
   } = useRunningSessionStore();
-  const { user, token, getUserAndTokenFromStorage } = useAuth();
+  const { user, token } = useAuth();
   const { speak } = useSpeechManager();
   const lastAnnouncedKm = useRef(0);
 
@@ -47,7 +45,6 @@ export default function SessionScreen() {
 
   // Hooks personnalisés - logique métier séparée
   const {
-    hasPermission,
     error: locationError,
     mapRegion,
   } = useLocationTracking({
@@ -57,14 +54,12 @@ export default function SessionScreen() {
   });
 
   const { metricsHeight, mapOpacity, animateToPause, animateToResume } = useSessionAnimations();
+  const { setBackgroundColor } = useStore()
 
   useEffect(() => {
-    store.setBackgroundColor(Colors.white);
-
-    return () => {
-      store.setBackgroundColor(Colors.background);
-    };
+    setBackgroundColor(Colors.white)
   }, []);
+
 
   useEffect(() => {
     if (!session.isActive) {
