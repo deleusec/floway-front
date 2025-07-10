@@ -209,6 +209,13 @@ const SessionSummaryScreen = () => {
                 showsMyLocationButton={false}
                 showsCompass={false}
                 showsScale={false}
+                showsPointsOfInterest={false}
+                showsBuildings={false}
+                showsTraffic={false}
+                showsIndoors={false}
+                toolbarEnabled={false}
+                moveOnMarkerPress={false}
+                liteMode={true}
                 mapType='standard'>
                 {/* Tracé principal */}
                 <Polyline

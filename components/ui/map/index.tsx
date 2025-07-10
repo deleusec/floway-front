@@ -70,8 +70,19 @@ const MiniMap: React.FC<{
 
   const centerLat = (minLat + maxLat) / 2;
   const centerLng = (minLng + maxLng) / 2;
-  const deltaLat = Math.max(maxLat - minLat, 0.01) * 1.2; // Add 20% padding
-  const deltaLng = Math.max(maxLng - minLng, 0.01) * 1.2;
+
+  // Calculate dynamic padding based on track size
+  const baseDeltaLat = maxLat - minLat;
+  const baseDeltaLng = maxLng - minLng;
+
+  // Minimum zoom level to avoid too close zoom
+  const minDelta = 0.005;
+
+  // Dynamic padding: more padding for smaller tracks, less for larger ones
+  const paddingFactor = Math.max(0.3, Math.min(0.8, 1 / Math.max(baseDeltaLat, baseDeltaLng) * 0.01));
+
+  const deltaLat = Math.max(baseDeltaLat * (1 + paddingFactor), minDelta);
+  const deltaLng = Math.max(baseDeltaLng * (1 + paddingFactor), minDelta);
 
   const mapRegion = {
     latitude: centerLat,
@@ -104,6 +115,13 @@ const MiniMap: React.FC<{
       showsMyLocationButton={false}
       showsCompass={false}
       showsScale={false}
+      showsPointsOfInterest={false}
+      showsBuildings={false}
+      showsTraffic={false}
+      showsIndoors={false}
+      toolbarEnabled={false}
+      moveOnMarkerPress={false}
+      liteMode={true}
       mapType='standard'
     >
       {/* Route polyline */}
