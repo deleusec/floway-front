@@ -156,7 +156,7 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
 
   // Factorisation de la création du payload pour éviter la duplication
   _makeSessionPayload: (session: RunningSession, userId: number, tps: LocationPoint[]) => {
-    const sessionTypeForAPI = session.type === 'free' ? 'time' : session.type;
+    const sessionTypeForAPI = session.type;
     const objectiveForAPI = session.type === 'free' ? 0 : session.objective;
     const payload = {
       session_type: sessionTypeForAPI,

@@ -14,10 +14,9 @@ import { useRouter } from 'expo-router';
 import { useRunningSessionStore } from '@/stores/session';
 import { useAuth } from '@/stores/auth';
 import MapView, { Polyline, Marker } from 'react-native-maps';
-import { Colors, FontSize } from '@/constants/theme';
+import { FontSize } from '@/constants/theme';
 import SvgEdit from '@/components/icons/Edit';
 import { paceToSpeed } from '@/utils/calculations';
-import { createAchievement } from '@/utils/achievements';
 import SvgClockIcon from '@/components/icons/ClockIcon';
 import SvgPinIcon from '@/components/icons/PinIcon';
 import SvgSpeedIcon from '@/components/icons/SpeedIcon';
@@ -28,7 +27,6 @@ const SessionSummaryScreen = () => {
   const {
     session,
     updateSessionTitle,
-    saveSession,
     deleteSession,
     fetchLastUserSession,
     isLoading,
@@ -105,12 +103,7 @@ const SessionSummaryScreen = () => {
 
   const handleSaveSession = async () => {
     try {
-      if (token && user) {
-        await saveSession(token, user.id);
-        Alert.alert('Succès', 'Course sauvegardée', [
-          { text: 'OK', onPress: () => router.replace('/') },
-        ]);
-      }
+      router.replace('/');
     } catch (error) {
       Alert.alert('Erreur', 'Impossible de sauvegarder');
     }

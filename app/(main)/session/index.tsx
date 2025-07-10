@@ -169,8 +169,7 @@ export default function SessionScreen() {
           try {
             stopAutoSaveSession();
             stopSession();
-            // Rediriger vers la page de résumé au lieu de /session/start
-            router.push('/session/summary');
+            router.push('/session/recap');
           } catch (error) {
             Alert.alert('Erreur', "Impossible d'arrêter la session");
           }
