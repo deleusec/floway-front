@@ -1,18 +1,12 @@
 import * as React from 'react';
 import Svg, { Path } from 'react-native-svg';
+import {Colors} from "@/theme";
 
-interface SvgTrashProps {
-  width?: number;
-  height?: number;
-  color?: string;
-}
-
-const SvgTrash = ({ width = 16, height = 17, color = '#EB6564' }: SvgTrashProps) => (
-  <Svg width={width} height={height} fill='none'>
-    <Path
-      fill={color}
-      d='M4 13.167c0 .733.6 1.333 1.334 1.333h5.333c.733 0 1.333-.6 1.333-1.333v-8H4zm8.667-10h-2.333L9.667 2.5H6.334l-.667.667H3.334V4.5h9.333z'
-    />
+const SvgTrash = ({ color = Colors.black, size = 24, ...props }) => (
+  <Svg width={size} height={size} viewBox='0 0 24 24' fill='none' {...props}>
+    <Path d="M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19ZM19 4H15.5L14.5 3H9.5L8.5 4H5V6H19V4Z"
+          fill={color}/>
   </Svg>
 );
+
 export default SvgTrash;

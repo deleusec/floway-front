@@ -331,8 +331,8 @@ export default function FriendsScreen() {
         height={300}
         visible={drawerVisible}
         onClose={() => setDrawerVisible(false)}>
-        <View style={{ padding: 24 }}>
-          <Text style={{ fontWeight: 'bold', fontSize: 22, marginBottom: 16 }}>
+        <View>
+          <Text style={styles.drawerTitle}>
             {selectedFriend?.first_name || 'Ami'}
           </Text>
           {/* Bouton Encourager maintenant */}
@@ -345,7 +345,7 @@ export default function FriendsScreen() {
               }
             }}
             disabled={!selectedFriend?.isRunning || selectedFriend?.id === undefined}>
-            <SvgRunningShoeIcon size={24} color={Colors.textPrimary} />
+            <SvgRunningShoeIcon width={20} height={20} color={Colors.textPrimary} />
             <Text style={styles.drawerOptionText}>Encourager maintenant</Text>
           </Pressable>
           {/* Bouton Notifier/Ne pas notifier */}
@@ -356,7 +356,7 @@ export default function FriendsScreen() {
                 await toggleNotificationBlock(selectedFriend.id);
               }
             }}>
-            <SvgEye width={24} height={24} color={Colors.textPrimary} />
+            <SvgEye width={20} height={20} color={Colors.textPrimary} />
             <Text style={styles.drawerOptionText}>
               {isBlocked ? 'Notifier de mes courses' : 'Ne pas le notifier de mes courses'}
             </Text>
@@ -370,7 +370,7 @@ export default function FriendsScreen() {
                 handleRemoveFriend(selectedFriend.id);
               }
             }}>
-            <SvgTrash width={24} height={24} color={Colors.error} />
+            <SvgTrash width={20} height={20} color={Colors.error} />
             <Text style={[styles.drawerOptionText, styles.dangerText]}>Supprimer de mes amis</Text>
           </Pressable>
         </View>
@@ -492,8 +492,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    paddingHorizontal: Spacing.lg,
   },
   drawerOptionText: {
     marginLeft: 12,
@@ -514,5 +513,14 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.border,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md
+  },
+  drawerTitle: {
+    fontWeight: '600',
+    fontSize: FontSize.lg,
+    paddingBottom: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+    marginBottom: Spacing.md,
   }
 });
