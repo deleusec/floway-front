@@ -9,6 +9,7 @@ export type Friend = {
   username: string;
   isRunning?: boolean;
   avatar?: string;
+  notification_block?: number; // 1 = bloqué, 0 = non bloqué
 };
 
 type FriendRequest = {
@@ -44,7 +45,7 @@ type FriendsState = {
   friends: Friend[];
   requests: FriendRequest[];
   allUsers: FriendRequest[];
-  blockedNotifications: number[];
+  blockedNotifications: number[]; // On peut garder ça pour la compatibilité
   searchResults: UserSearchResult[];
   isLoading: boolean;
   error: string | null;
@@ -59,7 +60,6 @@ type FriendsState = {
   declineFriendRequest: (requestId: number) => Promise<void>;
   removeFriend: (friendId: number) => Promise<void>;
   toggleNotificationBlock: (userId: number) => Promise<void>;
-  fetchNotificationSettings: () => Promise<void>;
   searchUsers: (query: string) => Promise<void>;
   startPolling: () => void;
   stopPolling: () => void;
@@ -71,7 +71,7 @@ let pollingInterval: NodeJS.Timeout | null = null;
 
 const getAuthToken = () => {
   const token = useAuth.getState().token;
-  if (!token) throw new Error('Pas de token d\'authentification');
+  if (!token) throw new Error("Pas de token d'authentification");
   return token;
 };
 
@@ -86,6 +86,7 @@ const transformFriendData = (friendData: any): Friend => ({
   username: friendData.username,
   isRunning: friendData.isRunning || false,
   avatar: friendData.avatar || createDefaultAvatar(friendData.first_name, friendData.last_name),
+  notification_block: friendData.notification_block || 0,
 });
 
 const transformRequestData = (requestData: any): FriendRequest => ({
@@ -134,9 +135,7 @@ const apiFetchRunningSessions = async (): Promise<number[]> => {
   const data = await response.json();
 
   if (Array.isArray(data)) {
-    const runningUserIds = data
-      .filter(item => item.user_id)
-      .map(item => item.user_id);
+    const runningUserIds = data.filter(item => item.user_id).map(item => item.user_id);
 
     console.log('📊 Sessions actives trouvées:', runningUserIds);
     return runningUserIds;
@@ -170,7 +169,7 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
 
         const updatedFriends = friends.map(friend => ({
           ...friend,
-          isRunning: runningUserIds.includes(friend.id)
+          isRunning: runningUserIds.includes(friend.id),
         }));
 
         set({ friends: updatedFriends });
@@ -341,49 +340,13 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
         throw new Error(`Erreur ${response.status}: ${errorText}`);
       }
 
-      await get().fetchNotificationSettings();
+      // Rafraîchir la liste des amis au lieu de fetchNotificationSettings
+      await get().fetchFriends();
       set({ isLoading: false });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
       set({ error: errorMessage, isLoading: false });
       throw error;
-    }
-  },
-
-  fetchNotificationSettings: async () => {
-    try {
-      const token = getAuthToken();
-      set({ isLoading: true, error: null });
-
-      const response = await fetch(`${API_URL}/api/friend/notification/settings`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.status === 404) {
-        set({ blockedNotifications: [], isLoading: false });
-        return;
-      }
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Erreur ${response.status}: ${errorText}`);
-      }
-
-      const data = await response.json();
-      const blocked = Array.isArray(data)
-        ? data
-            .filter((item: any) => item.isNotificationBlock && item.friend?.id)
-            .map((item: any) => item.friend.id)
-        : [];
-
-      set({ blockedNotifications: blocked, isLoading: false });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
-      set({ error: errorMessage, isLoading: false });
     }
   },
 
@@ -429,11 +392,16 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       if (!currentState.isPolling) return;
 
       try {
-        console.log('🔄 Polling - Vérification des sessions actives...', new Date().toLocaleTimeString());
+        console.log(
+          '🔄 Polling - Vérification des sessions actives...',
+          new Date().toLocaleTimeString()
+        );
 
         const runningUserIds = await apiFetchRunningSessions();
 
-        const currentlyRunning = currentState.friends.filter(friend => friend.isRunning).map(friend => friend.id);
+        const currentlyRunning = currentState.friends
+          .filter(friend => friend.isRunning)
+          .map(friend => friend.id);
         const newlyRunning = runningUserIds.filter(id => !currentlyRunning.includes(id));
         const stoppedRunning = currentlyRunning.filter(id => !runningUserIds.includes(id));
 
@@ -446,11 +414,17 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
 
         const updatedFriends = currentState.friends.map(friend => ({
           ...friend,
-          isRunning: runningUserIds.includes(friend.id)
+          isRunning: runningUserIds.includes(friend.id),
         }));
 
         set({ friends: updatedFriends });
-        console.log('✅ Polling - Statuts mis à jour:', runningUserIds.length, 'amis en course sur', currentState.friends.length, 'amis total');
+        console.log(
+          '✅ Polling - Statuts mis à jour:',
+          runningUserIds.length,
+          'amis en course sur',
+          currentState.friends.length,
+          'amis total'
+        );
       } catch (error) {
         console.warn('❌ Erreur lors du polling des sessions:', error);
       }

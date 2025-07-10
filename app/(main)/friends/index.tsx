@@ -1,6 +1,6 @@
 import SvgAddFriend from '@/components/icons/AddFriend';
 import Title from '@/components/ui/title';
-import {FontSize, Radius, Spacing} from '@/constants/theme';
+import { FontSize, Radius, Spacing } from '@/constants/theme';
 import {
   ScrollView,
   StyleSheet,
@@ -9,7 +9,8 @@ import {
   TouchableOpacity,
   Pressable,
   Alert,
-  ActivityIndicator, SafeAreaView,
+  ActivityIndicator,
+  SafeAreaView,
 } from 'react-native';
 import { SearchInput } from '@/components/ui/input';
 import React, { useState, useEffect } from 'react';
@@ -21,6 +22,7 @@ import { Colors } from '@/constants/theme';
 import SvgHorizontalDots from '@/components/icons/HorizontalDots';
 import SvgRunningShoeIcon from '@/components/icons/RunningShoeIcon';
 import SvgEye from '@/components/icons/Eye';
+import SvgCrossEye from '@/components/icons/CrossEye';
 import SvgTrash from '@/components/icons/Trash';
 import SvgCheck from '@/components/icons/Check';
 import SvgX from '@/components/icons/X';
@@ -32,12 +34,13 @@ import type { Friend } from '@/stores/friends';
 import {API_URL} from "@/constants/env";
 import {useStore} from "@/stores";
 
+
 export default function FriendsScreen() {
   const [search, setSearch] = useState('');
   const [searchAddFriend, setSearchAddFriend] = useState('');
   const [tab, setTab] = useState('friends');
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null);
+  const [selectedFriend, setSelectedFriend] = useState<Friend>();
   const [addFriendModalVisible, setAddFriendModalVisible] = useState(false);
 
   const { isAuthenticated } = useAuth();
@@ -56,7 +59,6 @@ export default function FriendsScreen() {
     searchResults,
     blockedNotifications,
     toggleNotificationBlock,
-    fetchNotificationSettings,
     startPolling,
     stopPolling,
   } = useFriendsStore();
@@ -81,15 +83,20 @@ export default function FriendsScreen() {
   }, [isAuthenticated, fetchFriends, fetchRequests, startPolling, stopPolling]);
 
   useEffect(() => {
-    fetchNotificationSettings();
-    console.log('fetchNotificationSettings');
-  }, []);
-
-  useEffect(() => {
     if (error) {
       Alert.alert('Erreur', error, [{ text: 'OK', onPress: clearError }]);
     }
   }, [error]);
+
+  // Synchroniser selectedFriend avec le store quand friends change
+  useEffect(() => {
+    if (selectedFriend) {
+      const updatedFriend = friends.find(f => f.id === selectedFriend.id);
+      if (updatedFriend) {
+        setSelectedFriend(updatedFriend);
+      }
+    }
+  }, [friends, selectedFriend?.id]);
 
   const handleAcceptRequest = async (requestId: number) => {
     try {
@@ -149,9 +156,9 @@ export default function FriendsScreen() {
   }, [searchAddFriend, addFriendModalVisible]);
 
   // Helper pour savoir si un ami est bloqué pour les notifications
-  const isNotificationBlocked = (userId?: number) => {
-    if (!userId) return false;
-    return blockedNotifications.includes(userId);
+  const isNotificationBlocked = (friend?: Friend) => {
+    if (!friend) return false;
+    return friend.notification_block === 1;
   };
 
   if (isLoading) {
@@ -162,8 +169,6 @@ export default function FriendsScreen() {
       </View>
     );
   }
-
-  const isBlocked = isNotificationBlocked(selectedFriend?.id);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -198,7 +203,7 @@ export default function FriendsScreen() {
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <View style={{ marginTop: 24 }}>
             {filteredFriends.length === 0 ? (
-              <Text style={{ textAlign: 'center', color: Colors.gray["400"], marginTop: 12 }}>
+              <Text style={{ textAlign: 'center', color: Colors.gray['400'], marginTop: 12 }}>
                 {search ? 'Aucun ami trouvé' : "Vous n'avez pas encore d'amis"}
               </Text>
             ) : (
@@ -214,13 +219,7 @@ export default function FriendsScreen() {
                       <Text style={styles.friendName}>
                         {friend.first_name} {friend.last_name}
                       </Text>
-                      {isNotificationBlocked(friend.id) && (
-                        <SvgEye width={14} height={14} color={Colors.textSecondary} />
-                      )}
                     </View>
-                    {isNotificationBlocked(friend.id) && (
-                      <Text style={styles.notificationBlockedText}>Notifications désactivées</Text>
-                    )}
                   </View>
                   <Pressable
                     onPress={() => {
@@ -241,7 +240,9 @@ export default function FriendsScreen() {
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <View style={{ marginTop: 24 }}>
             {filteredRequests.length === 0 && (
-              <Text style={{ textAlign: 'center', color: Colors.gray["400"], marginTop: 12 }}>Aucune demande</Text>
+              <Text style={{ textAlign: 'center', color: Colors.gray['400'], marginTop: 12 }}>
+                Aucune demande
+              </Text>
             )}
             {filteredRequests.map((request, index) => (
               <View key={`request-${request.request_id}-${index}`} style={styles.requestItem}>
@@ -292,7 +293,8 @@ export default function FriendsScreen() {
           </View>
           <ScrollView style={{ paddingHorizontal: Spacing.lg }}>
             {searchResults.length === 0 ? (
-              <Text style={{ textAlign: 'center', color: Colors.gray["400"], marginTop: Spacing.xl }}>
+              <Text
+                style={{ textAlign: 'center', color: Colors.gray['400'], marginTop: Spacing.xl }}>
                 {searchAddFriend.trim() === ''
                   ? 'Commencez à taper pour rechercher des utilisateurs'
                   : 'Aucun utilisateur trouvé'}
@@ -338,9 +340,7 @@ export default function FriendsScreen() {
         visible={drawerVisible}
         onClose={() => setDrawerVisible(false)}>
         <View>
-          <Text style={styles.drawerTitle}>
-            {selectedFriend?.first_name || 'Ami'}
-          </Text>
+          <Text style={styles.drawerTitle}>{selectedFriend?.first_name || 'Ami'}</Text>
           {/* Bouton Encourager maintenant */}
           <Pressable
             style={[styles.drawerOption, !selectedFriend?.isRunning && { opacity: 0.5 }]}
@@ -362,9 +362,19 @@ export default function FriendsScreen() {
                 await toggleNotificationBlock(selectedFriend.id);
               }
             }}>
-            <SvgEye width={20} height={20} color={Colors.textPrimary} />
-            <Text style={styles.drawerOptionText}>
-              {isBlocked ? 'Notifier de mes courses' : 'Ne pas le notifier de mes courses'}
+            {isNotificationBlocked(selectedFriend) ? (
+              <SvgCrossEye width={20} height={20} />
+            ) : (
+              <SvgEye width={20} height={20} color={Colors.textPrimary} />
+            )}
+            <Text
+              style={[
+                styles.drawerOptionText,
+                isNotificationBlocked(selectedFriend) && { color: Colors.textSecondary },
+              ]}>
+              {isNotificationBlocked(selectedFriend)
+                ? 'Notifier de mes courses'
+                : 'Ne pas le notifier de mes courses'}
             </Text>
           </Pressable>
           {/* Bouton Supprimer */}
@@ -398,7 +408,7 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.md,
     backgroundColor: Colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border
+    borderBottomColor: Colors.border,
   },
   headerSection: {
     flexDirection: 'row',
@@ -519,7 +529,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
     paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md
+    paddingVertical: Spacing.md,
   },
   drawerTitle: {
     fontWeight: '600',
@@ -529,5 +539,5 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
     marginBottom: Spacing.md,
-  }
+  },
 });
