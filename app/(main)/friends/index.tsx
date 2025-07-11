@@ -31,9 +31,8 @@ import { useAuth } from '@/stores/auth';
 import { fuzzySearch } from '@/utils/calculations';
 import { useRouter } from 'expo-router';
 import type { Friend } from '@/stores/friends';
-import {API_URL} from "@/constants/env";
-import {useStore} from "@/stores";
-
+import { API_URL } from '@/constants/env';
+import { useStore } from '@/stores';
 
 export default function FriendsScreen() {
   const [search, setSearch] = useState('');
@@ -64,10 +63,10 @@ export default function FriendsScreen() {
   } = useFriendsStore();
 
   const router = useRouter();
-  const { setBackgroundColor } = useStore()
+  const { setBackgroundColor } = useStore();
 
   useEffect(() => {
-    setBackgroundColor(Colors.white)
+    setBackgroundColor(Colors.white);
   }, []);
 
   useEffect(() => {
@@ -347,7 +346,13 @@ export default function FriendsScreen() {
             onPress={() => {
               if (selectedFriend?.isRunning && selectedFriend.id !== undefined) {
                 setDrawerVisible(false);
-                router.push({ pathname: '/cheer', params: { id: String(selectedFriend.id) } });
+                router.push({
+                  pathname: '/cheer',
+                  params: {
+                    id: String(selectedFriend.id),
+                    firstName: selectedFriend.first_name,
+                  },
+                });
               }
             }}
             disabled={!selectedFriend?.isRunning || selectedFriend?.id === undefined}>

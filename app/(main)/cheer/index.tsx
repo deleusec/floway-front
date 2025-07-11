@@ -1,29 +1,82 @@
-import React, { useRef, useState } from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Image, ScrollView} from 'react-native';
+import React, { useRef, useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
 import { useCheerStore } from '@/stores/cheer';
 import { Colors, Spacing, FontSize, FontFamily, Radius } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import CheerMicButton from '@/components/ui/button/mic';
+import { useLocalSearchParams } from 'expo-router';
+import SessionMap from '@/components/ui/session-map';
 
-function formatTime(sec: number) {
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-  return `${m}h${s < 10 ? '0' : ''}${s}`;
+function formatTime(seconds: number) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainingSeconds = seconds % 60;
+
+  if (hours > 0) {
+    return `${hours}h${minutes.toString().padStart(2, '0')}`;
+  }
+  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+function formatDistance(meters: number) {
+  if (meters >= 1000) {
+    return `${(meters / 1000).toFixed(1)} km`;
+  }
+  return `${meters.toFixed(0)} m`;
 }
 
 export default function CheerScreen() {
-  const { friendName, stats, flows, selectedFlowId, selectFlow, audioUri, setAudioUri, reset } =
-    useCheerStore();
+  const params = useLocalSearchParams<{ id?: string; firstName?: string }>();
+  const {
+    friendName,
+    stats,
+    flows,
+    selectedFlowId,
+    selectFlow,
+    audioUri,
+    setAudioUri,
+    reset,
+    fetchFriendSession,
+    isLoading,
+    error,
+  } = useCheerStore();
+
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Récupérer les données de l'ami au chargement de la page
+  useEffect(() => {
+    if (params.id) {
+      fetchFriendSession(params.id);
+      // Si on a le prénom en paramètre, on peut l'utiliser immédiatement
+      if (params.firstName) {
+        // Optionnel : mettre à jour le store avec le prénom
+        console.log('[CHEER] Prénom reçu:', params.firstName);
+      }
+    }
+  }, [params.id, params.firstName, fetchFriendSession]);
+
+  // Gérer les erreurs
+  useEffect(() => {
+    if (error) {
+      Alert.alert('Erreur', error, [{ text: 'OK' }]);
+    }
+  }, [error]);
 
   const displayStats = stats || {
     time: 5340,
     distance: 10200,
     speed: 6.7,
-    mapImageUrl:
-      'https://static-maps.yandex.ru/1.x/?lang=fr_FR&ll=-3.45,48.78&z=12&l=map&pl=c:FF0000FF,w:5,-3.45,48.78,-3.47,48.80,-3.48,48.81',
+    coordinates: [],
   };
 
   const startRecording = () => {
@@ -39,39 +92,53 @@ export default function CheerScreen() {
       });
     }, 1000);
   };
+
   const stopRecording = () => {
     setIsRecording(false);
     if (timerRef.current) clearInterval(timerRef.current);
     setAudioUri('mock://audio');
   };
+
   const handlePlay = () => {
     alert('Lecture audio (mock)');
   };
+
   const handleDelete = () => {
     setAudioUri(null);
     setRecordingTime(0);
   };
 
+  if (isLoading) {
+    return (
+      <View style={[styles.container, styles.centerContent]}>
+        <ActivityIndicator size='large' color={Colors.primary} />
+        <Text style={{ marginTop: 16, color: Colors.textSecondary }}>
+          Chargement des données...
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Carte + stats */}
       <View style={styles.mapContainer}>
-        <Image
-          source={{ uri: displayStats.mapImageUrl }}
-          style={styles.mapImg}
-          resizeMode='cover'
-        />
+        <View style={styles.mapCard}>
+          <SessionMap
+            coordinates={displayStats.coordinates || []}
+            height={140}
+            style={styles.mapStyle}
+          />
+        </View>
+
         <View style={styles.statsBox}>
           <View style={styles.statItem}>
             <Ionicons name='time' size={12} color={Colors.textPrimary} />
-            <Text style={styles.statText}>
-              {Math.floor(displayStats.time / 60)}h
-              {(displayStats.time % 60).toString().padStart(2, '0')}
-            </Text>
+            <Text style={styles.statText}>{formatTime(displayStats.time)}</Text>
           </View>
           <View style={styles.statItem}>
             <Ionicons name='location' size={12} color={Colors.textPrimary} />
-            <Text style={styles.statText}>{(displayStats.distance / 1000).toFixed(1)} km</Text>
+            <Text style={styles.statText}>{formatDistance(displayStats.distance)}</Text>
           </View>
           <View style={styles.statItem}>
             <Ionicons name='speedometer' size={12} color={Colors.textPrimary} />
@@ -115,20 +182,32 @@ export default function CheerScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+  },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   mapContainer: {
     alignItems: 'center',
     paddingTop: Spacing.lg,
     marginBottom: Spacing.lg,
-    paddingHorizontal: Spacing.lg
+    paddingHorizontal: Spacing.lg,
   },
-  mapImg: {
+  mapCard: {
     width: '100%',
-    height: 140,
     borderRadius: Radius.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    backgroundColor: Colors.white,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+    overflow: 'hidden',
+  },
+  mapStyle: {
+    borderTopLeftRadius: Radius.md,
+    borderTopRightRadius: Radius.md,
   },
   statsBox: {
     flexDirection: 'row',
@@ -148,7 +227,7 @@ const styles = StyleSheet.create({
   statText: {
     marginLeft: Spacing.xs,
     fontSize: FontSize.sm,
-    color: Colors.textPrimary
+    color: Colors.textPrimary,
   },
   sectionTitle: {
     fontSize: FontSize.md,
@@ -186,7 +265,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: Colors.textSecondary,
     fontSize: FontSize.md,
-    fontWeight: '600'
+    fontWeight: '600',
   },
   flowsList: {
     marginHorizontal: Spacing.lg,
@@ -198,14 +277,14 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
     backgroundColor: '#F1F1F1',
     borderWidth: 1,
-    borderColor: '#F1F1F1'
+    borderColor: '#F1F1F1',
   },
   flowBtnSelected: {
     backgroundColor: Colors.primary + '1A',
     borderColor: Colors.primary,
   },
   flowText: {
-    color: Colors.gray["700"],
+    color: Colors.gray['700'],
     fontSize: FontSize.md,
     textAlign: 'center',
   },
