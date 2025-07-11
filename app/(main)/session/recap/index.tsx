@@ -20,18 +20,14 @@ import { paceToSpeed } from '@/utils/calculations';
 import SvgClockIcon from '@/components/icons/ClockIcon';
 import SvgPinIcon from '@/components/icons/PinIcon';
 import SvgSpeedIcon from '@/components/icons/SpeedIcon';
+import SessionMap from '@/components/ui/session-map';
 
 const SessionSummaryScreen = () => {
   const router = useRouter();
   const { sessionData } = useLocalSearchParams<{ sessionData?: string }>();
   const { user, token } = useAuth();
-  const {
-    session,
-    updateSessionTitle,
-    deleteSession,
-    fetchLastUserSession,
-    isLoading,
-  } = useRunningSessionStore();
+  const { session, updateSessionTitle, deleteSession, fetchLastUserSession, isLoading } =
+    useRunningSessionStore();
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
@@ -204,65 +200,11 @@ const SessionSummaryScreen = () => {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Carte */}
         <View style={styles.mapCard}>
-          <View style={styles.mapContainer}>
-            {mapRegion && coordinates.length > 0 ? (
-              <MapView
-                style={styles.map}
-                region={mapRegion}
-                scrollEnabled={false}
-                zoomEnabled={false}
-                rotateEnabled={false}
-                pitchEnabled={false}
-                showsUserLocation={false}
-                showsMyLocationButton={false}
-                showsCompass={false}
-                showsScale={false}
-                showsPointsOfInterest={false}
-                showsBuildings={false}
-                showsTraffic={false}
-                showsIndoors={false}
-                toolbarEnabled={false}
-                moveOnMarkerPress={false}
-                liteMode={true}
-                mapType='standard'>
-                {/* Tracé principal */}
-                <Polyline
-                  coordinates={coordinates}
-                  strokeColor='#FF4757'
-                  strokeWidth={4}
-                  lineJoin='round'
-                  lineCap='round'
-                />
-                {/* Start marker */}
-                {coordinates.length > 0 && (
-                  <Marker coordinate={coordinates[0]} anchor={{ x: 0.5, y: 0.5 }}>
-                    <View style={styles.startMarker}>
-                      <Text style={styles.startMarkerText}>🏁</Text>
-                    </View>
-                  </Marker>
-                )}
-                {/* End marker */}
-                {coordinates.length > 1 && (
-                  <Marker
-                    coordinate={coordinates[coordinates.length - 1]}
-                    anchor={{ x: 0.5, y: 0.5 }}>
-                    <View style={styles.endMarker}>
-                      <Text style={styles.endMarkerText}>🏃‍♂️</Text>
-                    </View>
-                  </Marker>
-                )}
-              </MapView>
-            ) : (
-              <View style={styles.mapPlaceholder}>
-                <View style={styles.fakeMap}>
-                  <Text style={styles.mapTitle}>🗺️ Paris</Text>
-                  <View style={styles.fakeRoute} />
-                  <View style={styles.fakeRoute2} />
-                  <View style={styles.fakeLoop} />
-                </View>
-              </View>
-            )}
-          </View>
+          <SessionMap
+            coordinates={displayData.tps || []}
+            height={200}
+            style={styles.mapContainer}
+          />
 
           {/* Info section */}
           <View style={styles.mapInfo}>
@@ -302,7 +244,9 @@ const SessionSummaryScreen = () => {
         <View style={styles.buttons}>
           {sessionData ? (
             // Mode historique : seulement le bouton supprimer
-            <TouchableOpacity style={[styles.deleteBtn, styles.fullWidthBtn]} onPress={handleDeleteSession}>
+            <TouchableOpacity
+              style={[styles.deleteBtn, styles.fullWidthBtn]}
+              onPress={handleDeleteSession}>
               <Text style={styles.deleteBtnText}>Supprimer cette session</Text>
             </TouchableOpacity>
           ) : (

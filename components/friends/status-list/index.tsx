@@ -36,7 +36,13 @@ export default function FriendsStatusList() {
             isRunning={item.isRunning}
             onPress={() => {
               if (item.isRunning) {
-                router.push(`/cheer?friendId=${item.id}`);
+                router.push({
+                  pathname: '/cheer',
+                  params: {
+                    id: String(item.id),
+                    firstName: item.first_name,
+                  },
+                });
               }
             }}
           />
