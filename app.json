@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "floway",
-    "slug": "floway",
+    "name": "floway-front",
+    "slug": "floway-front",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
