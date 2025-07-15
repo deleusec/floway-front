@@ -2,9 +2,9 @@
   "expo": {
     "name": "floway-front",
     "slug": "floway-front",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/full-icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
@@ -40,7 +40,7 @@
       ]
     ],
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.floway.flowayapp",
       "infoPlist": {
         "UIBackgroundModes": [
@@ -64,7 +64,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/full-icon.png",
         "backgroundColor": "#1C1F26"
       },
       "package": "com.floway.flowayapp",
