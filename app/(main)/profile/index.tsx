@@ -8,13 +8,15 @@ import {
   SafeAreaView,
   Alert,
 } from 'react-native';
-import {Colors, Radius} from "@/theme";
+import {Colors, Radius, Spacing} from "@/theme";
 import SvgEditIcon from "@/components/icons/EditIcon";
 import SvgLogoutIcon from "@/components/icons/LogoutIcon";
 import { useAuth } from "@/stores/auth";
 import { API_URL } from '@/constants/env';
+import { Linking } from 'react-native';
 import {router} from "expo-router";
 import {useStore} from "@/stores";
+import SvgTrash from "@/components/icons/Trash";
 
 export default function ProfileScreen() {
   const logout = useAuth(state => state.logout);
@@ -49,6 +51,32 @@ export default function ProfileScreen() {
     );
   };
 
+  const confirmDelete = () => {
+    Alert.alert(
+      "Suppression de compte",
+      "Êtes-vous sûr de vouloir demander la suppression de votre compte ? Un email sera ouvert pour finaliser la demande.",
+      [
+        { text: "Annuler", style: "cancel" },
+        {
+          text: "Continuer",
+          style: "destructive",
+          onPress: () => {
+            const email = "floway.dev@gmail.com";
+            const subject = encodeURIComponent("Demande de suppression de compte Floway");
+            const body = encodeURIComponent(
+              `Bonjour,\n\nJe souhaite supprimer mon compte Floway associé à l'adresse email suivante : ${user?.email}.\n\nMerci d'en accuser réception.\n\nCordialement,`
+            );
+            const mailtoUrl = `mailto:${email}?subject=${subject}&body=${body}`;
+            Linking.openURL(mailtoUrl).catch(err =>
+              Alert.alert("Erreur", "Impossible d’ouvrir votre application mail.")
+            );
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   const profilePictureUrl = `${API_URL}/api/user/picture/${user?.id}?bearer=${token}`;
 
   return (
@@ -76,8 +104,13 @@ export default function ProfileScreen() {
       {/* Logout Button */}
       <View style={styles.logoutContainer}>
         <TouchableOpacity style={styles.logoutButton} onPress={confirmLogout}>
-          <SvgLogoutIcon width={20} height={20} />
+          <SvgLogoutIcon color={Colors.black} width={20} height={20} />
           <Text style={styles.logoutText}>Me déconnecter</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.deleteAccountButton} onPress={confirmDelete}>
+          <SvgTrash color={Colors.error} width={20} height={20} />
+          <Text style={styles.deleteAccountText}>Supprimer mon compte</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -123,19 +156,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 'auto',
     marginBottom: 40,
+    marginHorizontal: Spacing.xl
   },
   logoutButton: {
     flexDirection: 'row',
-    borderColor: Colors.error,
+    borderColor: Colors.borderHigh,
     borderWidth: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 39,
+    paddingVertical: 13,
     borderRadius: Radius.full,
+    justifyContent: 'center',
     alignItems: 'center',
+    width: '100%',
     gap: 8,
   },
   logoutText: {
+    color: Colors.black,
+    fontWeight: '500',
+  },
+  deleteAccountButton: {
+    flexDirection: 'row',
+    marginTop: Spacing.md,
+    borderColor: Colors.error,
+    borderWidth: 1,
+    paddingVertical: 13,
+    borderRadius: Radius.full,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '100%',
+    gap: 8,
+  },
+  deleteAccountText: {
     color: Colors.error,
     fontWeight: '500',
-  }
+  },
 });

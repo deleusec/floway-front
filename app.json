@@ -45,17 +45,13 @@
       "infoPlist": {
         "UIBackgroundModes": [
           "location",
-          "fetch",
-          "audio",
-          "location",
-          "fetch",
-          "audio"
+          "fetch"
         ],
         "NSLocationUsageDescription": "Floway needs access to location when open to track your running sessions.",
-        "NSLocationWhenInUseUsageDescription": "Floway needs access to location when open to track your running sessions.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Floway needs access to location to track your running sessions even when the app is in background.",
+        "NSLocationWhenInUseUsageDescription": "Floway uses your location during active running sessions to show your real-time route and performance stats.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Floway tracks your location in the background to ensure complete and accurate recording of your running sessions.",
         "NSMicrophoneUsageDescription": "Floway needs access to your microphone to record guided run sessions.",
-        "NSLocationAlwaysUsageDescription": "Floway needs access to your location at all times to track your running sessions.",
+        "NSLocationAlwaysUsageDescription": "Floway needs continuous access to your location to track running sessions that continue when the app is not in the foreground.",
         "NSCameraUsageDescription": "Floway needs access to your camera to take a profile picture.",
         "NSPhotoLibraryUsageDescription": "Floway needs access to your library to choose a profile picture.",
         "NSPhotoLibraryAddUsageDescription": "Floway needs to save photos to your library.",
