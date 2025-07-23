@@ -243,11 +243,25 @@ const CardMap: React.FC<CardMapProps> = ({
 
         {/* Section d'accomplissement conditionnelle */}
         {achievement && (
-          <View style={styles.achievementContent}>
-            <Text style={styles.achievementEmoji}>{achievement.emoji}</Text>
+          <View
+            style={[
+              styles.achievementContent,
+              {
+                borderColor: achievement.color,
+                backgroundColor: `${achievement.color}15`,
+              },
+            ]}
+          >
+            <Text style={styles.achievementEmoji}>
+              {achievement.emoji}
+            </Text>
             <View style={styles.achievementText}>
-              <Text style={styles.achievementTitle}>{achievement.title}</Text>
-              <Text style={styles.achievementSubtitle}>{achievement.subtitle}</Text>
+              <Text style={styles.achievementTitle}>
+                {achievement.title}
+              </Text>
+              <Text style={styles.achievementSubtitle}>
+                {achievement.subtitle}
+              </Text>
             </View>
           </View>
         )}
@@ -359,11 +373,9 @@ const styles = StyleSheet.create({
   },
   achievementContent: {
     borderWidth: 1,
-    borderColor: Colors.yellow,
     borderRadius: Radius.md,
     marginHorizontal: Spacing.md,
     marginBottom: Spacing.md,
-    backgroundColor: Colors.yellow + '0D',
     paddingVertical: Spacing.md,
     paddingHorizontal: Spacing.md,
     flexDirection: 'row',

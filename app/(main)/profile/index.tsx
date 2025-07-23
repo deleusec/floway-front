@@ -26,6 +26,7 @@ export default function ProfileScreen() {
   useEffect(() => {
     setBackgroundColor(Colors.white)
   }, []);
+
   const [imageError, setImageError] = useState(false);
 
   const handleEditProfile = () => {

@@ -3,7 +3,6 @@ import { FlatList, View, StyleSheet, Text } from 'react-native';
 import { Spacing, Colors, FontSize, FontFamily } from '@/constants/theme';
 import FriendStatusAvatar from '../status-avatar';
 import { useFriendsStore } from '@/stores/friends';
-import { router } from 'expo-router';
 import { useAuth } from '@/stores/auth';
 import { API_URL } from '@/constants/env';
 
@@ -34,7 +33,7 @@ export default function FriendsStatusList() {
             image={`${API_URL}/api/user/picture/${item.id}?bearer=${token}`}
             name={`${item.first_name} ${item.last_name}`}
             isRunning={item.isRunning}
-            onPress={() => {
+            /*onPress={() => {
               if (item.isRunning) {
                 router.push({
                   pathname: '/cheer',
@@ -44,7 +43,7 @@ export default function FriendsStatusList() {
                   },
                 });
               }
-            }}
+            }}*/
           />
           <Text numberOfLines={1} ellipsizeMode='tail' style={styles.name}>
             {item.first_name}

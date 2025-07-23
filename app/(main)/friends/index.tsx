@@ -62,7 +62,6 @@ export default function FriendsScreen() {
     stopPolling,
   } = useFriendsStore();
 
-  const router = useRouter();
   const { setBackgroundColor } = useStore();
 
   useEffect(() => {
@@ -346,13 +345,13 @@ export default function FriendsScreen() {
             onPress={() => {
               if (selectedFriend?.isRunning && selectedFriend.id !== undefined) {
                 setDrawerVisible(false);
-                router.push({
+                /*router.push({
                   pathname: '/cheer',
                   params: {
                     id: String(selectedFriend.id),
                     firstName: selectedFriend.first_name,
                   },
-                });
+                });*/
               }
             }}
             disabled={!selectedFriend?.isRunning || selectedFriend?.id === undefined}>

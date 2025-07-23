@@ -25,6 +25,7 @@ import SvgPinMap from '@/components/icons/PinMap';
 import SvgStopIcon from '@/components/icons/StopIcon';
 import { Colors, FontSize, Radius, Spacing } from '@/theme';
 import { useStore } from '@/stores';
+import SvgX from "@/components/icons/X";
 
 export default function SessionScreen() {
   const router = useRouter();
@@ -203,7 +204,12 @@ export default function SessionScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header avec titre et barre de progression conditionnelle */}
       <View style={styles.header}>
-        <Text style={styles.title}>{getSessionTitle()}</Text>
+        <View style={styles.headerTop}>
+          <Text style={styles.title}>{getSessionTitle()}</Text>
+          <TouchableOpacity onPress={handleStopSession}>
+            <SvgX width={24} height={24} color='#444444' />
+          </TouchableOpacity>
+        </View>
 
         {/* Barre de progression - seulement si ce n'est pas une course libre */}
         {!isFreeRun && (
@@ -389,6 +395,10 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.lg,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   title: {
     fontSize: FontSize.lg,

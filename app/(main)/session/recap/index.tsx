@@ -7,31 +7,35 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
-  StatusBar,
-  Platform,
+  StatusBar
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useRunningSessionStore } from '@/stores/session';
 import { useAuth } from '@/stores/auth';
-import MapView, { Polyline, Marker } from 'react-native-maps';
-import { FontSize } from '@/constants/theme';
+import {Colors, FontSize, Radius, Spacing} from '@/constants/theme';
 import SvgEdit from '@/components/icons/Edit';
 import { paceToSpeed } from '@/utils/calculations';
-import SvgClockIcon from '@/components/icons/ClockIcon';
-import SvgPinIcon from '@/components/icons/PinIcon';
-import SvgSpeedIcon from '@/components/icons/SpeedIcon';
 import SessionMap from '@/components/ui/session-map';
+import {useStore} from "@/stores";
+import {Ionicons} from "@expo/vector-icons";
+import Button from "@/components/ui/button";
 
 const SessionSummaryScreen = () => {
   const router = useRouter();
   const { sessionData } = useLocalSearchParams<{ sessionData?: string }>();
   const { user, token } = useAuth();
+  const { setBackgroundColor } = useStore()
+
   const { session, updateSessionTitle, deleteSession, fetchLastUserSession, isLoading } =
     useRunningSessionStore();
 
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState('');
   const [lastSession, setLastSession] = useState<any>(null);
+
+  useEffect(() => {
+    setBackgroundColor(Colors.white)
+  }, []);
 
   useEffect(() => {
     const loadData = async () => {
@@ -191,7 +195,7 @@ const SessionSummaryScreen = () => {
               <Text style={styles.subtitle}>{formatDate(displayData.title)}</Text>
             </View>
           )}
-          <TouchableOpacity onPress={() => setIsEditingTitle(true)} style={styles.editButton}>
+          <TouchableOpacity onPress={() => setIsEditingTitle(true)}>
             <SvgEdit />
           </TouchableOpacity>
         </View>
@@ -199,28 +203,27 @@ const SessionSummaryScreen = () => {
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Carte */}
-        <View style={styles.mapCard}>
-          <SessionMap
-            coordinates={displayData.tps || []}
-            height={200}
-            style={styles.mapContainer}
-          />
+        <View style={styles.mapContainer}>
+          <View style={styles.mapCard}>
+            <SessionMap
+              coordinates={displayData.tps || []}
+              height={140}
+              style={styles.mapStyle}
+            />
+          </View>
 
-          {/* Info section */}
-          <View style={styles.mapInfo}>
-            <View style={styles.statsRow}>
-              <View style={styles.stat}>
-                <SvgClockIcon width={12} height={12} />
-                <Text style={styles.statText}>{formatTime(displayData.time)}</Text>
-              </View>
-              <View style={styles.stat}>
-                <SvgPinIcon width={12} height={12} />
-                <Text style={styles.statText}>{formatDistance(displayData.distance)}</Text>
-              </View>
-              <View style={styles.stat}>
-                <SvgSpeedIcon width={12} height={12} />
-                <Text style={styles.statText}>{formatSpeed(displayData.allure)}</Text>
-              </View>
+          <View style={styles.statsBox}>
+            <View style={styles.statItem}>
+              <Ionicons name='time' size={12} color={Colors.textPrimary} />
+              <Text style={styles.statText}>{formatTime(displayData.time)}</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Ionicons name='location' size={12} color={Colors.textPrimary} />
+              <Text style={styles.statText}>{formatDistance(displayData.distance)}</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Ionicons name='speedometer' size={12} color={Colors.textPrimary} />
+              <Text style={styles.statText}>{formatSpeed(displayData.allure)}</Text>
             </View>
           </View>
         </View>
@@ -239,34 +242,44 @@ const SessionSummaryScreen = () => {
             </View>
           </View>
         )}
-
-        {/* Boutons */}
-        <View style={styles.buttons}>
-          {sessionData ? (
-            // Mode historique : seulement le bouton supprimer
-            <TouchableOpacity
-              style={[styles.deleteBtn, styles.fullWidthBtn]}
-              onPress={handleDeleteSession}>
-              <Text style={styles.deleteBtnText}>Supprimer cette session</Text>
-            </TouchableOpacity>
-          ) : (
-            // Mode fin de session : supprimer et enregistrer
-            <>
-              <TouchableOpacity style={styles.deleteBtn} onPress={handleDeleteSession}>
-                <Text style={styles.deleteBtnText}>Supprimer</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.saveBtn, isLoading && styles.saveBtnDisabled]}
-                onPress={handleSaveSession}
-                disabled={isLoading}>
-                <Text style={styles.saveBtnText}>
-                  {isLoading ? 'Enregistrement...' : 'Enregistrer'}
-                </Text>
-              </TouchableOpacity>
-            </>
-          )}
-        </View>
       </ScrollView>
+
+      {/* Boutons */}
+      <View style={styles.buttons}>
+        {sessionData ? (
+          <>
+            {/* Mode historique : seulement le bouton supprimer */}
+            <Button
+              onPress={() => router.push('/(main)')}
+              title='Retour'
+              variant='outline'
+              style={{ flex: 1 }}
+            />
+            <Button
+              onPress={handleDeleteSession}
+              title='Supprimer'
+              variant='error'
+              style={{ flex: 1 }}
+            />
+          </>
+        ) : (
+          // Mode fin de session : supprimer et enregistrer
+          <>
+            <Button
+              onPress={handleDeleteSession}
+              title='Supprimer'
+              variant='error'
+              style={{ flex: 1 }}
+            />
+            <Button
+              onPress={handleSaveSession}
+              title={isLoading ? 'Enregistrement...' : 'Enregistrer'}
+              disabled={isLoading}
+              style={{ flex: 1 }}
+            />
+          </>
+        )}
+      </View>
     </View>
   );
 };
@@ -274,12 +287,16 @@ const SessionSummaryScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.background
   },
   header: {
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    backgroundColor: Colors.white,
+    padding: Spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border
   },
   titleContainer: {
     flexDirection: 'row',
@@ -290,14 +307,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#000',
-    marginBottom: 4,
+    fontSize: FontSize.lg,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+    marginBottom: 18,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
+    fontSize: FontSize.sm,
+    color: Colors.textPrimary,
   },
   titleInput: {
     fontSize: 28,
@@ -308,31 +325,8 @@ const styles = StyleSheet.create({
     borderBottomColor: '#6366F1',
     paddingBottom: 5,
   },
-  editButton: {
-    padding: 8,
-    marginLeft: 16,
-  },
   content: {
     flex: 1,
-  },
-  mapCard: {
-    margin: 20,
-    marginBottom: 24,
-    borderRadius: 16,
-    backgroundColor: '#FFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
-    alignItems: 'center', // centre la bulle sous la carte
-  },
-  mapContainer: {
-    position: 'relative',
-    height: 200,
-    width: '100%',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
   },
   map: {
     flex: 1,
@@ -354,13 +348,51 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#64748B',
   },
+  mapContainer: {
+    alignItems: 'center',
+    paddingTop: Spacing.lg,
+    marginBottom: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
+  },
+  mapCard: {
+    width: '100%',
+    borderRadius: Radius.md,
+    backgroundColor: Colors.white,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  mapStyle: {
+    borderTopLeftRadius: Radius.md,
+    borderTopRightRadius: Radius.md,
+  },
+  statsBox: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+    padding: Spacing.md,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.sm,
+    position: 'absolute',
+    bottom: -20,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  statItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  statText: {
+    marginLeft: Spacing.xs,
+    fontSize: FontSize.sm,
+    color: Colors.textPrimary,
+  },
   fakeRoute: {
     position: 'absolute',
     top: 50,
     left: 30,
     width: 80,
     height: 3,
-    backgroundColor: '#FF4757',
+    backgroundColor: Colors.primary,
     borderRadius: 2,
     transform: [{ rotate: '25deg' }],
   },
@@ -370,7 +402,7 @@ const styles = StyleSheet.create({
     left: 60,
     width: 60,
     height: 3,
-    backgroundColor: '#FF4757',
+    backgroundColor: Colors.primary,
     borderRadius: 2,
     transform: [{ rotate: '-15deg' }],
   },
@@ -381,27 +413,8 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderWidth: 3,
-    borderColor: '#FF4757',
+    backgroundColor: Colors.primary,
     borderRadius: 15,
-  },
-  mapInfo: {
-    position: 'absolute',
-    left: '60%',
-    transform: [{ translateX: -150 }],
-    bottom: -20,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    minWidth: 220,
-    maxWidth: 320,
   },
   achievement: {
     paddingHorizontal: 20,
@@ -436,52 +449,13 @@ const styles = StyleSheet.create({
   },
   buttons: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
-    paddingBottom: Platform.OS === 'ios' ? 40 : 24,
-    marginTop: 32,
-    gap: 12,
-  },
-  deleteBtn: {
-    flex: 1,
-    backgroundColor: 'transparent',
-    borderRadius: 25,
-    paddingVertical: 16,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  deleteBtnText: {
-    color: '#666',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  saveBtn: {
-    flex: 1,
-    backgroundColor: '#6366F1',
-    borderRadius: 25,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  saveBtnText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  saveBtnDisabled: {
-    opacity: 0.6,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  stat: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-  },
-  statText: {
-    fontSize: FontSize.sm,
-    fontWeight: '600',
+    justifyContent: 'space-between',
+    gap: 16,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    backgroundColor: Colors.white,
   },
   // Ajout styles markers
   startMarker: {

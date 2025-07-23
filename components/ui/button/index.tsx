@@ -49,7 +49,7 @@ const Button: React.FC<ButtonProps> = ({
         : variant === 'outline'
           ? Colors.white
           : variant === 'error'
-            ? Colors.error
+            ? 'transparent'
             : 'transparent';
 
   const textColor =
@@ -57,9 +57,16 @@ const Button: React.FC<ButtonProps> = ({
       ? disabledTextColor
       : variant === 'primary'
         ? Colors.white
-        : Colors.textPrimary;
+        : variant === 'error'
+          ? Colors.error
+          : Colors.textPrimary;
 
-  const borderStyle = variant === 'outline' ? { borderWidth: 1, borderColor: Colors.border } : {};
+  const borderStyle =
+    variant === 'outline'
+      ? { borderWidth: 1, borderColor: Colors.border }
+      : variant === 'error'
+        ? { borderWidth: 1, borderColor: Colors.error }
+        : {};
 
   const widthStyle: ViewStyle = width === 'full' ? { width: '100%' } : { alignSelf: 'flex-start' };
 

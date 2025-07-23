@@ -22,9 +22,9 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Allow Floway to access your location to track your running sessions.",
-          "locationAlwaysPermission": "Allow Floway to access your location in the background for accurate session tracking.",
-          "locationWhenInUsePermission": "Allow Floway to access your location during active sessions.",
+          "locationAlwaysAndWhenInUsePermission": "Floway uses your location while the app is open and in the background to record your entire running route, even if you lock your phone or switch to another app.",
+          "locationAlwaysPermission": "Floway requires background location access to continue tracking your run when the app is not visible, ensuring no part of your route is missed.",
+          "locationWhenInUsePermission": "Floway uses your location while the app is in use to track and show your running route, speed, and progress on the map.",
           "isIosBackgroundLocationEnabled": true,
           "isAndroidBackgroundLocationEnabled": true
         }
@@ -47,11 +47,11 @@
           "location",
           "fetch"
         ],
-        "NSLocationUsageDescription": "Floway needs access to location when open to track your running sessions.",
-        "NSLocationWhenInUseUsageDescription": "Floway uses your location during active running sessions to show your real-time route and performance stats.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Floway tracks your location in the background to ensure complete and accurate recording of your running sessions.",
+        "NSLocationUsageDescription": "Floway uses your location to display your real-time position on a map and measure distance, pace, and route during your runs.",
+        "NSLocationWhenInUseUsageDescription": "Floway uses your location while the app is in use to track and show your running route, speed, and progress on the map.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Floway uses your location while the app is open and in the background to record your entire running route, even if you lock your phone or switch to another app.",
         "NSMicrophoneUsageDescription": "Floway needs access to your microphone to record guided run sessions.",
-        "NSLocationAlwaysUsageDescription": "Floway needs continuous access to your location to track running sessions that continue when the app is not in the foreground.",
+        "NSLocationAlwaysUsageDescription": "Floway requires background location access to continue tracking your run when the app is not visible, ensuring no part of your route is missed.",
         "NSCameraUsageDescription": "Floway needs access to your camera to take a profile picture.",
         "NSPhotoLibraryUsageDescription": "Floway needs access to your library to choose a profile picture.",
         "NSPhotoLibraryAddUsageDescription": "Floway needs to save photos to your library.",

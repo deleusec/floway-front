@@ -1,3 +1,5 @@
+import {Colors} from "@/theme";
+
 type AchievementType = 'speed_record' | 'distance_record' | 'time_record' | 'first_run' | 'streak' | 'personal_best';
 
 interface Achievement {
@@ -5,6 +7,7 @@ interface Achievement {
   emoji: string;
   title: string;
   subtitle: string;
+  color: string;
 }
 
 const ACHIEVEMENT_TEMPLATES: Record<AchievementType, Achievement> = {
@@ -12,37 +15,43 @@ const ACHIEVEMENT_TEMPLATES: Record<AchievementType, Achievement> = {
     type: 'speed_record',
     emoji: '🏆',
     title: 'Record de vitesse battu !',
-    subtitle: 'Nouvelle meilleure vitesse atteinte ! Garde ce rythme et tu es inarrêtable.'
+    subtitle: 'Nouvelle meilleure vitesse atteinte ! Garde ce rythme et tu es inarrêtable.',
+    color: Colors.yellow, // Or
   },
   distance_record: {
     type: 'distance_record',
     emoji: '🎯',
     title: 'Record de distance !',
-    subtitle: 'Tu as couru plus loin que jamais ! Cette endurance impressionnante mérite d\'être célébrée.'
+    subtitle: 'Tu as couru plus loin que jamais ! Cette endurance impressionnante mérite d\'être célébrée.',
+    color: '#adff9b', // Vert
   },
   time_record: {
     type: 'time_record',
     emoji: '⏱️',
     title: 'Nouveau record de temps !',
-    subtitle: 'Tu as tenu plus longtemps que d\'habitude ! Ta persévérance porte ses fruits.'
+    subtitle: 'Tu as tenu plus longtemps que d\'habitude ! Ta persévérance porte ses fruits.',
+    color: '#9bf7ff', // Bleu clair
   },
   first_run: {
     type: 'first_run',
     emoji: '🎉',
     title: 'Première course !',
-    subtitle: 'Félicitations pour ta première course ! C\'est le début d\'une belle aventure.'
+    subtitle: 'Félicitations pour ta première course ! C\'est le début d\'une belle aventure.',
+    color: '#ffc19b', // Orange
   },
   streak: {
     type: 'streak',
     emoji: '🔥',
     title: 'Série de courses !',
-    subtitle: 'Tu maintiens un rythme régulier ! Cette constance va te mener loin.'
+    subtitle: 'Tu maintiens un rythme régulier ! Cette constance va te mener loin.',
+    color: '#ff9b9b', // Rouge
   },
   personal_best: {
     type: 'personal_best',
     emoji: '⭐',
     title: 'Record personnel !',
-    subtitle: 'Tu as surpassé tes performances précédentes ! Continue comme ça, tu progresses bien.'
+    subtitle: 'Tu as surpassé tes performances précédentes ! Continue comme ça, tu progresses bien.',
+    color: '#b79bff', // Violet
   }
 };
 
