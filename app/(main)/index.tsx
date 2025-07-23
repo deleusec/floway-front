@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: Spacing.sm,
-    fontSize: 16,
+    fontSize: FontSize.md,
     color: '#666',
   },
   errorContainer: {
