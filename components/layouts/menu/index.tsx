@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
-    paddingVertical: Spacing.md,
+    paddingVertical: Spacing.xl,
     paddingHorizontal: Spacing.md,
   },
   tab: {
