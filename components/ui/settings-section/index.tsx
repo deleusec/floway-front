@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, Switch} from 'react-native';
 import Text from '../text';
-import { Colors, FontSize, FontFamily, Spacing } from '@/constants/theme';
+import { Colors, FontSize, Spacing } from '@/constants/theme';
 
 const MAIN_OPTIONS = [
   {
@@ -121,13 +121,12 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   cardTitle: {
-    fontFamily: FontFamily.semiBold,
+    fontWeight: '600',
     fontSize: FontSize.lg,
     color: Colors.textPrimary,
     marginBottom: 2,
   },
   cardSubtitle: {
-    fontFamily: FontFamily.regular,
     fontSize: FontSize.sm,
     color: Colors.textSecondary,
   },
@@ -157,7 +156,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.primary,
   },
   toggleBtnText: {
-    fontFamily: FontFamily.medium,
+    fontWeight: '500',
     fontSize: FontSize.md,
     color: Colors.textSecondary,
   },
@@ -185,7 +184,7 @@ const styles = StyleSheet.create({
   quickTitle: {
     marginBottom: Spacing.md,
     color: Colors.textPrimary,
-    fontFamily: FontFamily.semiBold,
+    fontWeight: '600',
     fontSize: FontSize.md,
   },
   quickRow: {
@@ -194,7 +193,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   quickLabel: {
-    fontFamily: FontFamily.regular,
     fontSize: FontSize.md,
     color: Colors.textPrimary,
   },

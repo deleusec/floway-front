@@ -1,6 +1,6 @@
 import React from 'react';
 import { TextInput, TextInputProps, StyleSheet, View, ViewStyle } from 'react-native';
-import { Colors, FontSize, FontFamily, Radius, Spacing } from '@/constants/theme';
+import { Colors, FontSize, Radius, Spacing } from '@/constants/theme';
 
 interface Props extends TextInputProps {
   containerStyle?: ViewStyle;
@@ -25,7 +25,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingVertical: 14,
     fontSize: FontSize.sm,
-    fontFamily: FontFamily.regular,
     color: Colors.textPrimary,
   },
 });

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Colors, FontSize, FontFamily, Radius, Spacing } from '@/constants/theme';
+import { Colors, FontSize, Radius, Spacing } from '@/constants/theme';
 import { useRunningSessionStore } from '@/stores/session';
 
 export const RunningMetrics = () => {
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     marginTop: Spacing.xs,
     fontSize: FontSize.sm,
     color: Colors.textSecondary,
-    fontFamily: FontFamily.medium,
+    fontWeight: '500',
     textAlign: 'center',
   },
   metricsContainer: {
@@ -106,13 +106,13 @@ const styles = StyleSheet.create({
   },
   metricValue: {
     fontSize: FontSize.xl,
-    fontFamily: FontFamily.bold,
+    fontWeight: '600',
     color: Colors.textPrimary,
     marginBottom: Spacing.xs,
   },
   metricLabel: {
     fontSize: FontSize.sm,
-    fontFamily: FontFamily.medium,
+    fontWeight: '500',
     color: Colors.textSecondary,
   },
 });

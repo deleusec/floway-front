@@ -14,7 +14,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
-import {Spacing, Colors, FontSize, FontFamily, Radius} from '@/constants/theme';
+import {Spacing, Colors, FontSize, Radius} from '@/constants/theme';
 import { useAuth } from '@/stores/auth';
 import InputError from '@/components/ui/input/error';
 import InputLabel from '@/components/ui/input/label';
@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   registerLink: {
-    fontFamily: FontFamily.medium,
+    fontWeight: '500',
     textDecorationLine: 'underline',
   },
 });

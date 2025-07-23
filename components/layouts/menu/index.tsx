@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text, StyleSheet, Pressable, SafeAreaView} from 'react-native';
 import { Link, usePathname } from 'expo-router';
-import { Colors, FontFamily, FontSize, Spacing } from '@/constants/theme';
+import { Colors, FontSize, Spacing } from '@/constants/theme';
 
 import SvgHomeIcon from '@/components/icons/HomeIcon';
 import SvgPlayIcon from '@/components/icons/PlayIcon';
@@ -58,6 +58,5 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: FontSize.xs,
-    fontFamily: FontFamily.regular,
   },
 });

@@ -1,13 +1,12 @@
 import FriendsStatusList from '@/components/friends/status-list';
 import CardMap from '@/components/ui/map';
 import Card from '@/components/ui/card';
-import Title from '@/components/ui/title';
-import { Spacing, Colors, FontFamily, FontSize } from '@/constants/theme';
+import { Spacing, Colors, FontSize } from '@/constants/theme';
 import { useAuth } from '@/stores/auth';
 import { useUserStore } from '@/stores/user';
 import { getSessionAchievements, getSessionAchievement } from '@/utils/achievements';
 import { ScrollView, StyleSheet, View, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
-import { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { formatSpeed } from '@/utils/sessionUtils';
 import { useRouter } from 'expo-router';
 import {useStore} from "@/stores";
@@ -100,7 +99,7 @@ export default function MainScreen() {
     <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
       {/* Header Section */}
       <View style={styles.headerSection}>
-        <Title>Bonjour {user?.firstName} 👋</Title>
+        <Text style={styles.title}>Bonjour {user?.firstName} 👋</Text>
       </View>
 
       {/* Friends Status Section */}
@@ -111,7 +110,7 @@ export default function MainScreen() {
 
       {/* Content Section */}
       <View style={styles.contentSection}>
-        <Title style={styles.runsTitle} level={2}>Mes courses</Title>
+        <Text style={styles.runsTitle}>Mes courses</Text>
         {/* Weekly Summary Section */}
         {!isLoadingSessions && sortedSessions.length > 0 && (
           <View style={styles.weeklySummarySection}>
@@ -247,13 +246,12 @@ const styles = StyleSheet.create({
   },
   statValue: {
     fontSize: FontSize.lg,
-    fontFamily: FontFamily.bold,
+    fontWeight: '600',
     color: Colors.textPrimary,
     marginBottom: Spacing.xs,
   },
   statLabel: {
     fontSize: FontSize.sm,
-    fontFamily: FontFamily.medium,
     color: Colors.textSecondary,
     textAlign: 'center',
   },
@@ -267,19 +265,21 @@ const styles = StyleSheet.create({
   },
   avgSpeedLabel: {
     fontSize: FontSize.md,
-    fontFamily: FontFamily.medium,
     color: Colors.textSecondary,
   },
   avgSpeedValue: {
     fontSize: FontSize.lg,
-    fontFamily: FontFamily.bold,
+    fontWeight: '600',
     color: Colors.primary,
   },
   contentSection: {
     paddingHorizontal: Spacing.lg,
   },
   runsTitle: {
-    marginBottom: Spacing.md
+    marginBottom: Spacing.md,
+    fontSize: FontSize.lg,
+    fontWeight: '600',
+    color: Colors.textPrimary
   },
   loadingContainer: {
     flex: 1,
@@ -315,5 +315,10 @@ const styles = StyleSheet.create({
   },
   sessionsList: {
     gap: Spacing.md,
+  },
+  title: {
+    fontSize: FontSize.xxl,
+    fontWeight: '600',
+    color: Colors.textPrimary,
   },
 });

@@ -8,7 +8,7 @@ import {
   TouchableOpacityProps,
   ViewStyle,
 } from 'react-native';
-import { Colors, FontFamily, FontSize, Spacing, Radius } from '@/constants/theme';
+import { Colors, FontSize, Spacing, Radius } from '@/constants/theme';
 
 type ButtonVariant = 'primary' | 'outline' | 'ghost' | 'error';
 type ButtonSize = 'small' | 'medium' | 'large';
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: FontSize.sm,
-    fontFamily: FontFamily.medium,
+    fontWeight: '500',
   },
   loadingContainer: {
     flexDirection: 'row',

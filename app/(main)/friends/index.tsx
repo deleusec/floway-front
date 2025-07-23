@@ -1,5 +1,4 @@
 import SvgAddFriend from '@/components/icons/AddFriend';
-import Title from '@/components/ui/title';
 import { FontSize, Radius, Spacing } from '@/constants/theme';
 import {
   ScrollView,
@@ -29,7 +28,6 @@ import SvgX from '@/components/icons/X';
 import SvgPlus from '@/components/icons/Plus';
 import { useAuth } from '@/stores/auth';
 import { fuzzySearch } from '@/utils/calculations';
-import { useRouter } from 'expo-router';
 import type { Friend } from '@/stores/friends';
 import { API_URL } from '@/constants/env';
 import { useStore } from '@/stores';
@@ -172,7 +170,7 @@ export default function FriendsScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerSection}>
-          <Title>Amis</Title>
+          <Text style={styles.title}>Amis</Text>
           <TouchableOpacity onPress={() => setAddFriendModalVisible(true)}>
             <SvgAddFriend />
           </TouchableOpacity>
@@ -544,4 +542,9 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.border,
     marginBottom: Spacing.md,
   },
+  title: {
+    fontSize: FontSize.xxl,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  }
 });

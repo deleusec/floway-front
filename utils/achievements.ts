@@ -23,14 +23,14 @@ const ACHIEVEMENT_TEMPLATES: Record<AchievementType, Achievement> = {
     emoji: '🎯',
     title: 'Record de distance !',
     subtitle: 'Tu as couru plus loin que jamais ! Cette endurance impressionnante mérite d\'être célébrée.',
-    color: '#adff9b', // Vert
+    color: '#9bc3ff', // Bleu ciel
   },
   time_record: {
     type: 'time_record',
     emoji: '⏱️',
     title: 'Nouveau record de temps !',
     subtitle: 'Tu as tenu plus longtemps que d\'habitude ! Ta persévérance porte ses fruits.',
-    color: '#9bf7ff', // Bleu clair
+    color: '#9bffed', // Cyan
   },
   first_run: {
     type: 'first_run',

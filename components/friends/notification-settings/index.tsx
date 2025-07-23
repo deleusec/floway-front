@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Switch, ScrollView, Alert, ActivityIndicator } from 'react-native';
-import { Colors, Spacing, FontSize, FontFamily } from '@/constants/theme';
+import { Colors, Spacing, FontSize } from '@/constants/theme';
 import { useFriendsStore } from '@/stores/friends';
 import FriendStatusAvatar from '../status-avatar';
 import Title from '@/components/ui/title';
@@ -121,7 +121,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: FontSize.sm,
     color: Colors.textSecondary,
-    fontFamily: FontFamily.regular,
   },
   loadingContainer: {
     flex: 1,
@@ -167,12 +166,11 @@ const styles = StyleSheet.create({
   },
   friendName: {
     fontSize: FontSize.md,
-    fontFamily: FontFamily.medium,
+    fontWeight: '500',
     color: Colors.textPrimary,
   },
   friendStatus: {
     fontSize: FontSize.sm,
-    fontFamily: FontFamily.regular,
     color: Colors.textSecondary,
     marginTop: 2,
   },

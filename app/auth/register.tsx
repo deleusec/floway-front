@@ -14,7 +14,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
 
-import { Spacing, Colors, FontSize, FontFamily } from '@/constants/theme';
+import { Spacing, Colors, FontSize } from '@/constants/theme';
 import { useAuth } from '@/stores/auth';
 
 import InputLabel from '@/components/ui/input/label';
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   loginLink: {
-    fontFamily: FontFamily.medium,
+    fontWeight: '500',
     textDecorationLine: 'underline',
   },
 });

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { FlatList, View, StyleSheet, Text } from 'react-native';
-import { Spacing, Colors, FontSize, FontFamily } from '@/constants/theme';
+import { Spacing, Colors, FontSize } from '@/constants/theme';
 import FriendStatusAvatar from '../status-avatar';
 import { useFriendsStore } from '@/stores/friends';
 import { useAuth } from '@/stores/auth';
@@ -68,7 +68,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
     fontSize: FontSize.xs,
     color: Colors.textSecondary,
-    fontFamily: FontFamily.regular,
     maxWidth: 56,
     textAlign: 'center',
   },
@@ -82,6 +81,6 @@ const styles = StyleSheet.create({
   liveText: {
     fontSize: FontSize.xs - 2,
     color: Colors.white,
-    fontFamily: FontFamily.medium,
+    fontWeight: '500',
   },
 });

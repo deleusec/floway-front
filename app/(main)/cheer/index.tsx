@@ -9,7 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { useCheerStore } from '@/stores/cheer';
-import { Colors, Spacing, FontSize, FontFamily, Radius } from '@/constants/theme';
+import { Colors, Spacing, FontSize, Radius } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import CheerMicButton from '@/components/ui/button/mic';
 import { useLocalSearchParams } from 'expo-router';
@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: FontSize.md,
-    fontFamily: FontFamily.semiBold,
+    fontWeight: '600',
     color: Colors.textPrimary,
     textAlign: 'center',
     marginTop: Spacing.lg,
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   recordingTime: {
     fontSize: FontSize.sm,
     color: Colors.error,
-    fontFamily: FontFamily.medium,
+    fontWeight: '500',
   },
   or: {
     textAlign: 'center',
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     color: Colors.primary,
-    fontFamily: FontFamily.medium,
+    fontWeight: '500',
     fontSize: FontSize.md,
   },
   sendBtn: {
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
   },
   sendText: {
     color: Colors.white,
-    fontFamily: FontFamily.bold,
+    fontWeight: '600',
     fontSize: FontSize.md,
   },
 });
