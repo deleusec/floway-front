@@ -5,6 +5,7 @@ import { Redirect, Slot, usePathname } from 'expo-router';
 import {SafeAreaView, StyleSheet} from 'react-native';
 import { View, ActivityIndicator } from 'react-native';
 import { useEffect } from 'react';
+import { Colors } from '@/constants/theme';
 
 export default function MainLayout() {
   const store = useStore();
@@ -18,7 +19,7 @@ export default function MainLayout() {
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: store.backgroundColor }}>
         <ActivityIndicator size='large' />
       </View>
     );
@@ -29,7 +30,7 @@ export default function MainLayout() {
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={[styles.mainContainer, { backgroundColor: Colors.white }]}>
       <SafeAreaView style={[styles.container, { backgroundColor: store.backgroundColor }]}>
         <Slot />
       </SafeAreaView>
@@ -39,6 +40,9 @@ export default function MainLayout() {
 }
 
 const styles = StyleSheet.create({
+  mainContainer: {
+    flex: 1,
+  },
   container: {
     flex: 1,
   },

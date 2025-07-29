@@ -123,6 +123,7 @@ const MiniMap: React.FC<{
       moveOnMarkerPress={false}
       liteMode={true}
       mapType='standard'
+      userInterfaceStyle='light'
     >
       {/* Route polyline */}
       {validCoordinates.length > 1 && (

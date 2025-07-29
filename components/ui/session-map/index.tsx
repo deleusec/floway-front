@@ -71,7 +71,8 @@ export default function SessionMap({ coordinates, height = 140, style }: Session
         toolbarEnabled={false}
         moveOnMarkerPress={false}
         liteMode={true}
-        mapType='standard'>
+        mapType='standard'
+        userInterfaceStyle='light'>
         {/* Tracé principal */}
         <Polyline
           coordinates={validCoordinates}

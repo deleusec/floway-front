@@ -46,7 +46,8 @@ export const FreeMap: React.FC<FreeMapProps> = ({
       showsMyLocationButton={false}
       showsCompass={true}
       showsScale={true}
-      mapType='standard'>
+      mapType='standard'
+      userInterfaceStyle='light'>
       {/* Tracé du parcours */}
       {routeCoordinates.length > 1 && (
         <Polyline

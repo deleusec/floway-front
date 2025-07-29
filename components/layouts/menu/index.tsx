@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, StyleSheet, Pressable, SafeAreaView} from 'react-native';
+import {View, Text, StyleSheet, Pressable, SafeAreaView, Platform} from 'react-native';
 import { Link, usePathname } from 'expo-router';
 import { Colors, FontSize, Spacing } from '@/constants/theme';
 
@@ -19,7 +19,7 @@ export default function BottomMenu() {
   const pathname = usePathname();
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         {TABS.map(({ label, href, icon: Icon }) => {
           const isActive = pathname === href;
@@ -40,6 +40,9 @@ export default function BottomMenu() {
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    backgroundColor: Colors.white,
+  },
   container: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -47,8 +50,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
-    paddingVertical: Spacing.xl,
-    paddingHorizontal: Spacing.md,
+    paddingTop: Spacing.lg,
+    paddingBottom: Platform.OS === 'ios' ? 20 : 0,
   },
   tab: {
     flex: 1,
