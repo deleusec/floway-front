@@ -52,6 +52,7 @@ const styles = StyleSheet.create({
     borderTopColor: Colors.border,
     paddingTop: Spacing.lg,
     paddingBottom: Platform.OS === 'ios' ? 20 : 0,
+    paddingHorizontal: Spacing.sm
   },
   tab: {
     flex: 1,

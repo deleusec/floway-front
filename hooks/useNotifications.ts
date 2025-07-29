@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import * as Notifications from 'expo-notifications';
+import { router } from 'expo-router';
 import { notificationService } from '../services/notificationService';
 
 export const useNotifications = () => {
@@ -23,6 +24,24 @@ export const useNotifications = () => {
 
     const responseListener = Notifications.addNotificationResponseReceivedListener((response) => {
       console.log('Réponse à la notification:', response);
+      
+      // Gérer la redirection selon le type de notification
+      const data = response.notification.request.content.data;
+      
+      if (data && typeof data === 'object') {
+        const { type, userId, firstName } = data as { type?: string; userId?: number; firstName?: string };
+        
+        if (type === 'friendSession' && userId) {
+          console.log(`Redirection vers /cheer avec id: ${userId}, firstName: ${firstName || 'Ami'}`);
+          router.push({
+            pathname: '/cheer',
+            params: {
+              id: String(userId),
+              firstName: firstName || 'ton ami',
+            },
+          });
+        }
+      }
     });
 
     return () => {

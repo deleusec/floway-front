@@ -1,24 +1,36 @@
 import BackFooter from '@/components/layouts/footer/back';
 import BackHeader from '@/components/layouts/header/back';
 import { Colors, FontSize } from '@/constants/theme';
+import { useStore } from '@/stores';
 import { useCheerStore } from '@/stores/cheer';
-import { Slot, useLocalSearchParams } from 'expo-router';
+import { router, Slot, useLocalSearchParams } from 'expo-router';
+import { useEffect } from 'react';
 import { SafeAreaView, StyleSheet } from 'react-native';
 
 export default function CheerLayout() {
   const params = useLocalSearchParams<{ firstName?: string }>();
   const cheerStore = useCheerStore();
   const { friendName, reset } = cheerStore;
+  const { setBackgroundColor } = useStore()
+
+  useEffect(() => {
+    setBackgroundColor(Colors.white)
+  }, []);
 
   // Utiliser le prénom des paramètres en priorité
   const displayName = params.firstName || friendName || 'ton ami';
+
+  const handleClose = () => {
+    reset();
+    router.push('/');
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <BackHeader
         text={`Encourage ${displayName}`}
-        onClose={reset}
+        onClose={handleClose}
         icon='💪'
         iconSize={FontSize.xl}
         iconColor={Colors.textPrimary}
@@ -30,7 +42,7 @@ export default function CheerLayout() {
         actions={[
           {
             label: 'Annuler',
-            onPress: reset,
+            onPress: handleClose,
             variant: 'outline',
           },
           {
