@@ -31,6 +31,14 @@
       ],
       "expo-router",
       [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/favicon.png",
+          "color": "#624AF6",
+          "defaultChannel": "default"
+        }
+      ],
+      [
         "expo-secure-store",
         {
           "configureAndroidBackup": true,
@@ -47,7 +55,8 @@
       "infoPlist": {
         "UIBackgroundModes": [
           "location",
-          "fetch"
+          "fetch",
+          "remote-notification"
         ],
         "NSLocationUsageDescription": "Floway uses your location to display your real-time position on a map and measure distance, pace, and route during your runs.",
         "NSLocationWhenInUseUsageDescription": "Floway uses your location while the app is in use to track and show your running route, speed, and progress on the map.",

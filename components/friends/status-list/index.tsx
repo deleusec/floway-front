@@ -5,6 +5,7 @@ import FriendStatusAvatar from '../status-avatar';
 import { useFriendsStore } from '@/stores/friends';
 import { useAuth } from '@/stores/auth';
 import { API_URL } from '@/constants/env';
+import { router } from 'expo-router';
 
 export default function FriendsStatusList() {
   const { friends, startPolling, stopPolling } = useFriendsStore();
@@ -33,7 +34,7 @@ export default function FriendsStatusList() {
             image={`${API_URL}/api/user/picture/${item.id}?bearer=${token}`}
             name={`${item.first_name} ${item.last_name}`}
             isRunning={item.isRunning}
-            /*onPress={() => {
+            onPress={() => {
               if (item.isRunning) {
                 router.push({
                   pathname: '/cheer',
@@ -43,7 +44,7 @@ export default function FriendsStatusList() {
                   },
                 });
               }
-            }}*/
+            }}
           />
           <Text numberOfLines={1} ellipsizeMode='tail' style={styles.name}>
             {item.first_name}

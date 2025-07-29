@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import * as SecureStore from 'expo-secure-store';
 import { API_URL } from '@/constants/env';
+import { notificationService } from '../services/notificationService';
 
 type User = {
   id: number;
@@ -27,6 +28,7 @@ type AuthState = {
   restoreSession: () => Promise<void>;
   getUserAndTokenFromStorage: () => Promise<{ user: User | null; token: string | null }>;
   setUser: (user: User) => void;
+  sendPushTokenToBackend: (pushToken: string) => Promise<boolean>;
 };
 
 export const useAuth = create<AuthState>(set => ({
@@ -141,5 +143,36 @@ export const useAuth = create<AuthState>(set => ({
   setUser: (user) => {
     set({ user });
     SecureStore.setItemAsync('user', JSON.stringify(user));
+  },
+
+  sendPushTokenToBackend: async (pushToken: string) => {
+    const { token } = useAuth.getState();
+    
+    if (!token) {
+      console.warn('Aucun token d\'authentification disponible pour envoyer le push token');
+      return false;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/api/user/token`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ expoToken: pushToken }),
+      });
+
+      if (!response.ok) {
+        console.error('Erreur lors de l\'envoi du push token:', response.status);
+        return false;
+      }
+
+      console.log('Push token envoyé avec succès au backend');
+      return true;
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi du push token:', error);
+      return false;
+    }
   },
 }));
