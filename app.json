@@ -37,7 +37,9 @@
           "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID for secure authentication.",
           "fingerprintPermission": "Allow $(PRODUCT_NAME) to access your fingerprint for secure authentication."
         }
-      ]
+      ],
+      "expo-font",
+      "expo-web-browser"
     ],
     "ios": {
       "supportsTablet": false,
