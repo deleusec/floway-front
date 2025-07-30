@@ -32,7 +32,7 @@ const Skeleton: React.FC<SkeletonProps> = ({
 
 const styles = StyleSheet.create({
   skeleton: {
-    backgroundColor: '#F3F4F6', // Gris très clair
+    backgroundColor: '#E5E7EB', // Gris un peu plus foncé
   },
 });
 

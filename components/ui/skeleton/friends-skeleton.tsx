@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   avatar: {
-    backgroundColor: '#F3F4F6', // Gris très clair pour l'avatar
+    backgroundColor: '#E5E7EB', // Gris un peu plus foncé pour l'avatar
   },
   nameContainer: {
     marginTop: 8,

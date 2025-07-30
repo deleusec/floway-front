@@ -18,6 +18,7 @@ import Tabs from '@/components/ui/tabs';
 import Drawer from '@/components/ui/drawer';
 import { useFriendsStore } from '@/stores/friends';
 import FriendStatusAvatar from '@/components/friends/status-avatar';
+import FriendCardSkeletonList from '@/components/ui/skeleton/friend-card-skeleton';
 import { Colors } from '@/constants/theme';
 import SvgHorizontalDots from '@/components/icons/HorizontalDots';
 import SvgRunningShoeIcon from '@/components/icons/RunningShoeIcon';
@@ -158,14 +159,7 @@ export default function FriendsScreen() {
     return friend.notification_block === 1;
   };
 
-  if (isLoading) {
-    return (
-      <View style={[styles.container, styles.centerContent]}>
-        <ActivityIndicator size='large' color={Colors.primary} />
-        <Text style={{ marginTop: 16, color: Colors.textSecondary }}>Chargement...</Text>
-      </View>
-    );
-  }
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -198,73 +192,81 @@ export default function FriendsScreen() {
 
       {tab === 'friends' && (
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-          <View style={{ marginTop: 24 }}>
-            {filteredFriends.length === 0 ? (
-              <Text style={{ textAlign: 'center', color: Colors.gray['400'], marginTop: 12 }}>
-                {search ? 'Aucun ami trouvé' : "Vous n'avez pas encore d'amis"}
-              </Text>
-            ) : (
-              filteredFriends.map((friend, index) => (
-                <View key={`friend-${friend.id}-${index}`} style={styles.friendItem}>
-                  <FriendStatusAvatar
-                    image={`${API_URL}/api/user/picture/${friend.id}?bearer=${useAuth.getState().token}`}
-                    name={`${friend.first_name} ${friend.last_name}`}
-                    isRunning={friend.isRunning}
-                  />
-                  <View style={styles.friendInfo}>
-                    <View style={styles.nameRow}>
-                      <Text style={styles.friendName}>
-                        {friend.first_name} {friend.last_name}
-                      </Text>
+          {isLoading ? (
+            <FriendCardSkeletonList count={6} />
+          ) : (
+            <View style={{ marginTop: 24 }}>
+              {filteredFriends.length === 0 ? (
+                <Text style={{ textAlign: 'center', color: Colors.gray['400'], marginTop: 12 }}>
+                  {search ? 'Aucun ami trouvé' : "Vous n'avez pas encore d'amis"}
+                </Text>
+              ) : (
+                filteredFriends.map((friend, index) => (
+                  <View key={`friend-${friend.id}-${index}`} style={styles.friendItem}>
+                    <FriendStatusAvatar
+                      image={`${API_URL}/api/user/picture/${friend.id}?bearer=${useAuth.getState().token}`}
+                      name={`${friend.first_name} ${friend.last_name}`}
+                      isRunning={friend.isRunning}
+                    />
+                    <View style={styles.friendInfo}>
+                      <View style={styles.nameRow}>
+                        <Text style={styles.friendName}>
+                          {friend.first_name} {friend.last_name}
+                        </Text>
+                      </View>
                     </View>
+                    <Pressable
+                      onPress={() => {
+                        setSelectedFriend(friend);
+                        setDrawerVisible(true);
+                      }}
+                      style={styles.dotsButton}>
+                      <SvgHorizontalDots width={24} height={24} />
+                    </Pressable>
                   </View>
-                  <Pressable
-                    onPress={() => {
-                      setSelectedFriend(friend);
-                      setDrawerVisible(true);
-                    }}
-                    style={styles.dotsButton}>
-                    <SvgHorizontalDots width={24} height={24} />
-                  </Pressable>
-                </View>
-              ))
-            )}
-          </View>
+                ))
+              )}
+            </View>
+          )}
         </ScrollView>
       )}
 
       {tab === 'requests' && (
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-          <View style={{ marginTop: 24 }}>
-            {filteredRequests.length === 0 && (
-              <Text style={{ textAlign: 'center', color: Colors.gray['400'], marginTop: 12 }}>
-                Aucune demande
-              </Text>
-            )}
-            {filteredRequests.map((request, index) => (
-              <View key={`request-${request.request_id}-${index}`} style={styles.requestItem}>
-                <FriendStatusAvatar
-                  image={
-                    request.avatar ||
-                    `https://ui-avatars.com/api/?name=${encodeURIComponent(request.first_name + ' ' + request.last_name)}`
-                  }
-                />
-                <Text style={styles.friendName}>
-                  {request.first_name} {request.last_name}
+          {isLoading ? (
+            <FriendCardSkeletonList count={4} />
+          ) : (
+            <View style={{ marginTop: 24 }}>
+              {filteredRequests.length === 0 && (
+                <Text style={{ textAlign: 'center', color: Colors.gray['400'], marginTop: 12 }}>
+                  Aucune demande
                 </Text>
-                <Pressable
-                  style={styles.declineButton}
-                  onPress={() => handleDeclineRequest(request.request_id)}>
-                  <SvgX width={22} height={22} color={Colors.gray[500]} />
-                </Pressable>
-                <Pressable
-                  style={styles.acceptButton}
-                  onPress={() => handleAcceptRequest(request.request_id)}>
-                  <SvgCheck width={24} height={24} color={Colors.white} />
-                </Pressable>
-              </View>
-            ))}
-          </View>
+              )}
+              {filteredRequests.map((request, index) => (
+                <View key={`request-${request.request_id}-${index}`} style={styles.requestItem}>
+                  <FriendStatusAvatar
+                    image={
+                      request.avatar ||
+                      `https://ui-avatars.com/api/?name=${encodeURIComponent(request.first_name + ' ' + request.last_name)}`
+                    }
+                  />
+                  <Text style={styles.friendName}>
+                    {request.first_name} {request.last_name}
+                  </Text>
+                  <Pressable
+                    style={styles.declineButton}
+                    onPress={() => handleDeclineRequest(request.request_id)}>
+                    <SvgX width={22} height={22} color={Colors.gray[500]} />
+                  </Pressable>
+                  <Pressable
+                    style={styles.acceptButton}
+                    onPress={() => handleAcceptRequest(request.request_id)}>
+                    <SvgCheck width={24} height={24} color={Colors.white} />
+                  </Pressable>
+                </View>
+              ))}
+            </View>
+          )}
         </ScrollView>
       )}
 
@@ -403,10 +405,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  centerContent: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+
   header: {
     paddingTop: Spacing.md,
     backgroundColor: Colors.white,
