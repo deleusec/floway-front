@@ -1,11 +1,13 @@
 import FriendsStatusList from '@/components/friends/status-list';
 import CardMap from '@/components/ui/map';
 import Card from '@/components/ui/card';
+import SessionSkeleton from '@/components/ui/skeleton/session-skeleton';
+import StatsSkeleton from '@/components/ui/skeleton/stats-skeleton';
 import { Spacing, Colors, FontSize } from '@/constants/theme';
 import { useAuth } from '@/stores/auth';
 import { useUserStore } from '@/stores/user';
 import { getSessionAchievements, getSessionAchievement } from '@/utils/achievements';
-import { ScrollView, StyleSheet, View, ActivityIndicator, Text, TouchableOpacity } from 'react-native';
+import { ScrollView, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import React, { useEffect, useMemo } from 'react';
 import { formatSpeed } from '@/utils/sessionUtils';
 import { useRouter } from 'expo-router';
@@ -112,7 +114,11 @@ export default function MainScreen() {
       <View style={styles.contentSection}>
         <Text style={styles.runsTitle}>Mes courses</Text>
         {/* Weekly Summary Section */}
-        {!isLoadingSessions && sortedSessions.length > 0 && (
+        {isLoadingSessions ? (
+          <View style={styles.weeklySummarySection}>
+            <StatsSkeleton />
+          </View>
+        ) : sortedSessions.length > 0 ? (
           <View style={styles.weeklySummarySection}>
             <Card style={styles.weeklyCard}>
               <View style={styles.weeklyContent}>
@@ -143,15 +149,7 @@ export default function MainScreen() {
               </View>
             </Card>
           </View>
-        )}
-
-        {/* Loading State */}
-        {isLoadingSessions && (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" />
-            <Text style={styles.loadingText}>Chargement de vos sessions...</Text>
-          </View>
-        )}
+        ) : null}
 
         {/* Error State */}
         {error && (
@@ -169,7 +167,14 @@ export default function MainScreen() {
 
         {/* Sessions List */}
         <View style={styles.sessionsList}>
-          {!isLoadingSessions && !error && sortedSessions.length > 0 && (
+          {isLoadingSessions ? (
+            <>
+              {/* Afficher 3 skeletons pendant le chargement */}
+              {Array.from({ length: 3 }).map((_, index) => (
+                <SessionSkeleton key={`skeleton-${index}`} />
+              ))}
+            </>
+          ) : !error && sortedSessions.length > 0 ? (
             <>
               {sortedSessions.map((session) => {
                 const achievement = getSessionAchievement(session, sessionAchievements) || undefined;
@@ -204,7 +209,7 @@ export default function MainScreen() {
                 );
               })}
             </>
-          )}
+          ) : null}
         </View>
       </View>
     </ScrollView>
@@ -281,17 +286,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.textPrimary
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: Spacing.xl,
-  },
-  loadingText: {
-    marginTop: Spacing.sm,
-    fontSize: FontSize.md,
-    color: '#666',
-  },
+
   errorContainer: {
     paddingVertical: Spacing.lg,
     paddingHorizontal: Spacing.md,

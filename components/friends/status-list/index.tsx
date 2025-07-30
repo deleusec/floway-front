@@ -2,13 +2,14 @@ import React, { useEffect } from 'react';
 import { FlatList, View, StyleSheet, Text } from 'react-native';
 import { Spacing, Colors, FontSize } from '@/constants/theme';
 import FriendStatusAvatar from '../status-avatar';
+import FriendsSkeleton from '@/components/ui/skeleton/friends-skeleton';
 import { useFriendsStore } from '@/stores/friends';
 import { useAuth } from '@/stores/auth';
 import { API_URL } from '@/constants/env';
 import { router } from 'expo-router';
 
 export default function FriendsStatusList() {
-  const { friends, startPolling, stopPolling } = useFriendsStore();
+  const { friends, isLoading, startPolling, stopPolling } = useFriendsStore();
   const { token } = useAuth();
 
   useEffect(() => {
@@ -20,6 +21,11 @@ export default function FriendsStatusList() {
   }, [startPolling, stopPolling]);
 
   const sortedFriends = [...friends].sort((a, b) => Number(b.isRunning) - Number(a.isRunning));
+
+  // Afficher le skeleton pendant le chargement
+  if (isLoading) {
+    return <FriendsSkeleton />;
+  }
 
   return (
     <FlatList
