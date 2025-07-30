@@ -37,6 +37,7 @@ export default function SessionScreen() {
     resumeSession,
     startAutoSaveSession,
     stopAutoSaveSession,
+    sendInternalEvent,
   } = useRunningSessionStore();
   const { user, token } = useAuth();
   const { speak } = useSpeechManager();
@@ -67,11 +68,14 @@ export default function SessionScreen() {
     if (!session.isActive) {
       router.replace('/session/start');
     } else {
+      const startMessage = 'Début de la séance';
       speak({
         type: 'info',
-        text: 'Début de la séance',
+        text: startMessage,
         priority: 1,
       });
+      // Envoyer l'événement interne pour le début de session
+      sendInternalEvent(startMessage);
     }
   }, [session.isActive]);
 
@@ -119,11 +123,16 @@ export default function SessionScreen() {
       const paceMinutes = Math.floor(session.metrics.pace / 60);
       const paceSeconds = Math.floor(session.metrics.pace % 60);
 
+      const kmMessage = `${currentKm} kilomètres parcourus. Allure moyenne : ${paceMinutes} minutes et ${paceSeconds} secondes au kilomètre.`;
+      
       speak({
         type: 'info',
-        text: `${currentKm} kilomètres parcourus. Allure moyenne : ${paceMinutes} minutes et ${paceSeconds} secondes au kilomètre.`,
+        text: kmMessage,
         priority: 2,
       });
+
+      // Envoyer l'événement interne pour les annonces de kilomètres
+      sendInternalEvent(kmMessage);
 
       lastAnnouncedKm.current = currentKm;
     }

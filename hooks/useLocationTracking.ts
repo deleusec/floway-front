@@ -83,15 +83,6 @@ export const useLocationTracking = ({
             timestamp: currentTime,
           };
 
-          console.log('📍 [useLocationTracking] Nouveau point GPS:', {
-            latitude: newLocation.latitude,
-            longitude: newLocation.longitude,
-            timestampAbsolu: currentTime,
-            timestampRelatif: newLocation.timestamp,
-            startTime: startTime,
-            tempsEcoule: startTime ? `${Math.floor(newLocation.timestamp / 1000)}s` : 'N/A',
-          });
-
           // Calculer la distance depuis le dernier point
           let distanceIncrement = 0;
           if (lastLocation.current) {
@@ -105,11 +96,6 @@ export const useLocationTracking = ({
             // Protection contre les distances aberrantes (> 500m en 1 seconde = 1800km/h !)
             const maxReasonableDistance = 500; // 500 mètres max entre deux points
             if (distanceIncrement > maxReasonableDistance) {
-              console.log('⚠️ [GPS] Distance aberrante détectée et ignorée:', {
-                distance: distanceIncrement,
-                from: lastLocation.current,
-                to: newLocation,
-              });
               distanceIncrement = 0; // Ignorer cette distance
             }
           }

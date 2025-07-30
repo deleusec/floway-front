@@ -59,7 +59,6 @@ export const useAuth = create<AuthState>(set => ({
 
       if (!response.ok) return false;
 
-      console.log('response', response);
       const { token } = await response.json();
 
       await SecureStore.setItemAsync('token', token);
@@ -168,7 +167,6 @@ export const useAuth = create<AuthState>(set => ({
         return false;
       }
 
-      console.log('Push token envoyé avec succès au backend');
       return true;
     } catch (error) {
       console.error('Erreur lors de l\'envoi du push token:', error);

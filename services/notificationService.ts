@@ -54,7 +54,6 @@ class ExpoNotificationService {
         projectId: this.projectId,
       });
 
-      console.log('Token Expo push obtenu:', pushToken.data);
       return pushToken.data;
 
     } catch (error) {

@@ -42,7 +42,6 @@ const SessionSummaryScreen = () => {
       if (sessionData) {
         try {
           const parsedSessionData = JSON.parse(sessionData);
-          console.log('✅ [SessionSummary] Session depuis paramètres:', parsedSessionData);
           setLastSession(parsedSessionData);
           setEditedTitle(parsedSessionData.title || session.title);
         } catch (error) {
@@ -52,7 +51,6 @@ const SessionSummaryScreen = () => {
       } else if (user && token) {
         try {
           const data = await fetchLastUserSession(token, user.id);
-          console.log('✅ [SessionSummary] Dernière session:', data);
           setLastSession(data);
           setEditedTitle(data?.title || session.title);
         } catch (error) {

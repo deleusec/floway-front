@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { paceToSpeed } from '@/utils/calculations';
+import { NODE_URL } from '@/constants/env';
+import { useAuth } from './auth';
 
 interface LocationPoint {
   latitude: number;
@@ -48,6 +50,7 @@ interface SessionStore {
   fetchLastUserSession: (authToken: string, userId: number) => Promise<RunningSession | null>;
   deleteSession: (authToken: string, sessionId: number) => Promise<void>;
   updateSessionTitle: (newTitle: string, authToken: string) => Promise<void>;
+  sendInternalEvent: (textContent: string) => Promise<void>;
   resetSession: () => void;
   startAutoSaveSession: (authToken: string, userId: number) => void;
   stopAutoSaveSession: () => void;
@@ -242,26 +245,14 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
   },
 
   fetchLastUserSession: async (authToken: string, userId: number) => {
-    console.log('🔍 [fetchLastUserSession] Début de la requête:', {
-      authToken: authToken ? 'présent' : 'absent',
-      userId,
-    });
-
     try {
       const url = `https://node.floway.edgar-lecomte.fr/last/user/session/${userId}`;
-      console.log('🌐 [fetchLastUserSession] URL:', url);
 
       const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
-      });
-
-      console.log('📡 [fetchLastUserSession] Réponse reçue:', {
-        status: response.status,
-        statusText: response.statusText,
-        ok: response.ok,
-      });
+      });    
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -274,7 +265,6 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
       }
 
       const data = await response.json();
-      console.log('✅ [fetchLastUserSession] Données reçues:', data);
 
       return data || null;
     } catch (error) {
@@ -337,23 +327,50 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
     }
   },
 
+  sendInternalEvent: async (textContent: string) => {
+    try {
+      const { session } = get();
+      const { token } = useAuth.getState();
+
+      if (!session.id) {
+        console.warn('[SESSION] Aucun ID de session trouvé pour envoyer l\'événement interne');
+        return;
+      }
+
+      if (!token) {
+        console.warn('[SESSION] Token d\'authentification manquant');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('event_type', 'internal');
+      formData.append('session_id', session.id);
+      formData.append('text_content', textContent);
+
+      const response = await fetch(`${NODE_URL}/auth/event`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[SESSION] Erreur lors de l\'envoi de l\'événement interne:', errorText);
+        return;
+      }
+    } catch (error) {
+      console.error('[SESSION] Erreur sendInternalEvent:', error);
+    }
+  },
+
   startAutoSaveSession: (authToken: string, userId: number) => {
     if (get().intervalId || get().isAutoSaving) return;
     set({ isAutoSaving: true });
     const interval = setInterval(async () => {
       const { pendingLocations, session, _makeSessionPayload } = get();
       if (pendingLocations.length === 0) return;
-
-      console.log('⏰ [AutoSave] Envoi automatique toutes les 15s:', {
-        nombreDePoints: pendingLocations.length,
-        premiereTimestamp: pendingLocations[0]?.timestamp,
-        derniereTimestamp: pendingLocations[pendingLocations.length - 1]?.timestamp,
-        pointsTransformes: pendingLocations.map(p => [
-          p.latitude,
-          p.longitude,
-          Math.floor(p.timestamp / 1000),
-        ]),
-      });
 
       const payload = _makeSessionPayload(session, userId, pendingLocations);
       try {

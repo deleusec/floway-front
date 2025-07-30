@@ -8,7 +8,62 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import { Audio } from 'expo-av';
 import { useCheerStore } from '@/stores/cheer';
+
+// Configuration d'enregistrement
+const RECORDING_OPTIONS = {
+  // Option 1: M4A (recommandé - meilleure compatibilité)
+  m4a: {
+    android: {
+      extension: '.m4a',
+      outputFormat: Audio.AndroidOutputFormat.MPEG_4,
+      audioEncoder: Audio.AndroidAudioEncoder.AAC,
+      sampleRate: 44100,
+      numberOfChannels: 2,
+      bitRate: 128000,
+    },
+    ios: {
+      extension: '.m4a',
+      outputFormat: Audio.IOSOutputFormat.MPEG4AAC,
+      audioQuality: Audio.IOSAudioQuality.HIGH,
+      sampleRate: 44100,
+      numberOfChannels: 2,
+      bitRate: 128000,
+      linearPCMBitDepth: 16,
+      linearPCMIsBigEndian: false,
+      linearPCMIsFloat: false,
+    },
+    web: {
+      mimeType: 'audio/webm;codecs=opus',
+      bitsPerSecond: 128000,
+    },
+  },
+  // Option 2: WAV (plus gros mais plus compatible)
+  wav: {
+    android: {
+      extension: '.wav',
+      outputFormat: Audio.AndroidOutputFormat.DEFAULT,
+      audioEncoder: Audio.AndroidAudioEncoder.DEFAULT,
+      sampleRate: 44100,
+      numberOfChannels: 2,
+    },
+    ios: {
+      extension: '.wav',
+      outputFormat: Audio.IOSOutputFormat.LINEARPCM,
+      audioQuality: Audio.IOSAudioQuality.HIGH,
+      sampleRate: 44100,
+      numberOfChannels: 2,
+      linearPCMBitDepth: 16,
+      linearPCMIsBigEndian: false,
+      linearPCMIsFloat: false,
+    },
+    web: {
+      mimeType: 'audio/wav',
+      bitsPerSecond: 128000,
+    },
+  }
+};
 import { Colors, Spacing, FontSize, Radius } from '@/constants/theme';
 import { Ionicons } from '@expo/vector-icons';
 import CheerMicButton from '@/components/ui/button/mic';
@@ -52,16 +107,12 @@ export default function CheerScreen() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const recording = useRef<Audio.Recording | null>(null);
 
   // Récupérer les données de l'ami au chargement de la page
   useEffect(() => {
     if (params.id) {
       fetchFriendSession(params.id);
-      // Si on a le prénom en paramètre, on peut l'utiliser immédiatement
-      if (params.firstName) {
-        // Optionnel : mettre à jour le store avec le prénom
-        console.log('[CHEER] Prénom reçu:', params.firstName);
-      }
     }
   }, [params.id, params.firstName, fetchFriendSession]);
 
@@ -72,6 +123,19 @@ export default function CheerScreen() {
     }
   }, [error]);
 
+  // Nettoyer l'enregistrement au démontage du composant
+  useEffect(() => {
+    return () => {
+      if (recording.current) {
+        console.log('[CHEER] Nettoyage de l\'enregistrement au démontage');
+        recording.current.stopAndUnloadAsync().catch(console.error);
+      }
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []);
+
   const displayStats = stats || {
     time: 5340,
     distance: 10200,
@@ -79,28 +143,112 @@ export default function CheerScreen() {
     coordinates: [],
   };
 
-  const startRecording = () => {
-    setIsRecording(true);
-    setRecordingTime(0);
-    timerRef.current = setInterval(() => {
-      setRecordingTime(t => {
-        if (t >= 30) {
-          stopRecording();
-          return t;
-        }
-        return t + 1;
+  const startRecording = async () => {
+    try {
+      console.log('[CHEER] Demande de permission pour l\'enregistrement...');
+      const { status } = await Audio.requestPermissionsAsync();
+      
+      if (status !== 'granted') {
+        Alert.alert('Permission refusée', 'L\'autorisation du microphone est nécessaire pour enregistrer un audio.');
+        return;
+      }
+
+      console.log('[CHEER] Préparation de l\'enregistrement...');
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
       });
-    }, 1000);
+
+      // Utiliser M4A par défaut (changer en 'wav' pour tester WAV)
+      const selectedFormat: 'm4a' | 'wav' = 'm4a';
+      const recordingOptions = RECORDING_OPTIONS[selectedFormat];
+      
+      console.log(`[CHEER] Enregistrement en format: ${selectedFormat}`);
+      
+      const { recording: newRecording } = await Audio.Recording.createAsync(recordingOptions);
+      
+      recording.current = newRecording;
+      setIsRecording(true);
+      setRecordingTime(0);
+      
+      console.log('[CHEER] Enregistrement démarré');
+
+      // Timer pour compter les secondes et arrêter après 30s
+      timerRef.current = setInterval(() => {
+        setRecordingTime(t => {
+          if (t >= 30) {
+            stopRecording();
+            return t;
+          }
+          return t + 1;
+        });
+      }, 1000);
+
+    } catch (error) {
+      console.error('[CHEER] Erreur lors du démarrage de l\'enregistrement:', error);
+      Alert.alert('Erreur', 'Impossible de démarrer l\'enregistrement');
+    }
   };
 
-  const stopRecording = () => {
-    setIsRecording(false);
-    if (timerRef.current) clearInterval(timerRef.current);
-    setAudioUri('mock://audio');
+  const stopRecording = async () => {
+    try {
+      if (!recording.current) {
+        console.log('[CHEER] Aucun enregistrement en cours');
+        return;
+      }
+
+      console.log('[CHEER] Arrêt de l\'enregistrement...');
+      setIsRecording(false);
+      if (timerRef.current) clearInterval(timerRef.current);
+
+      await recording.current.stopAndUnloadAsync();
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+      });
+
+      const uri = recording.current.getURI();
+      recording.current = null;
+      
+      if (uri) {
+        console.log('[CHEER] Enregistrement sauvegardé:', uri);
+        setAudioUri(uri);
+        // Désélectionner le flow si un audio est enregistré
+        if (selectedFlowId) {
+          selectFlow('');
+        }
+      } else {
+        console.error('[CHEER] Aucun URI d\'enregistrement disponible');
+        Alert.alert('Erreur', 'Erreur lors de la sauvegarde de l\'enregistrement');
+      }
+
+    } catch (error) {
+      console.error('[CHEER] Erreur lors de l\'arrêt de l\'enregistrement:', error);
+      Alert.alert('Erreur', 'Erreur lors de l\'arrêt de l\'enregistrement');
+    }
   };
 
-  const handlePlay = () => {
-    alert('Lecture audio (mock)');
+  const handlePlay = async () => {
+    if (!audioUri) {
+      Alert.alert('Erreur', 'Aucun audio à lire');
+      return;
+    }
+
+    try {
+      console.log('[CHEER] Lecture de l\'audio:', audioUri);
+      const { sound } = await Audio.Sound.createAsync({ uri: audioUri });
+      await sound.playAsync();
+      
+      // Nettoyer après la lecture
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded && status.didJustFinish) {
+          console.log('[CHEER] Lecture terminée');
+          sound.unloadAsync();
+        }
+      });
+    } catch (error) {
+      console.error('[CHEER] Erreur lors de la lecture:', error);
+      Alert.alert('Erreur', 'Impossible de lire l\'audio');
+    }
   };
 
   const handleDelete = () => {
@@ -150,32 +298,76 @@ export default function CheerScreen() {
       {/* Vocal */}
       <Text style={styles.sectionTitle}>Envoie lui un vocal pour le booster !</Text>
       <View style={styles.voiceContainer}>
-        <CheerMicButton
-          isRecording={isRecording}
-          onStart={startRecording}
-          onStop={stopRecording}
-          audioUri={audioUri || undefined}
-          duration={recordingTime}
-          onPlay={handlePlay}
-          onDelete={handleDelete}
-        />
-        {isRecording && <Text style={styles.recordingTime}>{recordingTime}s</Text>}
+        {!audioUri ? (
+          // Mode enregistrement
+          <>
+            <CheerMicButton
+              isRecording={isRecording}
+              onStart={startRecording}
+              onStop={stopRecording}
+              audioUri={audioUri || undefined}
+              duration={recordingTime}
+              onPlay={handlePlay}
+              onDelete={handleDelete}
+            />
+            {isRecording && <Text style={styles.recordingTime}>{recordingTime}s</Text>}
+          </>
+        ) : (
+          // Mode relecture avec carte audio
+          <View style={styles.audioCard}>
+            <View style={styles.audioInfo}>
+              <Ionicons name="musical-note" size={24} color={Colors.primary} />
+              <View style={styles.audioDetails}>
+                <Text style={styles.audioTitle}>Audio enregistré</Text>
+                <Text style={styles.audioDuration}>{recordingTime}s</Text>
+              </View>
+            </View>
+            <View style={styles.audioActions}>
+              <TouchableOpacity style={styles.audioBtn} onPress={handlePlay}>
+                <Ionicons name="play" size={20} color={Colors.primary} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.audioBtn} onPress={handleDelete}>
+                <Ionicons name="trash" size={20} color={Colors.error} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.audioBtn} onPress={() => {
+                setAudioUri(null);
+                setRecordingTime(0);
+              }}>
+                <Ionicons name="mic" size={20} color={Colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
       </View>
       <Text style={styles.or}>ou</Text>
       {/* Flows */}
-      <Text style={styles.sectionTitle}>Lâche un Flow</Text>
+      <Text style={[styles.sectionTitle, audioUri && styles.sectionDisabled]}>Lâche un Flow</Text>
       <View style={styles.flowsList}>
         {flows.map(flow => (
           <TouchableOpacity
             key={flow.id}
-            style={[styles.flowBtn, selectedFlowId === flow.id && styles.flowBtnSelected]}
-            onPress={() => selectFlow(flow.id)}>
-            <Text style={[styles.flowText, selectedFlowId === flow.id && styles.flowTextSelected]}>
+            style={[
+              styles.flowBtn, 
+              selectedFlowId === flow.id && styles.flowBtnSelected,
+              audioUri && styles.flowBtnDisabled
+            ]}
+            disabled={!!audioUri}
+            onPress={() => !audioUri && selectFlow(flow.id)}>
+            <Text style={[
+              styles.flowText, 
+              selectedFlowId === flow.id && styles.flowTextSelected,
+              audioUri && styles.flowTextDisabled
+            ]}>
               {flow.text}
             </Text>
           </TouchableOpacity>
         ))}
       </View>
+      {audioUri && (
+        <Text style={styles.disabledHint}>
+          Supprimez l'audio pour sélectionner un flow
+        </Text>
+      )}
     </ScrollView>
   );
 }
@@ -234,6 +426,10 @@ const styles = StyleSheet.create({
     marginTop: Spacing.lg,
     marginBottom: Spacing.lg,
   },
+  sectionDisabled: {
+    color: Colors.textSecondary,
+    opacity: 0.6,
+  },
   voiceContainer: {
     alignItems: 'center',
     marginBottom: Spacing.md,
@@ -258,6 +454,54 @@ const styles = StyleSheet.create({
     color: Colors.error,
     fontWeight: '500',
   },
+  audioCard: {
+    backgroundColor: Colors.white,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '90%',
+    shadowColor: Colors.primary,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  audioInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  audioDetails: {
+    marginLeft: Spacing.sm,
+    flex: 1,
+  },
+  audioTitle: {
+    fontSize: FontSize.md,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  audioDuration: {
+    fontSize: FontSize.sm,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  audioActions: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  audioBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
   or: {
     textAlign: 'center',
     color: Colors.textSecondary,
@@ -280,6 +524,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary + '1A',
     borderColor: Colors.primary,
   },
+  flowBtnDisabled: {
+    backgroundColor: Colors.background,
+    opacity: 0.5,
+  },
   flowText: {
     color: Colors.gray['700'],
     fontSize: FontSize.md,
@@ -287,6 +535,17 @@ const styles = StyleSheet.create({
   },
   flowTextSelected: {
     color: Colors.textPrimary,
+  },
+  flowTextDisabled: {
+    color: Colors.textSecondary,
+  },
+  disabledHint: {
+    textAlign: 'center',
+    color: Colors.textSecondary,
+    fontSize: FontSize.xs,
+    fontStyle: 'italic',
+    marginTop: Spacing.sm,
+    marginHorizontal: Spacing.lg,
   },
   actions: {
     flexDirection: 'row',

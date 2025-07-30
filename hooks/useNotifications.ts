@@ -19,12 +19,9 @@ export const useNotifications = () => {
     // Écouter les notifications reçues pour les logs
     const notificationListener = Notifications.addNotificationReceivedListener((notification) => {
       console.log('Notification reçue:', notification);
-      console.log('DATA LOG', notification.request.content.data);
     });
 
-    const responseListener = Notifications.addNotificationResponseReceivedListener((response) => {
-      console.log('Réponse à la notification:', response);
-      
+    const responseListener = Notifications.addNotificationResponseReceivedListener((response) => {      
       // Gérer la redirection selon le type de notification
       const data = response.notification.request.content.data;
       
@@ -32,7 +29,6 @@ export const useNotifications = () => {
         const { type, userId, firstName } = data as { type?: string; userId?: number; firstName?: string };
         
         if (type === 'friendSession' && userId) {
-          console.log(`Redirection vers /cheer avec id: ${userId}, firstName: ${firstName || 'Ami'}`);
           router.push({
             pathname: '/cheer',
             params: {

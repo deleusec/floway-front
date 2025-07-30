@@ -1,5 +1,10 @@
 import mqtt, { MqttClient } from 'mqtt';
 import { useAuth } from '@/stores/auth';
+import { IEvent } from '@/types';
+import { NODE_URL } from '@/constants/env';
+import { Audio } from 'expo-av';
+import * as Speech from 'expo-speech';
+import * as FileSystem from 'expo-file-system';
 
 class MQTTService {
   private client: MqttClient | null = null;
@@ -131,6 +136,136 @@ class MQTTService {
     if (topic.includes('event/')) {
       // Handle event messages
       console.log('📅 Event message received:', message);
+      this.handleEventMessage(message);
+    }
+  }
+
+  /**
+   * Handles incoming IEvent messages
+   */
+  private async handleEventMessage(eventData: any): Promise<void> {
+    try {
+      // Valider que c'est un événement IEvent valide
+      if (!eventData || typeof eventData.type !== 'string') {
+        console.warn('⚠️ Événement MQTT invalide:', eventData);
+        return;
+      }
+
+      const event: IEvent = eventData as IEvent;
+      console.log('🎉 Traitement de l\'événement:', event);
+
+      switch (event.type) {
+        case 'text':
+        case 'internal':
+          if (event.text_content) {
+            // Faire parler le texte
+            this.speakText(event.text_content);
+          }
+          break;
+
+        case 'audio':
+          if (event.audio_name) {
+            // Télécharger et jouer l'audio
+            await this.playAudio(event.audio_name);
+          }
+          break;
+
+        default:
+          console.warn('⚠️ Type d\'événement non supporté:', event.type);
+      }
+    } catch (error) {
+      console.error('❌ Erreur lors du traitement de l\'événement:', error);
+    }
+  }
+
+  /**
+   * Makes the device speak the provided text
+   */
+  private speakText(text: string): void {
+    console.log('🗣️ Lecture vocale:', text);
+    Speech.speak(text, {
+      language: 'fr-FR',
+      onDone: () => {
+        console.log('✅ Lecture vocale terminée');
+      },
+      onError: (error) => {
+        console.error('❌ Erreur lors de la lecture vocale:', error);
+      }
+    });
+  }
+
+  /**
+   * Downloads and plays audio from the API
+   */
+  private async playAudio(audioName: string): Promise<void> {
+    try {
+      console.log('🎵 Téléchargement de l\'audio:', audioName);
+      
+      const { token } = useAuth.getState();
+      if (!token) {
+        console.error('❌ Token d\'authentification manquant pour l\'audio');
+        return;
+      }
+
+      const response = await fetch(`${NODE_URL}/auth/audio/${audioName}?authorization=${token}`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        console.error('❌ Erreur lors du téléchargement de l\'audio:', response.status);
+        return;
+      }
+
+      // Approche simplifiée : Utiliser directement l'ArrayBuffer
+      const audioArrayBuffer = await response.arrayBuffer();
+      
+      // Créer un nom de fichier temporaire avec la bonne extension
+      const fileExtension = audioName.split('.').pop() || 'm4a';
+      const tempFileName = `temp_audio_${Date.now()}.${fileExtension}`;
+      const tempUri = `${FileSystem.documentDirectory}${tempFileName}`;
+      
+      console.log('🎵 Création fichier temporaire:', tempFileName);
+      
+      try {
+        // Convertir ArrayBuffer en base64
+        const binary = new Uint8Array(audioArrayBuffer);
+        let base64String = '';
+        for (let i = 0; i < binary.length; i++) {
+          base64String += String.fromCharCode(binary[i]);
+        }
+        const base64Data = btoa(base64String);
+        
+        // Écrire le fichier temporaire
+        await FileSystem.writeAsStringAsync(tempUri, base64Data, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        
+        console.log('🎵 Fichier audio temporaire créé:', tempUri);
+        
+        // Charger et jouer l'audio
+        const { sound } = await Audio.Sound.createAsync(
+          { uri: tempUri },
+          { shouldPlay: true }
+        );
+
+        console.log('🎵 Lecture de l\'audio en cours');
+
+        // Nettoyer après la lecture
+        sound.setOnPlaybackStatusUpdate((status) => {
+          if (status.isLoaded && status.didJustFinish) {
+            console.log('✅ Lecture audio terminée');
+            sound.unloadAsync();
+            // Supprimer le fichier temporaire
+            FileSystem.deleteAsync(tempUri).catch(console.error);
+          }
+        });
+        
+      } catch (fileError) {
+        console.error('❌ Erreur lors de la création du fichier temporaire:', fileError);
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de la lecture audio:', error);
     }
   }
 

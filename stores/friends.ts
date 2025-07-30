@@ -137,11 +137,9 @@ const apiFetchRunningSessions = async (): Promise<number[]> => {
   if (Array.isArray(data)) {
     const runningUserIds = data.filter(item => item.user_id).map(item => item.user_id);
 
-    console.log('📊 Sessions actives trouvées:', runningUserIds);
     return runningUserIds;
   }
 
-  console.log('⚠️ Format de données inattendu pour les sessions:', data);
   return [];
 };
 
@@ -164,7 +162,6 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       set({ friends, isLoading: false });
 
       try {
-        console.log('🔄 Mise à jour immédiate des statuts de course...');
         const runningUserIds = await apiFetchRunningSessions();
 
         const updatedFriends = friends.map(friend => ({
@@ -173,7 +170,6 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
         }));
 
         set({ friends: updatedFriends });
-        console.log('✅ Statuts de course initialisés:', runningUserIds.length, 'amis en course');
       } catch (sessionError) {
         console.warn('⚠️ Erreur lors de la mise à jour des statuts de course:', sessionError);
       }
@@ -392,25 +388,7 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
       if (!currentState.isPolling) return;
 
       try {
-        console.log(
-          '🔄 Polling - Vérification des sessions actives...',
-          new Date().toLocaleTimeString()
-        );
-
-        const runningUserIds = await apiFetchRunningSessions();
-
-        const currentlyRunning = currentState.friends
-          .filter(friend => friend.isRunning)
-          .map(friend => friend.id);
-        const newlyRunning = runningUserIds.filter(id => !currentlyRunning.includes(id));
-        const stoppedRunning = currentlyRunning.filter(id => !runningUserIds.includes(id));
-
-        if (newlyRunning.length > 0) {
-          console.log('🏃‍♀️ Nouveaux coureurs:', newlyRunning);
-        }
-        if (stoppedRunning.length > 0) {
-          console.log('🛑 Arrêt de course:', stoppedRunning);
-        }
+        const runningUserIds = await apiFetchRunningSessions();      
 
         const updatedFriends = currentState.friends.map(friend => ({
           ...friend,
@@ -418,13 +396,6 @@ export const useFriendsStore = create<FriendsState>((set, get) => ({
         }));
 
         set({ friends: updatedFriends });
-        console.log(
-          '✅ Polling - Statuts mis à jour:',
-          runningUserIds.length,
-          'amis en course sur',
-          currentState.friends.length,
-          'amis total'
-        );
       } catch (error) {
         console.warn('❌ Erreur lors du polling des sessions:', error);
       }
