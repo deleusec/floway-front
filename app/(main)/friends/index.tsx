@@ -1,5 +1,6 @@
 import SvgAddFriend from '@/components/icons/AddFriend';
 import { FontSize, Radius, Spacing } from '@/constants/theme';
+import { router } from 'expo-router';
 import {
   ScrollView,
   StyleSheet,
@@ -343,13 +344,13 @@ export default function FriendsScreen() {
             onPress={() => {
               if (selectedFriend?.isRunning && selectedFriend.id !== undefined) {
                 setDrawerVisible(false);
-                /*router.push({
+                router.push({
                   pathname: '/cheer',
                   params: {
                     id: String(selectedFriend.id),
                     firstName: selectedFriend.first_name,
                   },
-                });*/
+                });
               }
             }}
             disabled={!selectedFriend?.isRunning || selectedFriend?.id === undefined}>
