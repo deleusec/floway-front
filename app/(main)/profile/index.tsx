@@ -17,6 +17,7 @@ import { Linking } from 'react-native';
 import {router} from "expo-router";
 import {useStore} from "@/stores";
 import SvgTrash from "@/components/icons/Trash";
+import FriendStatusAvatar from "@/components/friends/status-avatar";
 
 export default function ProfileScreen() {
   const logout = useAuth(state => state.logout);
@@ -83,14 +84,11 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Image
-          source={
-            imageError || !user
-              ? { uri: `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.firstName + ' ' + user?.lastName)}` }
-              : { uri: profilePictureUrl }
-          }
-          style={styles.avatar}
-          onError={() => setImageError(true)}
+        <FriendStatusAvatar
+          image={imageError || !user ? undefined : profilePictureUrl}
+          name={`${user?.firstName || ''} ${user?.lastName || ''}`}
+          size={74}
+          showStatus={false}
         />
         <View style={styles.infoContainer}>
           <Text style={styles.name}>{user?.firstName} {user?.lastName}</Text>

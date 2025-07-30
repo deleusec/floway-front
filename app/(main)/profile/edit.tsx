@@ -19,6 +19,7 @@ import SvgPencilIcon from "@/components/icons/PencilIcon";
 import Input from "@/components/ui/input";
 import InputLabel from "@/components/ui/input/label";
 import {useStore} from "@/stores";
+import FriendStatusAvatar from "@/components/friends/status-avatar";
 
 export default function EditProfileScreen() {
   const { user, token } = useAuth();
@@ -103,16 +104,11 @@ export default function EditProfileScreen() {
 
       {/* Avatar */}
       <View style={styles.avatarContainer}>
-        <Image
-          source={
-            newImage
-              ? { uri: newImage }
-              : imageError || !user
-                ? { uri: `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.firstName + ' ' + user?.lastName)}` }
-                : { uri: profilePictureUrl }
-          }
-          style={styles.avatar}
-          onError={() => setImageError(true)}
+        <FriendStatusAvatar
+          image={newImage || (imageError || !user ? undefined : profilePictureUrl)}
+          name={`${user?.firstName || ''} ${user?.lastName || ''}`}
+          size={100}
+          showStatus={false}
         />
         <TouchableOpacity style={styles.editIcon} onPress={handleEditPicture}>
           <SvgPencilIcon width={18} height={18} />

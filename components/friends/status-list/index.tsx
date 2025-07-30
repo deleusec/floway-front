@@ -40,6 +40,8 @@ export default function FriendsStatusList() {
             image={`${API_URL}/api/user/picture/${item.id}?bearer=${token}`}
             name={`${item.first_name} ${item.last_name}`}
             isRunning={item.isRunning}
+            size={56}
+            showStatus={true}
             onPress={() => {
               if (item.isRunning) {
                 router.push({

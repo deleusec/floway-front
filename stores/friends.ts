@@ -76,7 +76,8 @@ const getAuthToken = () => {
 };
 
 const createDefaultAvatar = (firstName: string, lastName: string) => {
-  return `https://ui-avatars.com/api/?name=${encodeURIComponent(`${firstName} ${lastName}`)}`;
+  // Retourne undefined car le composant FriendStatusAvatar gère maintenant les initiales directement
+  return undefined;
 };
 
 const transformFriendData = (friendData: any): Friend => ({

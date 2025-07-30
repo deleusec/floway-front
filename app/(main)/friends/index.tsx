@@ -207,6 +207,8 @@ export default function FriendsScreen() {
                       image={`${API_URL}/api/user/picture/${friend.id}?bearer=${useAuth.getState().token}`}
                       name={`${friend.first_name} ${friend.last_name}`}
                       isRunning={friend.isRunning}
+                      size={46}
+                      showStatus={true}
                     />
                     <View style={styles.friendInfo}>
                       <View style={styles.nameRow}>
@@ -245,10 +247,10 @@ export default function FriendsScreen() {
               {filteredRequests.map((request, index) => (
                 <View key={`request-${request.request_id}-${index}`} style={styles.requestItem}>
                   <FriendStatusAvatar
-                    image={
-                      request.avatar ||
-                      `https://ui-avatars.com/api/?name=${encodeURIComponent(request.first_name + ' ' + request.last_name)}`
-                    }
+                    image={request.avatar}
+                    name={`${request.first_name} ${request.last_name}`}
+                    size={46}
+                    showStatus={false}
                   />
                   <Text style={styles.friendName}>
                     {request.first_name} {request.last_name}
@@ -302,8 +304,9 @@ export default function FriendsScreen() {
               searchResults.map((user, index) => (
                 <View key={`search-user-${user.id}-${index}`} style={styles.searchUserItem}>
                   <FriendStatusAvatar
-                    image={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.first_name + ' ' + user.last_name)}`}
-                    isRunning={false}
+                    name={`${user.first_name} ${user.last_name}`}
+                    size={40}
+                    showStatus={false}
                   />
                   <Text style={styles.friendName}>
                     {user.first_name} {user.last_name}
