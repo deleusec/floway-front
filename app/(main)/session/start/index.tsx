@@ -5,7 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Modal,
   SafeAreaView,
   Animated,
 } from 'react-native';
@@ -14,6 +13,7 @@ import { useRunningSessionStore } from '@/stores/session';
 import Button from '@/components/ui/button';
 import ChallengeCard from '@/components/ui/challenge-card';
 import ValueSelector from '@/components/ui/value-selector';
+import BottomSheet from '@/components/ui/bottom-sheet';
 import SvgX from '@/components/icons/X';
 import { Colors, FontSize, Radius, Spacing } from '@/theme';
 import {useStore} from "@/stores";
@@ -39,9 +39,7 @@ export default function StartScreen() {
   const [drawerState, setDrawerState] = useState<PickerState>('selection');
   const { setBackgroundColor } = useStore()
 
-  // Animation refs
-  const slideAnim = useRef(new Animated.Value(500)).current;
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  // Plus besoin des animations personnalisées avec BottomSheet
 
   // États pour la minuterie
   const [hours, setHours] = useState(0);
@@ -69,27 +67,7 @@ export default function StartScreen() {
   };
 
   const openDrawer = () => {
-    // Réinitialiser les valeurs d'animation
-    slideAnim.setValue(500);
-    fadeAnim.setValue(0);
-
     setDrawerVisible(true);
-
-    // Démarrer les animations après que le modal soit visible
-    requestAnimationFrame(() => {
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    });
   };
 
   const handleStartSession = async () => {
@@ -147,21 +125,8 @@ export default function StartScreen() {
   };
 
   const closeDrawer = () => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 500,
-        duration: 250,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      setDrawerVisible(false);
-      setDrawerState('selection');
-    });
+    setDrawerVisible(false);
+    setDrawerState('selection');
   };
 
   // Vérifier si on peut démarrer la session
@@ -355,23 +320,16 @@ export default function StartScreen() {
         />
       </View>
 
-      {/* Drawer unifié avec picker intégré */}
-      <Modal visible={drawerVisible} transparent animationType='none' onRequestClose={closeDrawer}>
-        <View style={styles.modalContainer}>
-          <Animated.View style={[styles.drawerBackdrop, { opacity: fadeAnim }]}>
-            <TouchableOpacity
-              style={styles.backdropTouchable}
-              activeOpacity={1}
-              onPress={closeDrawer}
-            />
-          </Animated.View>
-          <Animated.View
-            style={[styles.drawerContainer, { transform: [{ translateY: slideAnim }] }]}>
-            <View style={styles.drawerHandle} />
-            {renderDrawerContent()}
-          </Animated.View>
-        </View>
-      </Modal>
+      {/* Bottom Sheet pour la configuration */}
+      <BottomSheet
+        visible={drawerVisible}
+        onClose={closeDrawer}
+        height={400}
+        enableDrag={true}
+        enableBackdropDismiss={true}
+      >
+        {renderDrawerContent()}
+      </BottomSheet>
     </SafeAreaView>
   );
 }
@@ -413,48 +371,7 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingBottom: 32,
   },
-  modalContainer: {
-    flex: 1,
-    position: 'relative',
-  },
-  drawerBackdrop: {
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  backdropTouchable: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  drawerContainer: {
-    backgroundColor: Colors.white,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingBottom: Spacing.lg,
-    maxHeight: '80%',
-    minHeight: 350,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  drawerHandle: {
-    alignSelf: 'center',
-    width: 36,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: '#D1D5DB',
-    marginTop: 12,
-    marginBottom: 20,
-  },
+  // Styles pour le contenu du BottomSheet
   drawerHeader: {
     flexDirection: 'row',
     alignItems: 'center',

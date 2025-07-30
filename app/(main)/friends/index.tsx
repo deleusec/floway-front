@@ -15,7 +15,7 @@ import {
 import { SearchInput } from '@/components/ui/input';
 import React, { useState, useEffect } from 'react';
 import Tabs from '@/components/ui/tabs';
-import Drawer from '@/components/ui/drawer';
+import BottomSheet from '@/components/ui/bottom-sheet';
 import { useFriendsStore } from '@/stores/friends';
 import FriendStatusAvatar from '@/components/friends/status-avatar';
 import FriendCardSkeletonList from '@/components/ui/skeleton/friend-card-skeleton';
@@ -41,6 +41,7 @@ export default function FriendsScreen() {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [selectedFriend, setSelectedFriend] = useState<Friend>();
   const [addFriendModalVisible, setAddFriendModalVisible] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<(() => void) | null>(null);
 
   const { isAuthenticated } = useAuth();
   const {
@@ -159,6 +160,20 @@ export default function FriendsScreen() {
     return friend.notification_block === 1;
   };
 
+  // Fonction pour gérer la navigation différée après fermeture du bottom sheet
+  const handlePendingNavigation = () => {
+    if (pendingNavigation) {
+      pendingNavigation();
+      setPendingNavigation(null);
+    }
+  };
+
+  // Fonction pour fermer le drawer et programmer une navigation
+  const closeDrawerAndNavigate = (navigationFn: () => void) => {
+    setPendingNavigation(() => navigationFn);
+    setDrawerVisible(false);
+  };
+
 
 
   return (
@@ -272,15 +287,17 @@ export default function FriendsScreen() {
         </ScrollView>
       )}
 
-      <Drawer
-        mode='fixed'
-        height={700}
+      <BottomSheet
         visible={addFriendModalVisible}
         onClose={() => {
           setAddFriendModalVisible(false);
           setSearchAddFriend('');
           searchResults.length = 0;
-        }}>
+        }}
+        height={700}
+        enableDrag={true}
+        enableBackdropDismiss={true}
+      >
         <View>
           <Text style={styles.addFriendTitle}>Ajoute un ami</Text>
           <View style={{ paddingHorizontal: Spacing.lg }}>
@@ -333,14 +350,17 @@ export default function FriendsScreen() {
             )}
           </ScrollView>
         </View>
-      </Drawer>
+      </BottomSheet>
 
-      {/* Drawer pour les actions sur un ami */}
-      <Drawer
-        mode='fixed'
-        height={300}
+      {/* Bottom Sheet pour les actions sur un ami */}
+      <BottomSheet
         visible={drawerVisible}
-        onClose={() => setDrawerVisible(false)}>
+        onClose={() => setDrawerVisible(false)}
+        onClosed={handlePendingNavigation}
+        height={300}
+        enableDrag={true}
+        enableBackdropDismiss={true}
+      >
         <View>
           <Text style={styles.drawerTitle}>{selectedFriend?.first_name || 'Ami'}</Text>
           {/* Bouton Encourager maintenant */}
@@ -348,13 +368,14 @@ export default function FriendsScreen() {
             style={[styles.drawerOption, !selectedFriend?.isRunning && { opacity: 0.5 }]}
             onPress={() => {
               if (selectedFriend?.isRunning && selectedFriend.id !== undefined) {
-                setDrawerVisible(false);
-                router.push({
-                  pathname: '/cheer',
-                  params: {
-                    id: String(selectedFriend.id),
-                    firstName: selectedFriend.first_name,
-                  },
+                closeDrawerAndNavigate(() => {
+                  router.push({
+                    pathname: '/cheer',
+                    params: {
+                      id: String(selectedFriend.id),
+                      firstName: selectedFriend.first_name,
+                    },
+                  });
                 });
               }
             }}
@@ -398,7 +419,7 @@ export default function FriendsScreen() {
             <Text style={[styles.drawerOptionText, styles.dangerText]}>Supprimer de mes amis</Text>
           </Pressable>
         </View>
-      </Drawer>
+      </BottomSheet>
     </SafeAreaView>
   );
 }
