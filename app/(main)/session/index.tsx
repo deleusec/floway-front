@@ -26,6 +26,7 @@ import SvgStopIcon from '@/components/icons/StopIcon';
 import { Colors, FontSize, Radius, Spacing } from '@/theme';
 import { useStore } from '@/stores';
 import SvgX from "@/components/icons/X";
+import { mqttService } from '@/services/mqttService';
 
 export default function SessionScreen() {
   const router = useRouter();
@@ -84,6 +85,30 @@ export default function SessionScreen() {
       stopAutoSaveSession();
     };
   }, [session.isActive, user, token]);
+
+  // MQTT connection management
+  useEffect(() => {
+    if (session.isActive && user) {
+      // Connect to MQTT when session starts
+      mqttService.connect().then((connected) => {
+        if (connected) {
+          console.log('✅ MQTT connected for session');
+        } else {
+          console.warn('⚠️ Failed to connect to MQTT for session');
+        }
+      }).catch((error) => {
+        console.error('❌ MQTT connection error:', error);
+      });
+    }
+
+    return () => {
+      // Disconnect MQTT when component unmounts or session ends
+      if (!session.isActive) {
+        mqttService.disconnect();
+        console.log('🔌 MQTT disconnected from session');
+      }
+    };
+  }, [session.isActive, user]);
 
   // Annonces vocales des kilomètres
   useEffect(() => {
