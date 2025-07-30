@@ -75,18 +75,13 @@ const getAuthToken = () => {
   return token;
 };
 
-const createDefaultAvatar = (firstName: string, lastName: string) => {
-  // Retourne undefined car le composant FriendStatusAvatar gère maintenant les initiales directement
-  return undefined;
-};
-
 const transformFriendData = (friendData: any): Friend => ({
   id: friendData.id,
   first_name: friendData.first_name,
   last_name: friendData.last_name,
   username: friendData.username,
   isRunning: friendData.isRunning || false,
-  avatar: friendData.avatar || createDefaultAvatar(friendData.first_name, friendData.last_name),
+  avatar: friendData.avatar,
   notification_block: friendData.notification_block || 0,
 });
 
@@ -96,7 +91,7 @@ const transformRequestData = (requestData: any): FriendRequest => ({
   first_name: requestData.first_name,
   last_name: requestData.last_name,
   username: requestData.username,
-  avatar: createDefaultAvatar(requestData.first_name, requestData.last_name),
+  avatar: requestData.avatar,
 });
 
 const apiFetchFriends = async (): Promise<Friend[]> => {

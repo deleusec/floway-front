@@ -9,8 +9,8 @@ const FriendSkeleton: React.FC = () => {
       {/* Avatar skeleton - pastille grise simple */}
       <View style={styles.avatarContainer}>
         <Skeleton 
-          width={50} 
-          height={50} 
+          width={56} 
+          height={56} 
           borderRadius={Radius.full} 
           style={styles.avatar}
         />
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
   },
   itemWrapper: {
-    marginLeft: Spacing.md,
+    marginLeft: Spacing.lg,
     alignItems: 'center',
     width: 56,
   },

@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
   },
   itemWrapper: {
-    marginLeft: Spacing.md,
+    marginLeft: Spacing.lg,
     alignItems: 'center',
     width: 56,
   },

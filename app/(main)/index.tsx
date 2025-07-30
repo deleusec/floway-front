@@ -95,8 +95,6 @@ export default function MainScreen() {
     return `${distance.toFixed(1)} km`;
   };
 
-  // formatSpeed maintenant importé de utils/sessionUtils
-
   return (
     <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
       {/* Header Section */}
@@ -226,6 +224,7 @@ const styles = StyleSheet.create({
   },
   friendsSection: {
     paddingVertical: Spacing.md,
+    marginBottom: Spacing.lg,
   },
   weeklySummarySection: {
     paddingBottom: Spacing.md,

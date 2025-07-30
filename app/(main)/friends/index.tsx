@@ -305,7 +305,7 @@ export default function FriendsScreen() {
                 <View key={`search-user-${user.id}-${index}`} style={styles.searchUserItem}>
                   <FriendStatusAvatar
                     name={`${user.first_name} ${user.last_name}`}
-                    size={40}
+                    size={46}
                     showStatus={false}
                   />
                   <Text style={styles.friendName}>
