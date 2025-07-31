@@ -4,6 +4,7 @@ import { fr } from 'date-fns/locale';
 import { paceToSpeed } from '@/utils/calculations';
 import { NODE_URL } from '@/constants/env';
 import { useAuth } from './auth';
+import { IEvent } from '@/types';
 
 interface LocationPoint {
   latitude: number;
@@ -29,6 +30,7 @@ interface RunningSession {
   type: 'time' | 'distance' | 'free';
   objective: number;
   title: string;
+  events: IEvent[]; // Événements reçus pendant la session
 }
 
 interface SessionStore {
@@ -46,6 +48,7 @@ interface SessionStore {
   resumeSession: () => void;
   updateMetrics: (metrics: RunningMetrics) => void;
   updateLocation: (location: LocationPoint) => void;
+  addEvent: (event: IEvent) => void; // Ajouter un événement à la session en cours
   saveSession: (authToken: string, userId: number) => Promise<void>;
   fetchUserSessions: (authToken: string, userId: number) => Promise<void>;
   getUserSession: (authToken: string, sessionId: string) => Promise<RunningSession | null>;
@@ -76,6 +79,7 @@ const initialSession: RunningSession = {
   type: 'time',
   objective: 0,
   title: '',
+  events: [],
 };
 
 export const useRunningSessionStore = create<SessionStore>((set, get) => ({
@@ -102,6 +106,7 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
         locations: [],
         metrics: initialMetrics,
         title: `Session du ${formattedDate}`,
+        events: [],
       },
     }));
   },
@@ -158,6 +163,15 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
         pendingLocations: [...state.pendingLocations, location],
       };
     });
+  },
+
+  addEvent: (event: IEvent) => {
+    set(state => ({
+      session: {
+        ...state.session,
+        events: [...state.session.events, event],
+      },
+    }));
   },
 
   // Factorisation de la création du payload pour éviter la duplication

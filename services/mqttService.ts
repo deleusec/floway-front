@@ -1,5 +1,6 @@
 import mqtt, { MqttClient } from 'mqtt';
 import { useAuth } from '@/stores/auth';
+import { useRunningSessionStore } from '@/stores/session';
 import { IEvent } from '@/types';
 import { audioManager } from './audioManager';
 
@@ -150,6 +151,10 @@ class MQTTService {
 
       const event: IEvent = eventData as IEvent;
       console.log('🎉 Traitement de l\'événement:', event);
+
+      // Ajouter l'événement au store de session en cours
+      const { addEvent } = useRunningSessionStore.getState();
+      addEvent(event);
 
       switch (event.type) {
         case 'text':

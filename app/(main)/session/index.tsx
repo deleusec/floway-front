@@ -15,6 +15,7 @@ import { useLocationTracking } from '@/hooks/useLocationTracking';
 import { useSessionAnimations } from '@/hooks/useSessionAnimations';
 import { FreeMap } from '@/components/ui/map/session-map';
 import { formatTime, formatDistance, formatPace } from '@/utils/sessionUtils';
+import SessionEventsModal from '@/components/ui/session-events-modal';
 
 // Import de vos icônes SVG
 import SvgUserTalk from '@/components/icons/UserTalk';
@@ -45,6 +46,7 @@ export default function SessionScreen() {
   // États locaux
   const [showMap, setShowMap] = useState(false);
   const [isStoppingSession, setIsStoppingSession] = useState(false);
+  const [showEventsModal, setShowEventsModal] = useState(false);
 
   // Hooks personnalisés - logique métier séparée
   const {
@@ -218,8 +220,15 @@ export default function SessionScreen() {
   };
 
   const handleMicPress = () => {
-    console.log('Mic button pressed');
+    if (session.events.length > 0) {
+      setShowEventsModal(true);
+    }
   };
+
+
+
+  // Vérifier si le bouton micro doit être activé
+  const isMicButtonEnabled = session.events.length > 0;
 
   // Déterminer quel mode d'affichage utiliser
   const shouldShowFullMap = showMap && !session.isPaused;
@@ -349,10 +358,14 @@ export default function SessionScreen() {
 
                 <View style={styles.pauseControlsContainer}>
                   <TouchableOpacity
-                    style={[styles.controlButton, styles.secondaryButton]}
+                    style={[
+                      styles.controlButton, 
+                      isMicButtonEnabled ? styles.secondaryButton : styles.disabledButton
+                    ]}
                     onPress={handleMicPress}
-                    activeOpacity={0.8}>
-                    <SvgUserTalk size={24} />
+                    disabled={!isMicButtonEnabled}
+                    activeOpacity={isMicButtonEnabled ? 0.8 : 1}>
+                    <SvgUserTalk size={24} color={isMicButtonEnabled ? '#FFFFFF' : '#CCCCCC'} />
                   </TouchableOpacity>
 
                   <TouchableOpacity
@@ -379,10 +392,14 @@ export default function SessionScreen() {
       {!session.isPaused && (
         <View style={styles.controlsContainer}>
           <TouchableOpacity
-            style={[styles.controlButton, styles.secondaryButton]}
+            style={[
+              styles.controlButton, 
+              isMicButtonEnabled ? styles.secondaryButton : styles.disabledButton
+            ]}
             onPress={handleMicPress}
-            activeOpacity={0.8}>
-            <SvgUserTalk size={24} />
+            disabled={!isMicButtonEnabled}
+            activeOpacity={isMicButtonEnabled ? 0.8 : 1}>
+            <SvgUserTalk size={24} color={isMicButtonEnabled ? '#FFFFFF' : '#CCCCCC'} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -403,6 +420,13 @@ export default function SessionScreen() {
           </TouchableOpacity>
         </View>
       )}
+
+      {/* Modal des événements */}
+      <SessionEventsModal
+        visible={showEventsModal}
+        onClose={() => setShowEventsModal(false)}
+        events={session.events}
+      />
     </SafeAreaView>
   );
 }
@@ -555,6 +579,9 @@ const styles = StyleSheet.create({
   },
   secondaryButton: {
     backgroundColor: Colors.gray['600'],
+  },
+  disabledButton: {
+    backgroundColor: Colors.borderHigh,
   },
   primaryLocationButton: {
     backgroundColor: Colors.primary,
