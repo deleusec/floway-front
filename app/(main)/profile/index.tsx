@@ -134,12 +134,12 @@ const styles = StyleSheet.create({
     width: 74,
     height: 74,
     borderRadius: 99,
-    marginRight: 18,
     borderWidth: 1,
     borderColor: Colors.border
   },
   infoContainer: {
     flex: 1,
+    marginLeft: 18,
   },
   name: {
     fontWeight: '600',

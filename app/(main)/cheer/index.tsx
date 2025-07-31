@@ -106,6 +106,7 @@ export default function CheerScreen() {
 
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const recording = useRef<Audio.Recording | null>(null);
 
@@ -235,6 +236,7 @@ export default function CheerScreen() {
 
     try {
       console.log('[CHEER] Lecture de l\'audio:', audioUri);
+      setIsPlaying(true);
       const { sound } = await Audio.Sound.createAsync({ uri: audioUri });
       await sound.playAsync();
       
@@ -242,11 +244,13 @@ export default function CheerScreen() {
       sound.setOnPlaybackStatusUpdate((status) => {
         if (status.isLoaded && status.didJustFinish) {
           console.log('[CHEER] Lecture terminée');
+          setIsPlaying(false);
           sound.unloadAsync();
         }
       });
     } catch (error) {
       console.error('[CHEER] Erreur lors de la lecture:', error);
+      setIsPlaying(false);
       Alert.alert('Erreur', 'Impossible de lire l\'audio');
     }
   };
@@ -310,30 +314,22 @@ export default function CheerScreen() {
               onPlay={handlePlay}
               onDelete={handleDelete}
             />
-            {isRecording && <Text style={styles.recordingTime}>{recordingTime}s</Text>}
           </>
         ) : (
           // Mode relecture avec carte audio
-          <View style={styles.audioCard}>
+          <View style={[styles.audioCard, isPlaying && styles.audioCardPlaying]}>
             <View style={styles.audioInfo}>
-              <Ionicons name="musical-note" size={24} color={Colors.primary} />
+              <Ionicons name="mic" size={24} color={Colors.primary} />
               <View style={styles.audioDetails}>
-                <Text style={styles.audioTitle}>Audio enregistré</Text>
-                <Text style={styles.audioDuration}>{recordingTime}s</Text>
+                <Text style={styles.audioTitle}>Audio</Text>
               </View>
             </View>
             <View style={styles.audioActions}>
-              <TouchableOpacity style={styles.audioBtn} onPress={handlePlay}>
-                <Ionicons name="play" size={20} color={Colors.primary} />
+              <TouchableOpacity style={styles.audioBtn} onPress={handlePlay} disabled={isPlaying}>
+                <Ionicons name={isPlaying ? "pause" : "play"} size={24} color={Colors.primary} />
               </TouchableOpacity>
               <TouchableOpacity style={styles.audioBtn} onPress={handleDelete}>
-                <Ionicons name="trash" size={20} color={Colors.error} />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.audioBtn} onPress={() => {
-                setAudioUri(null);
-                setRecordingTime(0);
-              }}>
-                <Ionicons name="mic" size={20} color={Colors.textSecondary} />
+                <Ionicons name="trash" size={24} color={Colors.error} />
               </TouchableOpacity>
             </View>
           </View>
@@ -449,13 +445,9 @@ const styles = StyleSheet.create({
   micBtnActive: {
     backgroundColor: Colors.error,
   },
-  recordingTime: {
-    fontSize: FontSize.sm,
-    color: Colors.error,
-    fontWeight: '500',
-  },
   audioCard: {
     backgroundColor: Colors.white,
+    marginHorizontal: Spacing.lg,
     borderRadius: Radius.md,
     padding: Spacing.md,
     borderWidth: 1,
@@ -463,11 +455,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    width: '90%',
-    shadowColor: Colors.primary,
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+  },
+  audioCardPlaying: {
+    borderColor: Colors.primary,
+    borderWidth: 2,
   },
   audioInfo: {
     flexDirection: 'row',
@@ -493,9 +484,9 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   audioBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 46,
+    height: 46,
+    borderRadius: Radius.full,
     backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
@@ -525,8 +516,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.primary,
   },
   flowBtnDisabled: {
-    backgroundColor: Colors.background,
-    opacity: 0.5,
+    opacity: 0.6
   },
   flowText: {
     color: Colors.gray['700'],
@@ -546,6 +536,7 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     marginTop: Spacing.sm,
     marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.lg,
   },
   actions: {
     flexDirection: 'row',

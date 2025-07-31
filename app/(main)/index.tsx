@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
   },
   friendsSection: {
     paddingVertical: Spacing.md,
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.md,
   },
   weeklySummarySection: {
     paddingBottom: Spacing.md,
@@ -286,7 +286,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.textPrimary
   },
-
   errorContainer: {
     paddingVertical: Spacing.lg,
     paddingHorizontal: Spacing.md,

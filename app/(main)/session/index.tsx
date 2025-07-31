@@ -26,6 +26,7 @@ import { Colors, FontSize, Radius, Spacing } from '@/theme';
 import { useStore } from '@/stores';
 import SvgX from "@/components/icons/X";
 import { mqttService } from '@/services/mqttService';
+import { speak } from 'expo-speech';
 
 export default function SessionScreen() {
   const router = useRouter();
@@ -72,7 +73,7 @@ export default function SessionScreen() {
     } else if (session.isActive) {
       const startMessage = 'Début de la séance';
       // Envoyer l'événement interne pour le début de session
-      sendInternalEvent(startMessage);
+      speak(startMessage);
     }
   }, [session.isActive, isStoppingSession]);
 
