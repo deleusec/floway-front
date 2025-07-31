@@ -180,6 +180,7 @@ export default function RegisterScreen() {
                   <Input
                     value={value}
                     onChangeText={onChange}
+                    autoCapitalize='none'
                     placeholder='Ex: john.doe'
                   />
                 )}
