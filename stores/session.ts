@@ -38,6 +38,7 @@ interface SessionStore {
   pendingLocations: LocationPoint[];
   intervalId: NodeJS.Timeout | null;
   isAutoSaving: boolean;
+  pendingEvents: string[]; // Queue pour les événements internes en attente
   // Actions simples
   startSession: (type: 'time' | 'distance' | 'free', objective: number) => void;
   stopSession: () => void;
@@ -47,10 +48,11 @@ interface SessionStore {
   updateLocation: (location: LocationPoint) => void;
   saveSession: (authToken: string, userId: number) => Promise<void>;
   fetchUserSessions: (authToken: string, userId: number) => Promise<void>;
-  fetchLastUserSession: (authToken: string, userId: number) => Promise<RunningSession | null>;
+  getUserSession: (authToken: string, sessionId: number) => Promise<RunningSession | null>;
   deleteSession: (authToken: string, sessionId: number) => Promise<void>;
   updateSessionTitle: (newTitle: string, authToken: string) => Promise<void>;
   sendInternalEvent: (textContent: string) => Promise<void>;
+  flushPendingEvents: () => Promise<void>;
   resetSession: () => void;
   startAutoSaveSession: (authToken: string, userId: number) => void;
   stopAutoSaveSession: () => void;
@@ -83,6 +85,7 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
   pendingLocations: [],
   intervalId: null,
   isAutoSaving: false,
+  pendingEvents: [],
 
   startSession: (type, objective) => {
     const date = new Date();
@@ -179,7 +182,7 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
   },
 
   resetSession: () => {
-    set({ session: initialSession });
+    set({ session: initialSession, pendingEvents: [] });
   },
 
   saveSession: async (authToken: string, userId: number) => {
@@ -189,7 +192,7 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
     }
     const payload = _makeSessionPayload(session, userId, session.locations);
     try {
-      const response = await fetch('https://node.floway.edgar-lecomte.fr/session', {
+      const response = await fetch('https://node.floway.edgar-lecomte.fr/auth/session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -210,6 +213,10 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
           id: responseData.data.insertedId,
         },
       }));
+
+      // Vider la queue d'événements en attente
+      const { flushPendingEvents } = get();
+      await flushPendingEvents();
     } catch (error) {
       throw error;
     }
@@ -221,7 +228,7 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
       const fromDate = format(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd');
       const toDate = format(new Date(), 'yyyy-MM-dd');
 
-      const url = new URL(`https://node.floway.edgar-lecomte.fr/session/user/${userId}`);
+      const url = new URL(`https://node.floway.edgar-lecomte.fr/auth/session/user/${userId}`);
       url.searchParams.append('from', fromDate);
       url.searchParams.append('to', toDate);
 
@@ -244,9 +251,9 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
     }
   },
 
-  fetchLastUserSession: async (authToken: string, userId: number) => {
+  getUserSession: async (authToken: string, sessionId: number) => {
     try {
-      const url = `https://node.floway.edgar-lecomte.fr/last/user/session/${userId}`;
+      const url = `https://node.floway.edgar-lecomte.fr/auth/session/${sessionId}`;
 
       const response = await fetch(url, {
         headers: {
@@ -256,7 +263,7 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ [fetchLastUserSession] Erreur HTTP:', {
+        console.error('❌ [getUserSession] Erreur HTTP:', {
           status: response.status,
           statusText: response.statusText,
           errorText,
@@ -266,16 +273,18 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
 
       const data = await response.json();
 
+      console.log('data', data);
+
       return data || null;
     } catch (error) {
-      console.error('💥 [fetchLastUserSession] Erreur complète:', error);
+      console.error('💥 [getUserSession] Erreur complète:', error);
       return null;
     }
   },
 
   deleteSession: async (authToken: string, sessionId: number) => {
     try {
-      const response = await fetch(`https://node.floway.edgar-lecomte.fr/session/${sessionId}`, {
+      const response = await fetch(`https://node.floway.edgar-lecomte.fr/auth/session/${sessionId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -303,7 +312,7 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
     }
 
     try {
-      const response = await fetch(`https://node.floway.edgar-lecomte.fr/session/${session.id}`, {
+      const response = await fetch(`https://node.floway.edgar-lecomte.fr/auth/session/${session.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -329,11 +338,15 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
 
   sendInternalEvent: async (textContent: string) => {
     try {
-      const { session } = get();
+      const { session, pendingEvents } = get();
       const { token } = useAuth.getState();
 
       if (!session.id) {
-        console.warn('[SESSION] Aucun ID de session trouvé pour envoyer l\'événement interne');
+        console.log('[SESSION] ID de session non disponible, ajout à la queue:', textContent);
+        // Ajouter l'événement à la queue
+        set(state => ({
+          pendingEvents: [...state.pendingEvents, textContent]
+        }));
         return;
       }
 
@@ -342,9 +355,11 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
         return;
       }
 
+      console.log('[SESSION] Envoi événement interne:', textContent);
+
       const formData = new FormData();
       formData.append('event_type', 'internal');
-      formData.append('session_id', session.id);
+      formData.append('session_id', session.id.toString());
       formData.append('text_content', textContent);
 
       const response = await fetch(`${NODE_URL}/auth/event`, {
@@ -360,8 +375,33 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
         console.error('[SESSION] Erreur lors de l\'envoi de l\'événement interne:', errorText);
         return;
       }
+
+      console.log('[SESSION] ✅ Événement interne envoyé avec succès');
     } catch (error) {
       console.error('[SESSION] Erreur sendInternalEvent:', error);
+    }
+  },
+
+  flushPendingEvents: async () => {
+    const { pendingEvents, sendInternalEvent } = get();
+    
+    if (pendingEvents.length === 0) {
+      return;
+    }
+
+    console.log('[SESSION] Vidange de la queue d\'événements:', pendingEvents.length, 'événements');
+
+    // Copier les événements en attente et vider la queue
+    const eventsToSend = [...pendingEvents];
+    set(state => ({ pendingEvents: [] }));
+
+    // Envoyer chaque événement
+    for (const eventText of eventsToSend) {
+      try {
+        await sendInternalEvent(eventText);
+      } catch (error) {
+        console.error('[SESSION] Erreur lors de l\'envoi d\'un événement en queue:', error);
+      }
     }
   },
 
@@ -374,7 +414,7 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
 
       const payload = _makeSessionPayload(session, userId, pendingLocations);
       try {
-        const response = await fetch('https://node.floway.edgar-lecomte.fr/session', {
+        const response = await fetch('https://node.floway.edgar-lecomte.fr/auth/session', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

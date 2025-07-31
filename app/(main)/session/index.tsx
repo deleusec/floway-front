@@ -45,6 +45,7 @@ export default function SessionScreen() {
 
   // États locaux
   const [showMap, setShowMap] = useState(false);
+  const [isStoppingSession, setIsStoppingSession] = useState(false);
 
   // Hooks personnalisés - logique métier séparée
   const {
@@ -61,13 +62,16 @@ export default function SessionScreen() {
 
   useEffect(() => {
     setBackgroundColor(Colors.white)
+    
+    // Nettoyer l'état isStoppingSession au démarrage du composant
+    setIsStoppingSession(false);
   }, []);
 
 
   useEffect(() => {
-    if (!session.isActive) {
+    if (!session.isActive && !isStoppingSession) {
       router.replace('/session/start');
-    } else {
+    } else if (session.isActive) {
       const startMessage = 'Début de la séance';
       speak({
         type: 'info',
@@ -77,7 +81,7 @@ export default function SessionScreen() {
       // Envoyer l'événement interne pour le début de session
       sendInternalEvent(startMessage);
     }
-  }, [session.isActive]);
+  }, [session.isActive, isStoppingSession]);
 
   useEffect(() => {
     if (session.isActive && user && token) {
@@ -206,10 +210,17 @@ export default function SessionScreen() {
         style: 'destructive',
         onPress: async () => {
           try {
+            setIsStoppingSession(true); // Empêcher la redirection automatique
             stopAutoSaveSession();
             stopSession();
-            router.push('/session/recap');
+            router.replace({
+              pathname: '/session/recap',
+              params: {
+                sessionId: session.id
+              }
+            });
           } catch (error) {
+            setIsStoppingSession(false); // Réinitialiser en cas d'erreur
             Alert.alert('Erreur', "Impossible d'arrêter la session");
           }
         },

@@ -65,7 +65,7 @@ export const useCheerStore = create<CheerStore>((set, get) => ({
       set({ isLoading: true, error: null, friendId: userId });
       const token = getAuthToken();
 
-      const response = await fetch(`${NODE_URL}/last/user/session/${userId}`, {
+      const response = await fetch(`${NODE_URL}/auth/last/user/session/${userId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

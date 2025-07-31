@@ -47,7 +47,7 @@ export const useUserStore = create<UserStore>((set, get) => ({
     set({ isLoadingSessions: true, error: null });
 
     try {
-      const response = await fetch(`${NODE_URL}/session/user/${userId}`, {
+      const response = await fetch(`${NODE_URL}/auth/session/user/${userId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

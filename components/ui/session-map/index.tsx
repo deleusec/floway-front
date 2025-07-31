@@ -76,7 +76,7 @@ export default function SessionMap({ coordinates, height = 140, style }: Session
         {/* Tracé principal */}
         <Polyline
           coordinates={validCoordinates}
-          strokeColor='#FF4757'
+          strokeColor={Colors.primary}
           strokeWidth={4}
           lineJoin='round'
           lineCap='round'
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     left: 30,
     width: 80,
     height: 3,
-    backgroundColor: '#FF4757',
+    backgroundColor: Colors.primary,
     borderRadius: 2,
     transform: [{ rotate: '25deg' }],
   },
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     left: 60,
     width: 60,
     height: 3,
-    backgroundColor: '#FF4757',
+    backgroundColor: Colors.primary,
     borderRadius: 2,
     transform: [{ rotate: '-15deg' }],
   },
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderWidth: 3,
-    borderColor: '#FF4757',
+    borderColor: Colors.primary,
     borderRadius: 15,
   },
   startMarker: {
