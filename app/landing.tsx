@@ -19,7 +19,7 @@ export default function Index() {
           <View style={styles.headerSection}>
             <View style={styles.titleContainer}>
               <Text style={styles.title}>Floway</Text>
-              <Text style={styles.subtitle}>Run your flow, own your way</Text>
+              <Text style={styles.subtitle}>Courez avec les voix qui vous portent.</Text>
             </View>
           </View>
 

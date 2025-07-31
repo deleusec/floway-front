@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   SafeAreaView,
-  Animated,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useRunningSessionStore } from '@/stores/session';
@@ -14,7 +13,6 @@ import Button from '@/components/ui/button';
 import ChallengeCard from '@/components/ui/challenge-card';
 import ValueSelector from '@/components/ui/value-selector';
 import BottomSheet from '@/components/ui/bottom-sheet';
-import SvgX from '@/components/icons/X';
 import { Colors, FontSize, Radius, Spacing } from '@/theme';
 import {useStore} from "@/stores";
 
@@ -270,9 +268,6 @@ export default function StartScreen() {
       <View style={styles.headerWrapper}>
         <View style={styles.header}>
           <Text style={styles.title}>Prêt à partir ?</Text>
-          <TouchableOpacity onPress={() => router.back()}>
-            <SvgX width={24} height={24} color='#444444' />
-          </TouchableOpacity>
         </View>
       </View>
 

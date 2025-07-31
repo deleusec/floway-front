@@ -4,7 +4,6 @@ import {
   Text,
   Image,
   StyleSheet,
-  Alert,
   KeyboardAvoidingView,
   SafeAreaView,
   ScrollView,
@@ -14,9 +13,9 @@ import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'expo-router';
+import Toast from 'react-native-toast-message';
 import {Spacing, Colors, FontSize, Radius} from '@/constants/theme';
 import { useAuth } from '@/stores/auth';
-import InputError from '@/components/ui/input/error';
 import InputLabel from '@/components/ui/input/label';
 import Input from '@/components/ui/input';
 import Button from '@/components/ui/button';
@@ -36,9 +35,8 @@ export default function LoginScreen() {
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = useForm<FormData>({
-    resolver: zodResolver(schema),
     defaultValues: {
       email: '',
       password: '',
@@ -46,11 +44,56 @@ export default function LoginScreen() {
   });
 
   const onSubmit = async (data: FormData) => {
-    const success = await login(data.email, data.password);
-    if (success) {
-      router.replace('/');
-    } else {
-      Alert.alert('Erreur', 'Identifiants invalides');
+    // Validation manuelle avec toasts
+    if (!data.email) {
+      Toast.show({
+        type: 'error',
+        text1: 'Email requis',
+        text2: 'Saisis ton adresse e-mail',
+      });
+      return;
+    }
+    
+    if (!data.email.includes('@')) {
+      Toast.show({
+        type: 'error',
+        text1: 'Email invalide',
+        text2: 'Ton adresse e-mail n’est pas valide',
+      });
+      return;
+    }
+    
+    if (!data.password || data.password.length < 6) {
+      Toast.show({
+        type: 'error',
+        text1: 'Mot de passe invalide',
+        text2: 'Ton mot de passe doit faire au moins 6 caractères',
+      });
+      return;
+    }
+
+    try {
+      const success = await login(data.email, data.password);
+      if (success) {
+        Toast.show({
+          type: 'success',
+          text1: 'Connexion réussie',
+          text2: 'Bienvenue sur Floway !',
+        });
+        router.replace('/');
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Oups !',
+          text2: 'Email ou mot de passe incorrect',
+        });
+      }
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Oups !',
+        text2: 'Impossible de te connecter. Réessaie.',
+      });
     }
   };
 
@@ -87,7 +130,6 @@ export default function LoginScreen() {
                   />
                 )}
               />
-              <InputError message={errors.email?.message} />
             </View>
 
             <View style={styles.field}>
@@ -105,7 +147,6 @@ export default function LoginScreen() {
                   />
                 )}
               />
-              <InputError message={errors.password?.message} />
             </View>
 
             <Button
@@ -114,6 +155,7 @@ export default function LoginScreen() {
               size='large'
               width='full'
               rounded='full'
+              state={isSubmitting ? 'disabled' : 'default'}
               style={{ marginTop: Spacing.lg, marginBottom: Spacing.md }}
             />
 
