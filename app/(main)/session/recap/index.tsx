@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
-  StatusBar,
   ActivityIndicator
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -323,7 +322,6 @@ const SessionSummaryScreen = () => {
   if (isLoadingSession) {
     return (
       <View style={styles.container}>
-        <StatusBar barStyle='dark-content' backgroundColor='white' />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={Colors.primary} />
           <Text style={styles.loadingText}>Chargement du récapitulatif...</Text>
@@ -334,8 +332,6 @@ const SessionSummaryScreen = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle='dark-content' backgroundColor='white' />
-
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.titleContainer}>

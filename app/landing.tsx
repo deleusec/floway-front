@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Text, SafeAreaView, StyleSheet, View, Image, StatusBar } from 'react-native';
+import { Text, SafeAreaView, StyleSheet, View, Image } from 'react-native';
 import React from "react";
 import { Colors, FontSize, Spacing } from "@/theme";
 import Button from "@/components/ui/button";
@@ -7,7 +7,6 @@ import Button from "@/components/ui/button";
 export default function Index() {
   return (
     <>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.background} />
       <SafeAreaView style={styles.container}>
         {/* Image Section */}
           <Image
