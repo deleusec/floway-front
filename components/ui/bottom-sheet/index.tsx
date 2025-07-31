@@ -61,12 +61,15 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
   const translateY = useRef(new Animated.Value(sheetHeight)).current;
   const dragY = useRef(new Animated.Value(0)).current;
 
-  // Pan responder for drag gestures
+  // Pan responder for drag gestures - uniquement sur le handle
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => enableDrag,
       onMoveShouldSetPanResponder: (_, gestureState) => {
-        return enableDrag && Math.abs(gestureState.dy) > 5 && gestureState.dy > 0;
+        const { dy, dx } = gestureState;
+        return enableDrag && 
+               dy > 5 && // Mouvement vers le bas
+               Math.abs(dy) > Math.abs(dx); // Principalement vertical
       },
       onPanResponderGrant: () => {
         setIsDragging(true);
@@ -207,11 +210,13 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
             },
             style,
           ]}
-          {...(enableDrag ? panResponder.panHandlers : {})}
         >
           {/* Handle */}
           {enableDrag && (
-            <View style={styles.handleContainer}>
+            <View 
+              style={styles.handleContainer}
+              {...panResponder.panHandlers} // PanResponder uniquement sur le handle
+            >
               <Animated.View
                 style={[
                   styles.handle,
@@ -261,7 +266,8 @@ const styles = StyleSheet.create({
   },
   handleContainer: {
     alignItems: 'center',
-    paddingVertical: Spacing.md,
+    paddingVertical: Spacing.lg, // Plus de padding pour une zone de touch plus grande
+    paddingHorizontal: Spacing.xl, // Zone tactile plus large horizontalement
   },
   handle: {
     width: 48,

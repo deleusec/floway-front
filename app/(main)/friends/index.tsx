@@ -224,6 +224,17 @@ export default function FriendsScreen() {
                       isRunning={friend.isRunning}
                       size={46}
                       showStatus={true}
+                      onPress={() => {
+                        if (friend.isRunning) {
+                          router.push({
+                            pathname: '/cheer',
+                            params: {
+                              id: String(friend.id),
+                              firstName: friend.first_name,
+                            },
+                          });
+                        }
+                      }}
                     />
                     <View style={styles.friendInfo}>
                       <View style={styles.nameRow}>
@@ -309,7 +320,11 @@ export default function FriendsScreen() {
               autoCapitalize='none'
             />
           </View>
-          <ScrollView style={{ paddingHorizontal: Spacing.lg }}>
+          <ScrollView 
+            style={{ paddingHorizontal: Spacing.lg, paddingVertical: Spacing.lg }}
+            contentContainerStyle={{ paddingBottom: 120 }} // Padding bottom pour voir tous les éléments
+            showsVerticalScrollIndicator={false}
+          >
             {searchResults.length === 0 ? (
               <Text
                 style={{ textAlign: 'center', color: Colors.gray['400'], marginTop: Spacing.xl }}>

@@ -452,7 +452,6 @@ const styles = StyleSheet.create({
   bottomButtonContainer: {
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.lg,
-    paddingBottom: Spacing.xl,
   },
   startButton: {
     width: '100%',

@@ -383,21 +383,6 @@ const SessionSummaryScreen = () => {
           </View>
         </View>
 
-        {/* Achievement */}
-        {displayData.distance > 0 && (
-          <View style={styles.achievement}>
-            <View style={styles.achievementCard}>
-              <Text style={styles.trophy}>🏆</Text>
-              <View style={styles.achievementText}>
-                <Text style={styles.achievementTitle}>Objectif atteint !</Text>
-                <Text style={styles.achievementDesc}>
-                  Tu as réussi à courir {formatDistance(displayData.distance)}
-                </Text>
-              </View>
-            </View>
-          </View>
-        )}
-
         {/* Section Événements */}
         <View style={styles.eventsSection}>
           <Text style={styles.eventsTitle}>Mes flows</Text>
@@ -586,36 +571,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     borderRadius: 15,
   },
-  achievement: {
-    paddingHorizontal: 20,
-    marginBottom: 32,
-    marginTop: 32,
-  },
-  achievementCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFF9E6',
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#F0C814',
-  },
   trophy: {
     fontSize: 32,
     marginRight: 16,
-  },
-  achievementText: {
-    flex: 1,
-  },
-  achievementTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 2,
-  },
-  achievementDesc: {
-    fontSize: 14,
-    color: '#666',
   },
   buttons: {
     flexDirection: 'row',
@@ -686,9 +644,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: Colors.textPrimary,
     marginBottom: Spacing.md,
+    marginTop: Spacing.xl,
   },
   eventsList: {
-    gap: Spacing.sm,
+    gap: 20,
   },
   eventCard: {
     flexDirection: 'row',
@@ -697,7 +656,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
     borderRadius: Radius.md,
-    padding: Spacing.md,
+    padding: 18,
   },
   eventCardClickable: {
     // Style pour les cards audio cliquables
