@@ -3,6 +3,7 @@ import CardMap from '@/components/ui/map';
 import Card from '@/components/ui/card';
 import SessionSkeleton from '@/components/ui/skeleton/session-skeleton';
 import StatsSkeleton from '@/components/ui/skeleton/stats-skeleton';
+import EmptySessionsPlaceholder from '@/components/ui/placeholders/empty-sessions-placeholder';
 import { Spacing, Colors, FontSize } from '@/constants/theme';
 import { useAuth } from '@/stores/auth';
 import { useUserStore } from '@/stores/user';
@@ -110,7 +111,9 @@ export default function MainScreen() {
 
       {/* Content Section */}
       <View style={styles.contentSection}>
-        <Text style={styles.runsTitle}>Mes courses</Text>
+        {sortedSessions.length !== 0 && (
+          <Text style={styles.runsTitle}>Mes courses</Text>
+        )}
         {/* Weekly Summary Section */}
         {isLoadingSessions ? (
           <View style={styles.weeklySummarySection}>
@@ -158,9 +161,7 @@ export default function MainScreen() {
 
         {/* Empty State */}
         {!isLoadingSessions && !error && sortedSessions.length === 0 && (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>Aucune session trouvée</Text>
-          </View>
+          <EmptySessionsPlaceholder />
         )}
 
         {/* Sessions List */}

@@ -3,6 +3,7 @@ import { FlatList, View, StyleSheet, Text } from 'react-native';
 import { Spacing, Colors, FontSize } from '@/constants/theme';
 import FriendStatusAvatar from '../status-avatar';
 import FriendsSkeleton from '@/components/ui/skeleton/friends-skeleton';
+import EmptyFriendsPlaceholder from '@/components/ui/placeholders/empty-friends-placeholder';
 import { useFriendsStore } from '@/stores/friends';
 import { useAuth } from '@/stores/auth';
 import { API_URL } from '@/constants/env';
@@ -25,6 +26,15 @@ export default function FriendsStatusList() {
   // Afficher le skeleton pendant le chargement
   if (isLoading) {
     return <FriendsSkeleton />;
+  }
+
+  // Si aucun ami, afficher le placeholder
+  if (sortedFriends.length === 0) {
+    return (
+      <View style={styles.listContainer}>
+        <EmptyFriendsPlaceholder />
+      </View>
+    );
   }
 
   return (
