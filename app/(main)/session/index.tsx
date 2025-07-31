@@ -11,7 +11,6 @@ import {
 import { useRouter } from 'expo-router';
 import { useRunningSessionStore } from '@/stores/session';
 import { useAuth } from '@/stores/auth';
-import { useSpeechManager } from '@/hooks/useSpeechManager';
 import { useLocationTracking } from '@/hooks/useLocationTracking';
 import { useSessionAnimations } from '@/hooks/useSessionAnimations';
 import { FreeMap } from '@/components/ui/map/session-map';
@@ -40,7 +39,6 @@ export default function SessionScreen() {
     sendInternalEvent,
   } = useRunningSessionStore();
   const { user, token } = useAuth();
-  const { speakInternal } = useSpeechManager();
   const lastAnnouncedKm = useRef(0);
 
   // États locaux
@@ -73,7 +71,6 @@ export default function SessionScreen() {
       router.replace('/session/start');
     } else if (session.isActive) {
       const startMessage = 'Début de la séance';
-      speakInternal(startMessage);
       // Envoyer l'événement interne pour le début de session
       sendInternalEvent(startMessage);
     }
@@ -125,8 +122,6 @@ export default function SessionScreen() {
 
       const kmMessage = `${currentKm} kilomètres parcourus. Allure moyenne : ${paceMinutes} minutes et ${paceSeconds} secondes au kilomètre.`;
       
-      speakInternal(kmMessage);
-
       // Envoyer l'événement interne pour les annonces de kilomètres
       sendInternalEvent(kmMessage);
 

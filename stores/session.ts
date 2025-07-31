@@ -262,7 +262,7 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
-      });    
+      }); 
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -275,8 +275,7 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
       }
 
       const data = await response.json();
-
-      console.log('data', data.id, data);
+      console.log('✅ [getUserSession] Données récupérées:', data.id, data);
 
       return data || null;
     } catch (error) {
@@ -416,6 +415,7 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
       if (pendingLocations.length === 0) return;
 
       const payload = _makeSessionPayload(session, userId, pendingLocations);
+      console.log(payload)
       try {
         const response = await fetch('https://node.floway.edgar-lecomte.fr/auth/session', {
           method: 'POST',
@@ -425,7 +425,16 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
           },
           body: JSON.stringify(payload),
         });
-        await response.json();
+        let res = await response.json();
+        const sessionId = res.data?.sessionId;
+        if (sessionId) {
+          set(state => ({
+            session: {
+              ...state.session,
+              id: sessionId,
+            },
+          }));
+        }
 
         set({ pendingLocations: [] });
       } catch (error) {
