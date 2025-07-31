@@ -201,6 +201,9 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
         body: JSON.stringify(payload),
       });
       const responseData = await response.json();
+
+      console.log('session', responseData);
+
       if (!response.ok) {
         throw new Error(`Failed to save session: ${responseData?.message || 'Unknown error'}`);
       }
@@ -273,7 +276,7 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
 
       const data = await response.json();
 
-      console.log('data', data);
+      console.log('data', data.id, data);
 
       return data || null;
     } catch (error) {
@@ -423,6 +426,7 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
           body: JSON.stringify(payload),
         });
         await response.json();
+
         set({ pendingLocations: [] });
       } catch (error) {
         // Optionnel : gestion d'erreur

@@ -1,10 +1,7 @@
 import mqtt, { MqttClient } from 'mqtt';
 import { useAuth } from '@/stores/auth';
 import { IEvent } from '@/types';
-import { NODE_URL } from '@/constants/env';
-import { Audio } from 'expo-av';
-import * as Speech from 'expo-speech';
-import * as FileSystem from 'expo-file-system';
+import { audioManager } from './audioManager';
 
 class MQTTService {
   private client: MqttClient | null = null;
@@ -179,94 +176,19 @@ class MQTTService {
   }
 
   /**
-   * Makes the device speak the provided text
+   * Makes the device speak the provided text via the audio manager
    */
   private speakText(text: string): void {
-    console.log('🗣️ Lecture vocale:', text);
-    Speech.speak(text, {
-      language: 'fr-FR',
-      onDone: () => {
-        console.log('✅ Lecture vocale terminée');
-      },
-      onError: (error) => {
-        console.error('❌ Erreur lors de la lecture vocale:', error);
-      }
-    });
+    console.log('🗣️ MQTT - Demande de lecture vocale:', text);
+    audioManager.speakText(text, 'normal');
   }
 
   /**
-   * Downloads and plays audio from the API
+   * Plays audio via the audio manager
    */
   private async playAudio(audioName: string): Promise<void> {
-    try {
-      console.log('🎵 Téléchargement de l\'audio:', audioName);
-      
-      const { token } = useAuth.getState();
-      if (!token) {
-        console.error('❌ Token d\'authentification manquant pour l\'audio');
-        return;
-      }
-
-      const response = await fetch(`${NODE_URL}/auth/audio/${audioName}?authorization=${token}`, {
-        method: 'GET',
-      });
-
-      if (!response.ok) {
-        console.error('❌ Erreur lors du téléchargement de l\'audio:', response.status);
-        return;
-      }
-
-      // Approche simplifiée : Utiliser directement l'ArrayBuffer
-      const audioArrayBuffer = await response.arrayBuffer();
-      
-      // Créer un nom de fichier temporaire avec la bonne extension
-      const fileExtension = audioName.split('.').pop() || 'm4a';
-      const tempFileName = `temp_audio_${Date.now()}.${fileExtension}`;
-      const tempUri = `${FileSystem.documentDirectory}${tempFileName}`;
-      
-      console.log('🎵 Création fichier temporaire:', tempFileName);
-      
-      try {
-        // Convertir ArrayBuffer en base64
-        const binary = new Uint8Array(audioArrayBuffer);
-        let base64String = '';
-        for (let i = 0; i < binary.length; i++) {
-          base64String += String.fromCharCode(binary[i]);
-        }
-        const base64Data = btoa(base64String);
-        
-        // Écrire le fichier temporaire
-        await FileSystem.writeAsStringAsync(tempUri, base64Data, {
-          encoding: FileSystem.EncodingType.Base64,
-        });
-        
-        console.log('🎵 Fichier audio temporaire créé:', tempUri);
-        
-        // Charger et jouer l'audio
-        const { sound } = await Audio.Sound.createAsync(
-          { uri: tempUri },
-          { shouldPlay: true }
-        );
-
-        console.log('🎵 Lecture de l\'audio en cours');
-
-        // Nettoyer après la lecture
-        sound.setOnPlaybackStatusUpdate((status) => {
-          if (status.isLoaded && status.didJustFinish) {
-            console.log('✅ Lecture audio terminée');
-            sound.unloadAsync();
-            // Supprimer le fichier temporaire
-            FileSystem.deleteAsync(tempUri).catch(console.error);
-          }
-        });
-        
-      } catch (fileError) {
-        console.error('❌ Erreur lors de la création du fichier temporaire:', fileError);
-      }
-
-    } catch (error) {
-      console.error('❌ Erreur lors de la lecture audio:', error);
-    }
+    console.log('🎵 MQTT - Demande de lecture audio:', audioName);
+    audioManager.playAudio(audioName, 'normal');
   }
 
   /**

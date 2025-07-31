@@ -18,15 +18,15 @@ import SvgEdit from '@/components/icons/Edit';
 import SvgPlayIcon from '@/components/icons/PlayIcon';
 import SvgUsersIcon from '@/components/icons/UsersIcon';
 import SvgFlowayIcon from '@/components/icons/FlowayIcon';
+import { useSpeechManager } from '@/hooks/useSpeechManager';
 import { paceToSpeed } from '@/utils/calculations';
 import SessionMap from '@/components/ui/session-map';
 import {useStore} from "@/stores";
 import {Ionicons} from "@expo/vector-icons";
 import Button from "@/components/ui/button";
-import { Audio } from 'expo-av';
-import * as FileSystem from 'expo-file-system';
 
-const NODE_URL = 'https://node.floway.edgar-lecomte.fr';
+
+
 
 // Types pour les événements
 interface EventFriend {
@@ -48,6 +48,7 @@ const SessionSummaryScreen = () => {
   const { sessionData, sessionId } = useLocalSearchParams<{ sessionData?: string, sessionId?: string }>();
   const { user, token } = useAuth();
   const { setBackgroundColor } = useStore()
+  const { playAudio } = useSpeechManager();
 
   const { session, updateSessionTitle, deleteSession, getUserSession, isLoading } =
     useRunningSessionStore();
@@ -58,18 +59,13 @@ const SessionSummaryScreen = () => {
   const [isLoadingSession, setIsLoadingSession] = useState(false);
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
   const [loadingAudio, setLoadingAudio] = useState<string | null>(null);
-  const [currentSound, setCurrentSound] = useState<Audio.Sound | null>(null);
+
 
   useEffect(() => {
     setBackgroundColor(Colors.white)
     
-    // Nettoyer l'audio quand on quitte la page
-    return () => {
-      if (currentSound) {
-        currentSound.unloadAsync().catch(console.error);
-      }
-    };
-  }, [currentSound]);
+    // Plus besoin de nettoyer manuellement avec le gestionnaire unifié
+  }, []);
 
   useEffect(() => {
     const loadData = async () => {
@@ -231,102 +227,33 @@ const SessionSummaryScreen = () => {
   // Ajouter les événements depuis l'API si disponibles
   const sessionEvents = displayData.events || [];
 
-  // Fonction pour lire un fichier audio
-  const playAudio = async (audioName: string) => {
-    try {
-      console.log('🎵 Téléchargement de l\'audio:', audioName);
-      
-      if (!token) {
-        console.error('❌ Token d\'authentification manquant pour l\'audio');
-        return;
-      }
-
-      // Si un audio est déjà en cours, l'arrêter d'abord
-      if (currentSound) {
-        await stopAudio();
-      }
-
-      setLoadingAudio(audioName);
-
-      const response = await fetch(`${NODE_URL}/auth/audio/${audioName}?authorization=${token}`, {
-        method: 'GET',
-      });
-
-      if (!response.ok) {
-        console.error('❌ Erreur lors du téléchargement de l\'audio:', response.status);
-        setLoadingAudio(null);
-        return;
-      }
-
-      // Télécharger l'audio
-      const audioArrayBuffer = await response.arrayBuffer();
-      
-      // Créer un fichier temporaire
-      const fileExtension = audioName.split('.').pop() || 'm4a';
-      const tempFileName = `temp_audio_${Date.now()}.${fileExtension}`;
-      const tempUri = `${FileSystem.documentDirectory}${tempFileName}`;
-      
-      console.log('🎵 Création fichier temporaire:', tempFileName);
-      
-      // Convertir ArrayBuffer en base64
-      const binary = new Uint8Array(audioArrayBuffer);
-      let base64String = '';
-      for (let i = 0; i < binary.length; i++) {
-        base64String += String.fromCharCode(binary[i]);
-      }
-      const base64Data = btoa(base64String);
-      
-      // Écrire le fichier temporaire
-      await FileSystem.writeAsStringAsync(tempUri, base64Data, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
-      
-      console.log('🎵 Fichier audio temporaire créé:', tempUri);
-      
-      // Charger et jouer l'audio
-      const { sound } = await Audio.Sound.createAsync(
-        { uri: tempUri },
-        { shouldPlay: true }
-      );
-
-      setCurrentSound(sound);
+  // Fonction pour lire un fichier audio via le gestionnaire unifié
+  const playAudioFile = async (audioName: string) => {
+    console.log('🎵 Recap - Demande de lecture audio:', audioName);
+    
+    // Utiliser le gestionnaire audio unifié avec priorité normale
+    playAudio(audioName, 'normal');
+    
+    // Pour les indicateurs visuels dans le recap, on simule les états
+    setLoadingAudio(audioName);
+    
+    // Simuler un délai pour l'indicateur de chargement
+    setTimeout(() => {
       setLoadingAudio(null);
       setPlayingAudio(audioName);
-      console.log('🎵 Lecture de l\'audio en cours');
-
-      // Nettoyer après la lecture
-      sound.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && status.didJustFinish) {
-          console.log('✅ Lecture audio terminée');
-          setPlayingAudio(null);
-          setCurrentSound(null);
-          sound.unloadAsync();
-          // Supprimer le fichier temporaire
-          FileSystem.deleteAsync(tempUri).catch(console.error);
-        }
-      });
       
-    } catch (error) {
-      console.error('❌ Erreur lors de la lecture audio:', error);
-      setLoadingAudio(null);
-      setPlayingAudio(null);
-      setCurrentSound(null);
-    }
+      // Réinitialiser l'état après un délai (estimation)
+      setTimeout(() => {
+        setPlayingAudio(null);
+      }, 5000); // 5 secondes par défaut, peut être ajusté
+    }, 1000);
   };
 
-  // Fonction pour arrêter l'audio
+  // Fonction pour arrêter l'audio (pas nécessaire avec le gestionnaire unifié)
   const stopAudio = async () => {
-    if (currentSound) {
-      try {
-        await currentSound.stopAsync();
-        await currentSound.unloadAsync();
-        setCurrentSound(null);
-        setPlayingAudio(null);
-        console.log('🛑 Audio arrêté');
-      } catch (error) {
-        console.error('❌ Erreur lors de l\'arrêt de l\'audio:', error);
-      }
-    }
+    console.log('🛑 Recap - Arrêt audio demandé');
+    setPlayingAudio(null);
+    setLoadingAudio(null);
   };
 
   // Fonction pour gérer le clic sur une card audio
@@ -336,7 +263,7 @@ const SessionSummaryScreen = () => {
       await stopAudio();
     } else {
       // Sinon, le lire
-      await playAudio(audioName);
+      await playAudioFile(audioName);
     }
   };
 

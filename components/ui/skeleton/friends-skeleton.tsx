@@ -46,8 +46,7 @@ const FriendsSkeleton: React.FC = () => {
 
 const styles = StyleSheet.create({
   listContainer: {
-    paddingVertical: Spacing.xs,
-    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.xs
   },
   itemWrapper: {
     marginLeft: Spacing.lg,

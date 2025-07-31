@@ -40,7 +40,7 @@ export default function SessionScreen() {
     sendInternalEvent,
   } = useRunningSessionStore();
   const { user, token } = useAuth();
-  const { speak } = useSpeechManager();
+  const { speakInternal } = useSpeechManager();
   const lastAnnouncedKm = useRef(0);
 
   // États locaux
@@ -73,11 +73,7 @@ export default function SessionScreen() {
       router.replace('/session/start');
     } else if (session.isActive) {
       const startMessage = 'Début de la séance';
-      speak({
-        type: 'info',
-        text: startMessage,
-        priority: 1,
-      });
+      speakInternal(startMessage);
       // Envoyer l'événement interne pour le début de session
       sendInternalEvent(startMessage);
     }
@@ -129,11 +125,7 @@ export default function SessionScreen() {
 
       const kmMessage = `${currentKm} kilomètres parcourus. Allure moyenne : ${paceMinutes} minutes et ${paceSeconds} secondes au kilomètre.`;
       
-      speak({
-        type: 'info',
-        text: kmMessage,
-        priority: 2,
-      });
+      speakInternal(kmMessage);
 
       // Envoyer l'événement interne pour les annonces de kilomètres
       sendInternalEvent(kmMessage);

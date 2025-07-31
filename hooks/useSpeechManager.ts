@@ -1,71 +1,63 @@
-import { useRef, useCallback } from 'react';
-import * as Speech from 'expo-speech';
-
-type SpeechMessage = {
-  type: 'info' | 'motivation' | 'alert';
-  text: string;
-  priority?: number;
-};
+import { useCallback, useState, useEffect } from 'react';
+import { audioManager } from '@/services/audioManager';
 
 export function useSpeechManager() {
-  const queue = useRef<SpeechMessage[]>([]);
-  const isSpeaking = useRef(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [queueLength, setQueueLength] = useState(0);
 
-  // Lance la lecture d'un message
-  const speak = useCallback((message: SpeechMessage) => {
-    console.log('Speech manager received message:', message);
-    queue.current.push(message);
-    processQueue();
+  // Mettre à jour l'état depuis le gestionnaire global
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsPlaying(audioManager.playing);
+      setQueueLength(audioManager.queueLength);
+    }, 100);
+
+    return () => clearInterval(interval);
   }, []);
 
-  // Traite la file d'attente
-  const processQueue = useCallback(() => {
-    if (isSpeaking.current || queue.current.length === 0) return;
-    const next = queue.current.shift();
-    if (!next) return;
-
-    console.log('Processing speech queue, speaking:', next.text);
-    isSpeaking.current = true;
-
-    Speech.speak(next.text, {
-      language: 'fr-FR',
-      onDone: () => {
-        console.log('Speech completed');
-        isSpeaking.current = false;
-        processQueue();
-      },
-      onStopped: () => {
-        console.log('Speech stopped');
-        isSpeaking.current = false;
-        processQueue();
-      },
-      onError: (error) => {
-        console.error('Speech error:', error);
-        isSpeaking.current = false;
-        processQueue();
-      }
-    });
+  // Méthodes publiques simplifiées
+  const speakText = useCallback((text: string, priority: 'high' | 'normal' | 'low' = 'normal') => {
+    audioManager.speakText(text, priority);
   }, []);
 
-  // Stoppe la lecture en cours et vide la file
-  const stop = useCallback(() => {
-    console.log('Stopping speech');
-    Speech.stop();
-    isSpeaking.current = false;
-    queue.current = [];
+  const playAudio = useCallback((audioName: string, priority: 'high' | 'normal' | 'low' = 'normal') => {
+    audioManager.playAudio(audioName, priority);
   }, []);
 
-  // Vide la file d'attente (sans stopper la lecture en cours)
+  const speakInternal = useCallback((text: string) => {
+    audioManager.speakInternal(text);
+  }, []);
+
+  // Contrôles
+  const stop = useCallback(async () => {
+    await audioManager.stop();
+  }, []);
+
   const clearQueue = useCallback(() => {
-    console.log('Clearing speech queue');
-    queue.current = [];
+    audioManager.clearQueue();
   }, []);
+
+  // Méthode legacy pour compatibilité
+  const speak = useCallback((message: { type: string; text: string; priority?: number }) => {
+    const priority = message.priority === 1 ? 'high' : 'normal';
+    speakText(message.text, priority);
+  }, [speakText]);
 
   return {
-    speak,
+    // Nouvelles méthodes unifiées
+    speakText,
+    playAudio,
+    speakInternal,
+    
+    // Contrôles
     stop,
     clearQueue,
-    isSpeaking: isSpeaking.current,
-    queue: queue.current,
+    
+    // État
+    isPlaying,
+    queueLength,
+    
+    // Méthode legacy pour compatibilité
+    speak,
   };
 }
