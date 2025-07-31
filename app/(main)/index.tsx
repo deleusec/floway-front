@@ -185,8 +185,8 @@ export default function MainScreen() {
                       router.push({
                         pathname: '/session/recap',
                         params: {
-                          sessionData: JSON.stringify(session),
-                          sessionId: session.id
+                          sessionId: session.id,
+                          from: 'main'
                         }
                       });
                     }}

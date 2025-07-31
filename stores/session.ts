@@ -48,7 +48,7 @@ interface SessionStore {
   updateLocation: (location: LocationPoint) => void;
   saveSession: (authToken: string, userId: number) => Promise<void>;
   fetchUserSessions: (authToken: string, userId: number) => Promise<void>;
-  getUserSession: (authToken: string, sessionId: number) => Promise<RunningSession | null>;
+  getUserSession: (authToken: string, sessionId: string) => Promise<RunningSession | null>;
   deleteSession: (authToken: string, sessionId: number) => Promise<void>;
   updateSessionTitle: (newTitle: string, authToken: string) => Promise<void>;
   sendInternalEvent: (textContent: string) => Promise<void>;
@@ -254,7 +254,7 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
     }
   },
 
-  getUserSession: async (authToken: string, sessionId: number) => {
+  getUserSession: async (authToken: string, sessionId: string) => {
     try {
       const url = `https://node.floway.edgar-lecomte.fr/auth/session/${sessionId}`;
 
@@ -275,7 +275,6 @@ export const useRunningSessionStore = create<SessionStore>((set, get) => ({
       }
 
       const data = await response.json();
-      console.log('✅ [getUserSession] Données récupérées:', data.id, data);
 
       return data || null;
     } catch (error) {

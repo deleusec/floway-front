@@ -203,7 +203,8 @@ export default function SessionScreen() {
             router.replace({
               pathname: '/session/recap',
               params: {
-                sessionId: session.id
+                sessionId: session.id,
+                from: 'session'
               }
             });
           } catch (error) {

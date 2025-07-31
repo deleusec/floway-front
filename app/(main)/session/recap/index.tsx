@@ -25,9 +25,6 @@ import {useStore} from "@/stores";
 import {Ionicons} from "@expo/vector-icons";
 import Button from "@/components/ui/button";
 
-
-
-
 // Types pour les événements
 interface EventFriend {
   id: number;
@@ -45,7 +42,7 @@ interface IEvent {
 
 const SessionSummaryScreen = () => {
   const router = useRouter();
-  const { sessionData, sessionId } = useLocalSearchParams<{ sessionData?: string, sessionId?: string }>();
+  const { sessionId, from } = useLocalSearchParams<{ sessionId?: string, from?: string }>();
   const { user, token } = useAuth();
   const { setBackgroundColor } = useStore()
   const { playAudio } = useSpeechManager();
@@ -72,64 +69,17 @@ const SessionSummaryScreen = () => {
       setIsLoadingSession(true);
       
       try {
-        if (sessionData) {
-          // Mode historique : données passées en paramètre depuis la liste des sessions
-          try {
-            const parsedSessionData = JSON.parse(sessionData);
-            // Récupérer les données fraîches depuis l'API si on a un ID
-            if (parsedSessionData.id && user && token) {
-              console.log('🔄 Récupération données fraîches pour session historique:', parsedSessionData.id);
-              const data = await getUserSession(token, parsedSessionData.id);
-              if (data) {
-                setLastSession(data);
-                setEditedTitle(data.title || parsedSessionData.title);
-              } else {
-                // Fallback sur les données passées en paramètre
-                setLastSession(parsedSessionData);
-                setEditedTitle(parsedSessionData.title || session.title);
-              }
-            } else {
-              // Pas d'ID, utiliser les données passées en paramètre
-              setLastSession(parsedSessionData);
-              setEditedTitle(parsedSessionData.title || session.title);
-            }
-          } catch (error) {
-            console.error('❌ Erreur parsing session data:', error);
+        if (token && sessionId) {
+          console.log('ici 1', sessionId)
+          const data = await getUserSession(token, sessionId);
+          if (data) {
+            console.log('ici 2', data)
+            setLastSession(data);
+            setEditedTitle(data.title || session.title);
+          } else {
+            console.log('ici 3')
             setEditedTitle(session.title);
           }
-        } else if (sessionId && user && token) {
-          // Mode fin de session : récupérer les données avec l'ID de session
-          try {
-            console.log('🔄 Récupération session avec ID:', sessionId);
-            const data = await getUserSession(token, parseInt(sessionId));
-            if (data) {
-              setLastSession(data);
-              setEditedTitle(data.title || session.title);
-            } else {
-              // Fallback sur les données de session locale
-              setEditedTitle(session.title);
-            }
-          } catch (error) {
-            console.error('❌ Erreur chargement session:', error);
-            setEditedTitle(session.title);
-          }
-        } else if (user && token && session.id) {
-          // Fallback : utiliser l'ID de session courante
-          try {
-            const data = await getUserSession(token, Number(session.id));
-            if (data) {
-              setLastSession(data);
-              setEditedTitle(data.title || session.title);
-            } else {
-              setEditedTitle(session.title);
-            }
-          } catch (error) {
-            console.error('❌ Erreur chargement session fallback:', error);
-            setEditedTitle(session.title);
-          }
-        } else {
-          // Pas de données à charger, utiliser les données locales
-          setEditedTitle(session.title);
         }
       } finally {
         setIsLoadingSession(false);
@@ -137,7 +87,7 @@ const SessionSummaryScreen = () => {
     };
     
     loadData();
-  }, [user, token, sessionData, sessionId, session.id]);
+  }, [user, token, sessionId, session.id]);
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -470,7 +420,7 @@ const SessionSummaryScreen = () => {
 
       {/* Boutons */}
       <View style={styles.buttons}>
-        {sessionData ? (
+        { from === 'main' ? (
           <>
             {/* Mode historique : seulement le bouton supprimer */}
             <Button
