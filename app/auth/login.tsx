@@ -63,11 +63,11 @@ export default function LoginScreen() {
       return;
     }
     
-    if (!data.password || data.password.length < 6) {
+    if (!data.password) {
       Toast.show({
         type: 'error',
         text1: 'Mot de passe invalide',
-        text2: 'Ton mot de passe doit faire au moins 6 caractères',
+        text2: 'Saisis ton mot de passe',
       });
       return;
     }
