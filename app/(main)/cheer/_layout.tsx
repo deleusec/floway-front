@@ -6,6 +6,7 @@ import { useCheerStore } from '@/stores/cheer';
 import { router, Slot, useLocalSearchParams } from 'expo-router';
 import { useEffect } from 'react';
 import { SafeAreaView, StyleSheet, Alert } from 'react-native';
+import Toast from 'react-native-toast-message';
 
 export default function CheerLayout() {
   const params = useLocalSearchParams<{ firstName?: string }>();
@@ -89,10 +90,18 @@ export default function CheerLayout() {
         }
       }
 
+      // Afficher un toast de succès
+      Toast.show({
+        type: 'success',
+        text1: 'Flow envoyé !',
+        text2: 'Ton message d\'encouragement a été envoyé',
+      });
+
+      // Vider les sélections
+      reset();
+
       // Retourner à l'écran principal après envoi
-      Alert.alert('Succès', 'Message envoyé !', [
-        { text: 'OK', onPress: () => router.push('/') }
-      ]);
+      router.push('/');
       
     } catch (error) {
       console.error('Erreur lors de l\'envoi:', error);
